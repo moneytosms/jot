@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="100%" role="img" aria-labelledby="title desc">
+  <title id="title">jot</title>
+  <desc id="desc">Three overlapping day cards labeled with dated Markdown filenames beside the jot title and the tagline for a terminal journal.</desc>
+  <style>
+    :root {
+      --card: #ffffff;
+      --stroke: #d0d7de;
+      --text: #24292f;
+      --muted: #57606a;
+      --accent: #2f6f4e;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --card: #161b22;
+        --stroke: #30363d;
+        --text: #e6edf3;
+        --muted: #8b949e;
+        --accent: #56d364;
+      }
+    }
+    :root[data-theme="dark"] {
+      --card: #161b22;
+      --stroke: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #56d364;
+    }
+    .card { fill: var(--card); stroke: var(--stroke); stroke-width: 2; }
+    .name { fill: var(--muted); }
+    .title { fill: var(--text); }
+    .tagline { fill: var(--muted); }
+    .line { fill: var(--stroke); }
+    .accent { fill: var(--accent); }
+  </style>
+  <!-- back cards -->
+  <rect class="card" x="760" y="50" width="300" height="190" rx="12"/>
+  <text class="name" x="790" y="90" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">2026-11-08.md</text>
+  <rect class="card" x="800" y="90" width="300" height="190" rx="12"/>
+  <text class="name" x="830" y="130" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">2026-11-09.md</text>
+  <!-- front card -->
+  <rect class="card" x="840" y="130" width="300" height="190" rx="12"/>
+  <text class="name" x="870" y="170" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">2026-11-10.md</text>
+  <rect class="line" x="870" y="195" width="200" height="8" rx="4"/>
+  <rect class="line" x="870" y="218" width="240" height="8" rx="4"/>
+  <rect class="line" x="870" y="241" width="150" height="8" rx="4"/>
+  <rect class="accent" x="870" y="266" width="10" height="20"/>
+  <!-- title and tagline -->
+  <text class="title" x="80" y="165" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="104" font-weight="700">jot</text>
+  <text class="tagline" x="84" y="222" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="26">A terminal journal. One plain Markdown file per day.</text>
+</svg>

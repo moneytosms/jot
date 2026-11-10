@@ -1,0 +1,15 @@
+# Build output
+/bin/
+/dist/
+*.test
+jot-export/
+*.tar.gz
+jot-test
+
+# Editor and OS noise
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+.remember/
