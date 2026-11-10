@@ -53,9 +53,19 @@ shipped the parser rewrite
 
 ## Install
 
-jot is built from source. You need **Go 1.22 or newer** ([download](https://go.dev/dl/)).
+### Quick install (Linux and macOS)
 
-### Recommended: `install.sh`
+```sh
+curl -fsSL https://raw.githubusercontent.com/moneytosms/jot/main/install-release.sh | sh
+```
+
+Downloads the release binary for your OS and architecture, verifies it against `SHA256SUMS`, and installs it to `~/.local/bin` (override with `JOT_INSTALL_DIR`).
+
+To pin a version, set `JOT_VERSION`, e.g. `JOT_VERSION=v0.1.0 sh`. Windows users: download `jot-windows-amd64.exe` from the [release page](https://github.com/moneytosms/jot/releases/tag/v0.1.0).
+
+The options below build jot from source. You need **Go 1.22 or newer** ([download](https://go.dev/dl/)).
+
+### Build from source: `install.sh`
 
 From a checkout of this repository:
 
@@ -70,7 +80,7 @@ The script builds with the version from `git describe` when available, copies th
 binary into place, and prints the line to add to your shell configuration if the
 install directory is not on `PATH`. Run `./install.sh --help` for all options.
 
-### `go install`
+### Alternative: `go install`
 
 ```sh
 go install github.com/moneytosms/jot/cmd/jot@latest
@@ -79,7 +89,7 @@ go install github.com/moneytosms/jot/cmd/jot@latest
 The binary is placed in the Go bin directory (`go env GOBIN`, or
 `$(go env GOPATH)/bin` when `GOBIN` is unset). That directory must be on `PATH`.
 
-### Make
+### Alternative: Make
 
 ```sh
 cd jot
