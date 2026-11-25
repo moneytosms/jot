@@ -2,7 +2,6 @@ package jot
 
 import (
 	"bufio"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -81,7 +80,7 @@ func sortTodos(items []TodoItem) {
 // scanDayTodos collects checkbox items from one day file, tracking the current
 // entry heading so each item can name its time.
 func scanDayTodos(journal, day, path string) ([]TodoItem, error) {
-	f, err := os.Open(path)
+	f, err := openDayFile(path)
 	if err != nil {
 		return nil, err
 	}

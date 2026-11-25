@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/moneytosms/jot"
@@ -15,7 +16,7 @@ import (
 // `jot ls` so the two stay in step.
 func (a *app) journalCmd(args []string) error {
 	if len(args) == 0 {
-		return errors.New("usage: jot journal <new|rm|rename|ls> [arguments] (see `jot help journal`)")
+		return errors.New("usage: jot journal <new|rm|rename|ls|encrypt|decrypt|archives|restore> [arguments] (see `jot help journal`)")
 	}
 	switch args[0] {
 	case "-h", "--help":
@@ -34,8 +35,48 @@ func (a *app) journalCmd(args []string) error {
 		return a.journalRename(j, args[1:])
 	case "ls":
 		return a.lsCmd(args[1:])
+	case "encrypt", "decrypt":
+		if len(args) < 2 {
+			return fmt.Errorf("usage: jot journal %s NAME", args[0])
+		}
+		on := args[0] == "encrypt"
+		n, err := j.SetEncrypted(args[1], on)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintf(a.out, "%sed %d %s in %s\n", args[0], n, plural(n, "day", "days"), jot.SanitizeName(args[1]))
+		if on {
+			fmt.Fprintf(a.out, "key: %s (back it up: without it this journal cannot be read)\n", jot.KeyPath())
+		}
+		return nil
+	case "archives":
+		list, err := j.Archives()
+		if err != nil {
+			return err
+		}
+		if len(list) == 0 {
+			fmt.Fprintln(a.out, "no archives in "+filepath.Join(j.Root(), "backups"))
+		}
+		for _, ar := range list {
+			fmt.Fprintf(a.out, "%s  %s\n", ar.Modified.Format("2006-01-02 15:04"), ar.Path)
+		}
+		return nil
+	case "restore":
+		if len(args) < 2 {
+			return errors.New("usage: jot journal restore ARCHIVE (see `jot journal archives`)")
+		}
+		path := args[1]
+		if !strings.Contains(path, string(filepath.Separator)) {
+			path = filepath.Join(j.Root(), "backups", path)
+		}
+		names, err := j.RestoreArchive(path)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintf(a.out, "restored %s\n", strings.Join(names, ", "))
+		return nil
 	default:
-		return fmt.Errorf("unknown journal command %q; use new, rm, rename or ls", args[0])
+		return fmt.Errorf("unknown journal command %q; use new, rm, rename, ls, encrypt, decrypt, archives or restore", args[0])
 	}
 }
 

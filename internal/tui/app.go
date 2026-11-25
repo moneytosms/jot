@@ -3,7 +3,6 @@ package tui
 import (
 	"errors"
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -257,22 +256,20 @@ func editorCmd(j *jot.Jot, editor, journal string, day time.Time) tea.Cmd {
 		if _, err := j.EnsureJournal(journal); err != nil {
 			return errMsg{err}
 		}
-		path := filepath.Join(j.Root(), journal, label+".md")
-		// Create the day file first: some editors refuse to open a path that
-		// does not exist yet, and jot edit has always behaved this way.
-		if _, statErr := os.Stat(path); os.IsNotExist(statErr) {
-			f, createErr := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0o600)
-			if createErr != nil {
-				return errMsg{fmt.Errorf("creating %s: %w", path, createErr)}
-			}
-			if closeErr := f.Close(); closeErr != nil {
-				return errMsg{fmt.Errorf("creating %s: %w", path, closeErr)}
-			}
+		// EditFile creates (and seeds) the day file first: some editors refuse
+		// a path that does not exist; encrypted days open as a private temp file.
+		path, finish, err := j.EditFile(journal, label)
+		if err != nil {
+			return errMsg{err}
 		}
 		c := shellEditor(editor, path)
 		return tea.ExecProcess(c, func(err error) tea.Msg {
+			finishErr := finish()
 			if err != nil {
 				return errMsg{fmt.Errorf("editor: %w", err)}
+			}
+			if finishErr != nil {
+				return errMsg{finishErr}
 			}
 			return load(j, journal, firstOfMonth(day), day)
 		})()

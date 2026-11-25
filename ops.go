@@ -34,33 +34,16 @@ func DefaultInstallDir() string {
 
 // Edit opens a journal day in the user's editor, creating the file if needed.
 func (j *Jot) Edit(name, day string, in io.Reader, out, errw io.Writer) error {
-	label, err := ParseDay(day)
-	if err != nil {
-		return err
-	}
-	if err := j.checkJournal(name); err != nil {
-		return err
-	}
-	path := filepath.Join(j.root, j.journalName(name), label+".md")
-	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
-		return err
-	}
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0o600)
-		if err != nil {
-			return err
-		}
-		if err := f.Close(); err != nil {
-			return err
-		}
-	}
-
 	editor := strings.TrimSpace(j.cfg.Editor)
 	if editor == "" {
 		editor = DetectEditor()
 	}
 	if editor == "" {
 		return fmt.Errorf("no editor found: set %s or $EDITOR", EnvEditor)
+	}
+	path, finish, err := j.EditFile(name, day)
+	if err != nil {
+		return err
 	}
 	fields := strings.Fields(editor)
 	args := append(fields[1:], path)
@@ -69,9 +52,10 @@ func (j *Jot) Edit(name, day string, in io.Reader, out, errw io.Writer) error {
 	cmd.Stdout = out
 	cmd.Stderr = errw
 	if err := cmd.Run(); err != nil {
+		finish() // still re-encrypt or clean up whatever was saved
 		return fmt.Errorf("running editor %s: %w", fields[0], err)
 	}
-	return nil
+	return finish()
 }
 
 // DetectEditor picks an editor from the environment, then from PATH.
@@ -122,7 +106,7 @@ func (j *Jot) Watch(ctx context.Context, name string, w io.Writer, poll time.Dur
 			report("--- %s/%s.md ---\n", name, day)
 		}
 		path := filepath.Join(dir, day+".md")
-		data, err := os.ReadFile(path)
+		data, err := readDayFile(path)
 		switch {
 		case err == nil:
 			if int64(len(data)) < offset {
@@ -175,7 +159,7 @@ func (j *Jot) Backup(dir string) (string, error) {
 			}
 			return nil
 		}
-		if !strings.HasSuffix(info.Name(), ".md") {
+		if n := info.Name(); !strings.HasSuffix(n, ".md") && n != encryptedMarker && n != templateName {
 			return nil
 		}
 		rel, err := filepath.Rel(j.root, path)
@@ -462,6 +446,28 @@ func (j *Jot) Doctor() []Check {
 			add("editor", "fail", editor+" is not executable")
 		} else {
 			add("editor", "ok", editor)
+		}
+	}
+
+	// Encryption key, only when some journal is encrypted.
+	for _, info := range infos {
+		if !j.IsEncrypted(info.Name) {
+			continue
+		}
+		if _, err := loadKey(false); err != nil {
+			add("encryption", "fail", info.Name+" is encrypted but the key is unreadable: "+err.Error())
+		} else {
+			add("encryption", "ok", "key "+KeyPath()+" (keep a backup)")
+		}
+		break
+	}
+
+	// Git sync.
+	if j.cfg.Git == GitCommit || j.cfg.Git == GitPush {
+		if _, err := exec.LookPath("git"); err != nil {
+			add("git sync", "fail", "git = "+j.cfg.Git+" but git is not installed")
+		} else {
+			add("git sync", "ok", j.cfg.Git)
 		}
 	}
 

@@ -236,14 +236,23 @@ Manage journals.
   jot journal rm [--yes] NAME  archive to <root>/backups, confirm, then delete
   jot journal rename OLD NEW   rename a journal
   jot journal ls               list journals (same output as jot ls)
+  jot journal encrypt NAME     age-encrypt every day file; new writes stay encrypted
+  jot journal decrypt NAME     turn an encrypted journal back into plain markdown
+  jot journal archives         list archives and backups in <root>/backups
+  jot journal restore ARCHIVE  unpack an archive back into the root
 
 ` + "`journal rm`" + ` always writes an archive into <root>/backups before deleting,
 refuses the default journal and the backups name, and asks you to type the
 journal name exactly; anything else aborts with the journal intact. Pass
 --yes to skip the prompt in scripts.
 
+Encryption uses the age key at ~/.config/jot/age-key.txt (JOT_KEY overrides),
+created on first use. Back it up: without it encrypted journals are unreadable.
+Files keep their .md names; their content is armored age ciphertext.
+
 Examples:
   jot journal new ideas
+  jot journal encrypt private
   jot journal rm --yes old-notes
   jot journal rename work deep-work`,
 	"watch": `jot watch [flags]

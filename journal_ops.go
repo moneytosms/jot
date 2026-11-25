@@ -6,8 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 )
@@ -112,7 +114,10 @@ func (j *Jot) DeleteJournal(name string) error {
 	if st, err := os.Stat(dir); err != nil || !st.IsDir() {
 		return fmt.Errorf("%w: %s", ErrNoJournal, name)
 	}
-	return os.RemoveAll(dir)
+	if err := os.RemoveAll(dir); err != nil {
+		return err
+	}
+	return j.sync("delete " + name)
 }
 
 // RenameJournal renames a journal directory by sanitizing the new name and
@@ -148,7 +153,10 @@ func (j *Jot) RenameJournal(from, to string) error {
 	if _, err := os.Stat(dst); err == nil {
 		return fmt.Errorf("cannot rename journal %q: journal %q already exists", from, to)
 	}
-	return os.Rename(src, dst)
+	if err := os.Rename(src, dst); err != nil {
+		return err
+	}
+	return j.sync("rename " + from + " to " + to)
 }
 
 // ResolveRoot expands "~" and makes a root path absolute and clean.
@@ -236,4 +244,107 @@ func copyTree(src, dst string) error {
 		}
 		return out.Close()
 	})
+}
+
+// Archive is one backup or journal archive in <root>/backups.
+type Archive struct {
+	// Path is the archive file.
+	Path string
+	// Name is the file name.
+	Name string
+	// Size is the file size in bytes.
+	Size int64
+	// Modified is when the archive was written.
+	Modified time.Time
+}
+
+// Archives lists the .tar.gz files in <root>/backups, newest first.
+func (j *Jot) Archives() ([]Archive, error) {
+	dir := filepath.Join(j.root, backupDirName)
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	var out []Archive
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".tar.gz") {
+			continue
+		}
+		info, err := e.Info()
+		if err != nil {
+			continue
+		}
+		out = append(out, Archive{Path: filepath.Join(dir, e.Name()), Name: e.Name(), Size: info.Size(), Modified: info.ModTime()})
+	}
+	slices.SortFunc(out, func(a, b Archive) int { return b.Modified.Compare(a.Modified) })
+	return out, nil
+}
+
+// RestoreArchive unpacks a journal archive (or a full backup) into the root
+// and returns the journals it restored. It refuses before writing anything if
+// any journal in the archive already exists, and rejects entries that would
+// land outside the root.
+func (j *Jot) RestoreArchive(path string) ([]string, error) {
+	type file struct {
+		name string
+		mode os.FileMode
+		data []byte
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	gz, err := gzip.NewReader(f)
+	if err != nil {
+		return nil, err
+	}
+	tr := tar.NewReader(gz)
+	var files []file
+	journals := map[string]bool{}
+	for {
+		hdr, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		if hdr.Typeflag != tar.TypeReg {
+			continue
+		}
+		name := filepath.Clean(filepath.FromSlash(hdr.Name))
+		parts := strings.Split(name, string(filepath.Separator))
+		if filepath.IsAbs(name) || len(parts) != 2 || parts[0] == ".." || SanitizeName(parts[0]) != parts[0] || parts[0] == backupDirName {
+			return nil, fmt.Errorf("archive entry %q is not a journal file", hdr.Name)
+		}
+		data, err := io.ReadAll(io.LimitReader(tr, 64<<20))
+		if err != nil {
+			return nil, err
+		}
+		journals[parts[0]] = true
+		files = append(files, file{name: name, mode: hdr.FileInfo().Mode().Perm() | 0o600, data: data})
+	}
+	if len(journals) == 0 {
+		return nil, errors.New("archive holds no journal files")
+	}
+	names := slices.Sorted(maps.Keys(journals))
+	for _, n := range names {
+		if j.JournalExists(n) {
+			return nil, fmt.Errorf("journal %q already exists; rename or delete it first", n)
+		}
+	}
+	for _, fl := range files {
+		dst := filepath.Join(j.root, fl.name)
+		if err := os.MkdirAll(filepath.Dir(dst), 0o700); err != nil {
+			return nil, err
+		}
+		if err := os.WriteFile(dst, fl.data, fl.mode&0o700); err != nil {
+			return nil, err
+		}
+	}
+	return names, j.sync("restore " + strings.Join(names, ", "))
 }

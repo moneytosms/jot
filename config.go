@@ -57,6 +57,9 @@ type Config struct {
 	// omarchy, then systemd, then a background process; "omarchy", "systemd"
 	// and "background" pin one provider; "off" disables reminders.
 	Reminders string `json:"reminders,omitempty"`
+	// Git turns on git sync of the journal root: "off" (or empty),
+	// "commit" after every write, or "push" to also push to the remote.
+	Git string `json:"git,omitempty"`
 	// TUI holds interactive-interface preferences.
 	TUI TUI `json:"tui,omitempty"`
 }
@@ -79,6 +82,7 @@ func DefaultConfig() (Config, error) {
 		cfg.Editor = file.Editor
 	}
 	cfg.Reminders = file.Reminders
+	cfg.Git = file.Git
 	cfg.TUI = file.TUI
 
 	home, err := os.UserHomeDir()

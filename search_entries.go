@@ -3,7 +3,6 @@ package jot
 import (
 	"bufio"
 	"errors"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -66,7 +65,7 @@ func (j *Jot) searchEntriesJournal(name, query string) ([]EntryMatch, error) {
 	var out []EntryMatch
 	for _, day := range days {
 		path := filepath.Join(j.root, name, day+".md")
-		f, err := os.Open(path)
+		f, err := openDayFile(path)
 		if err != nil {
 			return nil, err
 		}

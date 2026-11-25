@@ -107,6 +107,11 @@ func run(args []string, in io.Reader, out, errw io.Writer) int {
 		if errors.Is(err, errUsage) {
 			return 2
 		}
+		var syncErr *jot.SyncError
+		if errors.As(err, &syncErr) {
+			fmt.Fprintf(errw, "jot: warning: %v (the change itself was saved)\n", err)
+			return 0
+		}
 		fmt.Fprintf(errw, "jot: %v\n", err)
 		return 1
 	}

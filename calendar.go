@@ -38,7 +38,7 @@ func (j *Jot) MonthDays(name string, year int, month time.Month) ([]DayCount, er
 	prefix := fmt.Sprintf("%04d-%02d-", year, int(month))
 	out := make([]DayCount, 0, len(files))
 	for _, f := range files {
-		if f.IsDir() || !strings.HasSuffix(f.Name(), ".md") {
+		if f.IsDir() || !strings.HasSuffix(f.Name(), ".md") || strings.HasPrefix(f.Name(), ".") {
 			continue
 		}
 		day := strings.TrimSuffix(f.Name(), ".md")
@@ -83,7 +83,7 @@ func (j *Jot) YearDays(name string, year int) ([]DayCount, error) {
 	prefix := fmt.Sprintf("%04d-", year)
 	out := make([]DayCount, 0, len(files))
 	for _, f := range files {
-		if f.IsDir() || !strings.HasSuffix(f.Name(), ".md") {
+		if f.IsDir() || !strings.HasSuffix(f.Name(), ".md") || strings.HasPrefix(f.Name(), ".") {
 			continue
 		}
 		day := strings.TrimSuffix(f.Name(), ".md")

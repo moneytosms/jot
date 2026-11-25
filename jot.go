@@ -61,6 +61,9 @@ func New(cfg Config) *Jot {
 			if strings.TrimSpace(cfg.Reminders) == "" {
 				cfg.Reminders = def.Reminders
 			}
+			if strings.TrimSpace(cfg.Git) == "" {
+				cfg.Git = def.Git
+			}
 		}
 	}
 	if strings.TrimSpace(cfg.Root) == "" {
@@ -149,11 +152,25 @@ func (j *Jot) Add(e Entry) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return err
 	}
+	entry := FormatEntry(at.Format(timeLayout), body)
+	if j.IsEncrypted(e.Name) {
+		// Ciphertext cannot be appended to: decrypt, append, re-encrypt.
+		old, err := readDayFile(path)
+		if err != nil && !os.IsNotExist(err) {
+			return err
+		}
+		if len(old) > 0 {
+			entry = "\n" + entry
+		}
+		if err := j.writeDayFile(e.Name, path, append(old, entry...)); err != nil {
+			return err
+		}
+		return j.sync("add " + j.journalName(e.Name) + "/" + day)
+	}
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o600)
 	if err != nil {
 		return err
 	}
-	entry := FormatEntry(at.Format(timeLayout), body)
 	// Separate entries with one blank line, but leave a brand-new file clean.
 	if st, err := f.Stat(); err == nil && st.Size() > 0 {
 		entry = "\n" + entry
@@ -162,7 +179,10 @@ func (j *Jot) Add(e Entry) error {
 		f.Close()
 		return err
 	}
-	return f.Close()
+	if err := f.Close(); err != nil {
+		return err
+	}
+	return j.sync("add " + j.journalName(e.Name) + "/" + day)
 }
 
 // DayFile is the markdown content of one day of a journal.
@@ -188,7 +208,7 @@ func (j *Jot) Days(name string) ([]string, error) {
 	}
 	days := make([]string, 0, len(entries))
 	for _, e := range entries {
-		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") || strings.HasPrefix(e.Name(), ".") {
 			continue
 		}
 		days = append(days, strings.TrimSuffix(e.Name(), ".md"))
@@ -205,7 +225,7 @@ func (j *Jot) ShowDays(name string) ([]DayFile, error) {
 	}
 	out := make([]DayFile, 0, len(days))
 	for _, day := range days {
-		data, err := os.ReadFile(filepath.Join(j.root, j.journalName(name), day+".md"))
+		data, err := readDayFile(filepath.Join(j.root, j.journalName(name), day+".md"))
 		if err != nil {
 			return nil, err
 		}
@@ -381,7 +401,7 @@ func (j *Jot) SearchJournal(name, query string) ([]Match, error) {
 	for i := len(days) - 1; i >= 0; i-- {
 		day := days[i]
 		path := filepath.Join(j.root, j.journalName(name), day+".md")
-		f, err := os.Open(path)
+		f, err := openDayFile(path)
 		if err != nil {
 			return nil, err
 		}
@@ -414,7 +434,7 @@ func (j *Jot) SearchJournal(name, query string) ([]Match, error) {
 
 // countEntries counts "## " entry headings in a file.
 func countEntries(path string) (int, error) {
-	f, err := os.Open(path)
+	f, err := openDayFile(path)
 	if err != nil {
 		return 0, err
 	}

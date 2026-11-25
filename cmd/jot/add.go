@@ -44,9 +44,11 @@ func (a *app) addCmd(args []string) error {
 	}
 
 	name := pickJournal(j, *journal)
-	if err := j.Add(jot.Entry{Name: name, Day: day, Body: body}); err != nil {
+	err = j.Add(jot.Entry{Name: name, Day: day, Body: body})
+	var syncErr *jot.SyncError
+	if err != nil && !errors.As(err, &syncErr) {
 		return err
 	}
 	fmt.Fprintf(a.out, "added to %s/%s.md\n", name, day)
-	return nil
+	return err // a sync failure is reported as a warning by run
 }

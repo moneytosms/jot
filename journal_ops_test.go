@@ -306,3 +306,46 @@ func TestMoveRoot(t *testing.T) {
 		t.Fatal("moving onto a non-empty dir should fail")
 	}
 }
+
+func TestRestoreArchive(t *testing.T) {
+	j := opsTestJot(t)
+	addEntry(t, j, "old", "bring me back")
+	archive, err := j.ArchiveJournal("old")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := j.RestoreArchive(archive); err == nil {
+		t.Fatal("restoring over an existing journal should fail")
+	}
+	if err := j.DeleteJournal("old"); err != nil {
+		t.Fatal(err)
+	}
+	list, err := j.Archives()
+	if err != nil || len(list) != 1 {
+		t.Fatalf("Archives = %v, %v", list, err)
+	}
+	names, err := j.RestoreArchive(list[0].Path)
+	if err != nil || len(names) != 1 || names[0] != "old" {
+		t.Fatalf("RestoreArchive = %v, %v", names, err)
+	}
+	if got, _ := j.Show("old", ""); len(got) != 1 || !strings.Contains(got[0], "bring me back") {
+		t.Fatalf("restored content = %q", got)
+	}
+}
+
+func TestRestoreArchiveRejectsEscapes(t *testing.T) {
+	j := opsTestJot(t)
+	path := filepath.Join(t.TempDir(), "evil.tar.gz")
+	f, _ := os.Create(path)
+	gz := gzip.NewWriter(f)
+	tw := tar.NewWriter(gz)
+	body := []byte("x")
+	tw.WriteHeader(&tar.Header{Name: "../escape/2026-01-01.md", Mode: 0o600, Size: int64(len(body)), Typeflag: tar.TypeReg})
+	tw.Write(body)
+	tw.Close()
+	gz.Close()
+	f.Close()
+	if _, err := j.RestoreArchive(path); err == nil {
+		t.Fatal("path escape accepted")
+	}
+}

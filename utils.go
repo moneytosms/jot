@@ -69,7 +69,7 @@ func Render(md string) string {
 
 // ReadEntries reads a journal file as raw text. A missing file is not an error.
 func ReadEntries(path string) (string, error) {
-	data, err := os.ReadFile(path)
+	data, err := readDayFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return "", nil
