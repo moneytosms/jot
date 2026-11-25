@@ -57,7 +57,7 @@ func (m model) searchChipPrefix() string {
 		scope = "this journal (" + m.journal + ")"
 	}
 	count := len(m.search.results)
-	return fmt.Sprintf("scope: %s · tab switches · %d %s   ", scope, count, plural(count, "match", "matches"))
+	return fmt.Sprintf("%s · %d %s  ", scope, count, plural(count, "match", "matches"))
 }
 
 // toggleChip adds a filter token to the query, or removes it when present.

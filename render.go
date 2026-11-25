@@ -449,11 +449,20 @@ func renderList(items []parsedItem, width int, s MDStyles) []string {
 			level = 0
 		}
 		marker := it.marker
+		text := it.text
+		done := false
 		if !it.ordered {
 			if level >= len(bullets) {
 				level = len(bullets) - 1
 			}
 			marker = bullets[level]
+			// Task items: the checkbox replaces the bullet; done ones are dimmed.
+			switch {
+			case strings.HasPrefix(text, "[ ] ") || text == "[ ]":
+				marker, text = "☐", strings.TrimSpace(text[3:])
+			case strings.HasPrefix(strings.ToLower(text), "[x] ") || strings.EqualFold(text, "[x]"):
+				marker, text, done = "☑", strings.TrimSpace(text[3:]), true
+			}
 		}
 		pad := it.indent + utf8.RuneCountInString(marker) + 1
 		prefix := strings.Repeat(" ", it.indent) + styled(s.ListBullet, marker) + " "
@@ -461,11 +470,15 @@ func renderList(items []parsedItem, width int, s MDStyles) []string {
 		if width > 0 {
 			avail = width - pad
 		}
-		for n, w := range wrapText(it.text, avail) {
+		for n, w := range wrapText(text, avail) {
+			line := inlineStr(w, s)
+			if done {
+				line = styled(s.Dim, w)
+			}
 			if n == 0 {
-				out = append(out, prefix+inlineStr(w, s))
+				out = append(out, prefix+line)
 			} else {
-				out = append(out, strings.Repeat(" ", pad)+inlineStr(w, s))
+				out = append(out, strings.Repeat(" ", pad)+line)
 			}
 		}
 	}

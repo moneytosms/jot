@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 	"testing"
@@ -77,7 +78,7 @@ func TestConfigFile_RoundTripAndPrecedence(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if loaded != want {
+	if !reflect.DeepEqual(loaded, want) {
 		t.Fatalf("got %+v, want %+v", loaded, want)
 	}
 

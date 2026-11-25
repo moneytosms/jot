@@ -43,6 +43,7 @@ type model struct {
 	counts     map[string]jot.DayCount
 	dayContent string
 	dayEntries []jot.ParsedEntry
+	widgets    widgetData
 
 	// Display state.
 	month    time.Time // first day of the displayed month
@@ -129,6 +130,7 @@ type (
 		days     []string
 		counts   map[string]jot.DayCount
 		content  string
+		widgets  widgetData
 		err      error
 	}
 	// dayMsg carries one day's content.
@@ -155,6 +157,8 @@ type (
 	}
 	// toastExpireMsg hides the toast with the matching sequence number.
 	toastExpireMsg int
+	// toastMsg shows a toast from a command.
+	toastMsg string
 	// errMsg reports a command failure.
 	errMsg struct{ err error }
 )
@@ -177,6 +181,7 @@ func load(j *jot.Jot, journal string, month, day time.Time) refreshMsg {
 	if days, err := j.Days(journal); err == nil {
 		msg.days = days
 	}
+	msg.widgets = loadWidgets(j, journal, msg.days, time.Now())
 	if counts, err := j.MonthDays(journal, month.Year(), month.Month()); err == nil {
 		msg.counts = make(map[string]jot.DayCount, len(counts))
 		for _, c := range counts {
@@ -361,6 +366,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case rootSavedMsg:
 		return m.applyRootSaved(msg)
+
+	case archivesMsg, restoredMsg, encryptedMsg:
+		return m.applySettingsAsync(msg)
+
+	case toastMsg:
+		return m, m.setToast(string(msg))
 
 	case prefsSavedMsg:
 		return m.applyPrefsSaved(msg)
@@ -843,6 +854,7 @@ func (m model) applyRefresh(msg refreshMsg) (tea.Model, tea.Cmd) {
 	m.journals = msg.journals
 	m.revealJournal()
 	m.days = msg.days
+	m.widgets = msg.widgets
 	if msg.counts == nil {
 		msg.counts = map[string]jot.DayCount{}
 	}
@@ -961,9 +973,18 @@ func (m model) handleClick(x, y int) (tea.Model, tea.Cmd) {
 		y >= lay.sideY && y < lay.sideY+len(journals) {
 		return m.switchJournal(journals[y-lay.sideY].Name)
 	}
-	// Shortcut rows under the legend act like their keys.
-	if i := y - lay.extraY - 2; lay.extraY > 0 && i >= 0 && i < len(sideExtras) && x < lay.leftW {
-		return m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(sideExtras[i].key)})
+	// Rows under the calendar: shortcuts act like their keys, todos and
+	// memories jump to their day.
+	if lay.extraY > 0 && y >= lay.extraY && x < lay.leftW {
+		block := m.sideBlock(lay.bodyY + lay.paneH - lay.extraY)
+		if i := y - lay.extraY; i < len(block) {
+			switch {
+			case block[i].key != "":
+				return m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(block[i].key)})
+			case block[i].day != "":
+				return m.gotoDay(block[i].day)
+			}
+		}
 	}
 	return m, nil
 }

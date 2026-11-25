@@ -1,9 +1,12 @@
 package tui
 
 import (
+	"errors"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -15,9 +18,14 @@ const (
 	tabGeneral = iota
 	tabJournals
 	tabStorage
+	tabArchives
 )
 
-var settingsTabs = []string{"General", "Journals", "Storage"}
+var settingsTabs = []string{"General", "Journals", "Storage", "Archives"}
+
+// generalRows is the number of General rows: theme, editor, default journal,
+// reminders, git sync, then one toggle per widget.
+var generalRows = 5 + len(widgetNames)
 
 // settingsBodyH is the number of content lines each tab body gets, so the
 // panel keeps one size across tabs.
@@ -38,6 +46,9 @@ type settingsState struct {
 	configPath string
 	remindVia  string // what the reminders setting resolves to, for display
 	confirm    bool   // the move-root row is waiting for a second enter
+	encConfirm string // journal whose encryption toggle awaits a second x
+	archives   []jot.Archive
+	acur, atop int // selected and first listed archive
 	err        string
 	warn       string
 }
@@ -97,8 +108,10 @@ func (m model) settingsRows() int {
 		return len(m.journals)
 	case tabStorage:
 		return 3
+	case tabArchives:
+		return len(m.settings.archives)
 	}
-	return 4
+	return generalRows
 }
 
 // applySettingsFocus focuses the line input of the active row, if any.
@@ -121,8 +134,82 @@ func (m *model) switchSettingsTab(tab int) {
 	n := len(settingsTabs)
 	m.settings.tab = (tab%n + n) % n
 	m.settings.cursor = 0
-	m.settings.err, m.settings.warn, m.settings.confirm = "", "", false
+	m.settings.err, m.settings.warn, m.settings.confirm, m.settings.encConfirm = "", "", false, ""
 	m.applySettingsFocus()
+}
+
+// archivesCmd lists the archives for the Archives tab.
+func archivesCmd(j *jot.Jot) tea.Cmd {
+	return func() tea.Msg {
+		list, err := j.Archives()
+		return archivesMsg{list: list, err: err}
+	}
+}
+
+// archivesMsg carries the archive listing.
+type archivesMsg struct {
+	list []jot.Archive
+	err  error
+}
+
+// restoreCmd unpacks an archive into the root.
+func restoreCmd(j *jot.Jot, path string) tea.Cmd {
+	return func() tea.Msg {
+		names, err := j.RestoreArchive(path)
+		return restoredMsg{names: names, err: err}
+	}
+}
+
+// restoredMsg reports an archive restore.
+type restoredMsg struct {
+	names []string
+	err   error
+}
+
+// encryptCmd turns a journal's encryption on or off.
+func encryptCmd(j *jot.Jot, name string, on bool) tea.Cmd {
+	return func() tea.Msg {
+		n, err := j.SetEncrypted(name, on)
+		return encryptedMsg{name: name, on: on, n: n, err: err}
+	}
+}
+
+// encryptedMsg reports an encryption toggle.
+type encryptedMsg struct {
+	name string
+	on   bool
+	n    int
+	err  error
+}
+
+// applySettingsAsync merges the Archives, restore and encryption results.
+func (m model) applySettingsAsync(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var syncErr *jot.SyncError
+	switch msg := msg.(type) {
+	case archivesMsg:
+		m.settings.archives = msg.list
+		m.settings.acur = clamp(m.settings.acur, 0, max(len(msg.list)-1, 0))
+		if msg.err != nil {
+			m.settings.err = msg.err.Error()
+		}
+	case restoredMsg:
+		if msg.err != nil && !errors.As(msg.err, &syncErr) {
+			m.settings.err = msg.err.Error()
+			return m, nil
+		}
+		return m, tea.Batch(m.setToast("restored "+strings.Join(msg.names, ", ")), m.fullLoad())
+	case encryptedMsg:
+		if msg.err != nil && !errors.As(msg.err, &syncErr) {
+			m.settings.err = msg.err.Error()
+			return m, nil
+		}
+		text := fmt.Sprintf("encrypted %s (%d %s); back up %s", msg.name, msg.n, plural(msg.n, "day", "days"), jot.KeyPath())
+		if !msg.on {
+			text = fmt.Sprintf("decrypted %s (%d %s)", msg.name, msg.n, plural(msg.n, "day", "days"))
+		}
+		return m, tea.Batch(m.setToast(text), m.fullLoad())
+	}
+	return m, nil
 }
 
 // moveSettingsCursor moves the selected row of the active tab by delta.
@@ -132,13 +219,17 @@ func (m *model) moveSettingsCursor(delta int) {
 		return
 	}
 	m.settings.confirm = false
-	if m.settings.tab == tabJournals {
-		st := &m.settings
-		st.jcur = clamp(st.jcur+delta, 0, n-1)
-		if st.jcur < st.jtop {
-			st.jtop = st.jcur
-		} else if st.jcur >= st.jtop+settingsJournalRows {
-			st.jtop = st.jcur - settingsJournalRows + 1
+	m.settings.encConfirm = ""
+	if m.settings.tab == tabJournals || m.settings.tab == tabArchives {
+		cur, top := &m.settings.jcur, &m.settings.jtop
+		if m.settings.tab == tabArchives {
+			cur, top = &m.settings.acur, &m.settings.atop
+		}
+		*cur = clamp(*cur+delta, 0, n-1)
+		if *cur < *top {
+			*top = *cur
+		} else if *cur >= *top+settingsJournalRows {
+			*top = *cur - settingsJournalRows + 1
 		}
 		return
 	}
@@ -153,11 +244,15 @@ func (m model) keySettings(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "esc":
 		m.closeOverlay()
 		return m, nil
-	case "tab":
-		m.switchSettingsTab(m.settings.tab + 1)
-		return m, nil
-	case "shift+tab":
-		m.switchSettingsTab(m.settings.tab - 1)
+	case "tab", "shift+tab":
+		step := 1
+		if key == "shift+tab" {
+			step = -1
+		}
+		m.switchSettingsTab(m.settings.tab + step)
+		if m.settings.tab == tabArchives {
+			return m, archivesCmd(m.jot)
+		}
 		return m, nil
 	case "down":
 		m.moveSettingsCursor(1)
@@ -171,6 +266,19 @@ func (m model) keySettings(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.keySettingsJournals(key)
 	case tabStorage:
 		return m.keySettingsStorage(msg)
+	case tabArchives:
+		switch key {
+		case "j":
+			m.moveSettingsCursor(1)
+		case "k":
+			m.moveSettingsCursor(-1)
+		case "enter":
+			if len(m.settings.archives) > 0 {
+				m.settings.err = ""
+				return m, restoreCmd(m.jot, m.settings.archives[m.settings.acur].Path)
+			}
+		}
+		return m, nil
 	}
 	return m.keySettingsGeneral(msg)
 }
@@ -187,6 +295,8 @@ func (m model) keySettingsGeneral(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, m.cycleTheme()
 		case 3:
 			return m.cycleReminders(key == "left")
+		case 4:
+			return m.cycleGit(key == "left")
 		}
 	}
 	var in *lineInput
@@ -231,6 +341,44 @@ func (m model) keySettingsJournals(key string) (tea.Model, tea.Cmd) {
 	case "a":
 		m.settings.err = ""
 		return m, archiveJournalCmd(m.jot, name)
+	case "x":
+		on := !m.jot.IsEncrypted(name)
+		if m.settings.encConfirm != name {
+			m.settings.encConfirm = name
+			if on {
+				m.settings.warn = "x again to encrypt " + name + "; the key is " + jot.KeyPath() + " - back it up"
+			} else {
+				m.settings.warn = "x again to decrypt " + name + " back to plain markdown"
+			}
+			return m, nil
+		}
+		m.settings.encConfirm, m.settings.warn, m.settings.err = "", "", ""
+		return m, encryptCmd(m.jot, name, on)
+	case "c":
+		cur := 0
+		for i, c := range journalColors {
+			if c == m.cfg.TUI.Colors[name] {
+				cur = i
+			}
+		}
+		return m, saveSettingCmd(m.jot, "color", name+"="+journalColors[(cur+1)%len(journalColors)])
+	case "t":
+		editor := strings.TrimSpace(m.cfg.Editor)
+		if editor == "" {
+			editor = jot.DetectEditor()
+		}
+		if editor == "" {
+			m.settings.err = "no editor found: set JOT_EDITOR or $EDITOR"
+			return m, nil
+		}
+		m.closeOverlay()
+		path := m.jot.TemplatePath(name)
+		return m, tea.ExecProcess(shellEditor(editor, path), func(err error) tea.Msg {
+			if err != nil {
+				return errMsg{fmt.Errorf("editor: %w", err)}
+			}
+			return toastMsg("template saved: " + path)
+		})
 	case "s":
 		m.settings.err = ""
 		m.settings.journal.setValue(name)
@@ -305,8 +453,30 @@ func (m model) activateSettingsRow() (tea.Model, tea.Cmd) {
 		return m, saveSettingCmd(m.jot, "journal", name)
 	case 3:
 		return m.cycleReminders(false)
+	case 4:
+		return m.cycleGit(false)
+	}
+	if i := m.settings.cursor - 5; i >= 0 && i < len(widgetNames) {
+		return m, saveSettingCmd(m.jot, "hide", widgetNames[i].id)
 	}
 	return m, nil
+}
+
+// cycleGit moves the git sync setting to the next (or previous) value.
+func (m model) cycleGit(back bool) (tea.Model, tea.Cmd) {
+	opts := jot.GitSettings
+	cur := 0
+	for i, o := range opts {
+		if o == m.cfg.Git {
+			cur = i
+		}
+	}
+	step := 1
+	if back {
+		step = len(opts) - 1
+	}
+	m.settings.err = ""
+	return m, saveSettingCmd(m.jot, "git", opts[(cur+step)%len(opts)])
 }
 
 // cycleReminders moves the reminders setting to the next (or previous)
@@ -353,8 +523,29 @@ func saveSettingCmd(j *jot.Jot, kind, value string) tea.Cmd {
 			value = file.DefaultJournal
 		case "reminders":
 			file.Reminders = value
+		case "git":
+			file.Git = value
+		case "hide":
+			if i := slices.Index(file.TUI.Hide, value); i >= 0 {
+				file.TUI.Hide = slices.Delete(file.TUI.Hide, i, i+1)
+			} else {
+				file.TUI.Hide = append(file.TUI.Hide, value)
+			}
+		case "color":
+			name, color, _ := strings.Cut(value, "=")
+			if file.TUI.Colors == nil {
+				file.TUI.Colors = map[string]string{}
+			}
+			if color == "" {
+				delete(file.TUI.Colors, name)
+			} else {
+				file.TUI.Colors[name] = color
+			}
 		}
 		path, err := jot.SaveConfig(file)
+		if kind == "hide" {
+			value = strings.Join(file.TUI.Hide, ",")
+		}
 		msg := settingsSavedMsg{kind: kind, value: value, path: path, exists: true, err: err}
 		if kind == "journal" {
 			msg.exists = j.JournalExists(value)
@@ -443,6 +634,29 @@ func (m model) applySettingsSaved(msg settingsSavedMsg) (tea.Model, tea.Cmd) {
 		m.cfg.Reminders = msg.value
 		m.settings.remindVia = remindViaText(msg.value)
 		return m, m.setToast("reminders: " + msg.value)
+	case "git":
+		m.cfg.Git = msg.value
+		m.jot = jot.New(m.cfg)
+		return m, m.setToast("git sync: " + msg.value)
+	case "hide":
+		m.cfg.TUI.Hide = nil
+		if msg.value != "" {
+			m.cfg.TUI.Hide = strings.Split(msg.value, ",")
+		}
+		return m, nil
+	case "color":
+		name, color, _ := strings.Cut(msg.value, "=")
+		colors := maps.Clone(m.cfg.TUI.Colors)
+		if colors == nil {
+			colors = map[string]string{}
+		}
+		if color == "" {
+			delete(colors, name)
+		} else {
+			colors[name] = color
+		}
+		m.cfg.TUI.Colors = colors
+		return m, nil
 	}
 	return m, nil
 }
@@ -450,7 +664,7 @@ func (m model) applySettingsSaved(msg settingsSavedMsg) (tea.Model, tea.Cmd) {
 // settingsRect is the centered settings panel: tabs, a blank line, the tab
 // body, the key hints and the status line inside the border.
 func (m model) settingsRect(lay layout) boxRect {
-	w := min(max(m.width-8, 1), 76)
+	w := min(max(m.width-8, 1), 86)
 	return m.centerRect(lay, w, settingsBodyH+6)
 }
 
@@ -497,6 +711,8 @@ func (m model) settingsView(lay layout) string {
 		body, hint = m.settingsJournalsBody(rect.w - 4)
 	case tabStorage:
 		body, hint = m.settingsStorageBody()
+	case tabArchives:
+		body, hint = m.settingsArchivesBody()
 	}
 	for len(body) < settingsBodyH {
 		body = append(body, "")
@@ -518,21 +734,33 @@ func (m model) settingsView(lay layout) string {
 func (m model) settingsGeneralBody() ([]string, string) {
 	cur := m.settings.cursor
 	themeValue := m.theme.fg().Render(m.themeName) + m.theme.dim().Render("  enter cycles")
-	return []string{
+	git := m.cfg.Git
+	if git == "" {
+		git = jot.GitOff
+	}
+	out := []string{
 		m.settingsRow("Theme", themeValue, cur == 0),
 		m.settingsRow("Editor command", m.settings.editor.view(), cur == 1),
 		m.settingsRow("Default journal", m.settings.journal.view(), cur == 2),
 		m.settingsRow("Reminders", m.theme.fg().Render(reminderSettingName(m.cfg.Reminders))+
 			m.theme.dim().Render("  "+m.settings.remindVia+" · enter cycles"), cur == 3),
-		"",
-		m.settingsRow("Config file", m.theme.fg().Render(m.settings.configPath), false),
-	}, "tab next tab · up/down row · enter save or cycle · esc close"
+		m.settingsRow("Git sync", m.theme.fg().Render(git)+m.theme.dim().Render("  off · commit · push (if a remote is set)"), cur == 4),
+	}
+	for i, w := range widgetNames {
+		state := m.theme.good().Render("● shown")
+		if !m.widgetOn(w.id) {
+			state = m.theme.dim().Render("○ hidden")
+		}
+		out = append(out, m.settingsRow("  "+w.label, state+m.theme.dim().Render("  under the calendar"), cur == 5+i))
+	}
+	return append(out, "", m.settingsRow("Config file", m.theme.fg().Render(m.settings.configPath), false)),
+		"tab next tab · up/down row · enter save, cycle or toggle · esc close"
 }
 
 // settingsJournalsBody renders the Journals tab: a scrolling list with the
 // selected journal's actions in the hint line.
 func (m model) settingsJournalsBody(width int) ([]string, string) {
-	hint := "enter open · r rename · a archive · d delete · s set default · n new"
+	hint := "x encrypt · t daily template · c colour · n new journal"
 	if len(m.journals) == 0 {
 		return []string{m.theme.muted().Render("  No journals yet. Press n to create one.")}, hint
 	}
@@ -559,6 +787,12 @@ func (m model) settingsJournalsBody(width int) ([]string, string) {
 		if j.Name == m.cfg.DefaultJournal {
 			tags = append(tags, "default")
 		}
+		if m.jot.IsEncrypted(j.Name) {
+			tags = append(tags, "encrypted")
+		}
+		if c := m.cfg.TUI.Colors[j.Name]; c != "" {
+			tags = append(tags, c)
+		}
 		row := fmt.Sprintf("%-18s %5d %6d  %-10s", name, j.Days, j.Entries, last)
 		tag := ""
 		if len(tags) > 0 {
@@ -570,7 +804,10 @@ func (m model) settingsJournalsBody(width int) ([]string, string) {
 			out = append(out, "  "+m.theme.fg().Render(row)+tag)
 		}
 	}
-	return out, hint
+	for len(out) < settingsBodyH-1 {
+		out = append(out, "")
+	}
+	return append(out, m.theme.dim().Render("⏎ open · r rename · a archive · d delete · s make default")), hint
 }
 
 // settingsStorageBody renders the Storage tab.
@@ -593,6 +830,32 @@ func (m model) settingsStorageBody() ([]string, string) {
 		out = append(out, "", m.theme.muted().Render("  JOT_ROOT is set; it overrides the config root"))
 	}
 	return out, "tab next tab · up/down row · enter run row · esc close"
+}
+
+// settingsArchivesBody renders the Archives tab: archives and backups in
+// <root>/backups, newest first.
+func (m model) settingsArchivesBody() ([]string, string) {
+	hint := "⏎ restore the highlighted archive (refuses journals that exist) · esc close"
+	if len(m.settings.archives) == 0 {
+		return []string{m.theme.muted().Render("  No archives yet. Archive a journal with a in the Journals tab.")}, hint
+	}
+	head := fmt.Sprintf("  %-50s %8s  %s", "archive", "size", "written")
+	out := []string{m.theme.dim().Render(head)}
+	end := min(m.settings.atop+settingsJournalRows, len(m.settings.archives))
+	for i := m.settings.atop; i < end; i++ {
+		a := m.settings.archives[i]
+		name := a.Name
+		if r := []rune(name); len(r) > 50 {
+			name = string(r[:49]) + "…"
+		}
+		row := fmt.Sprintf("%-50s %7.1fK  %s", name, float64(a.Size)/1024, a.Modified.Format("2006-01-02 15:04"))
+		if i == m.settings.acur {
+			out = append(out, m.theme.accent().Bold(true).Render("▸ ")+m.theme.selStyle().Render(row))
+		} else {
+			out = append(out, "  "+m.theme.fg().Render(row))
+		}
+	}
+	return out, hint
 }
 
 // reminderSettingName shows the empty setting as the "auto" it means.
@@ -633,6 +896,9 @@ func (m model) handleSettingsMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 			w := len(tabLabel(name))
 			if x >= 0 && x < w {
 				m.switchSettingsTab(i)
+				if i == tabArchives {
+					return m, archivesCmd(m.jot)
+				}
 				return m, nil
 			}
 			x -= w + 1 // the separator
@@ -653,8 +919,14 @@ func (m model) handleSettingsMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 			m.applySettingsFocus()
 		}
 		return m, nil
+	case tabArchives:
+		i := m.settings.atop + row - 1
+		if row >= 1 && i < min(m.settings.atop+settingsJournalRows, len(m.settings.archives)) {
+			m.settings.acur = i
+		}
+		return m, nil
 	}
-	if row < 0 || row >= 4 {
+	if row < 0 || row >= generalRows {
 		return m, nil
 	}
 	m.settings.cursor = row
@@ -662,8 +934,11 @@ func (m model) handleSettingsMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 	switch row {
 	case 0:
 		return m, m.cycleTheme()
-	case 3:
-		return m.cycleReminders(false)
+	case 3, 4:
+		return m.activateSettingsRow()
+	}
+	if row >= 5 {
+		return m.activateSettingsRow()
 	}
 	return m, nil
 }

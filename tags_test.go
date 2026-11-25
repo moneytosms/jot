@@ -51,3 +51,10 @@ func TestRenderTags(t *testing.T) {
 		t.Fatalf("RenderStyled = %q", got)
 	}
 }
+
+func TestRenderTaskItems(t *testing.T) {
+	got := RenderStyled("- [ ] open\n- [x] done", 0, PlainStyles())
+	if got != "☐ open\n☑ done" {
+		t.Fatalf("RenderStyled = %q", got)
+	}
+}

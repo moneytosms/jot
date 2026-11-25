@@ -192,10 +192,8 @@ func (m model) leftColumn(lay layout) string {
 		for len(lines) < lay.extraY-lay.bodyY {
 			lines = append(lines, "")
 		}
-		lines = append(lines, m.legendLine(), "")
-		key := m.theme.accent().Bold(true)
-		for _, e := range sideExtras {
-			lines = append(lines, key.Render(padRight(e.key, 2))+m.theme.muted().Render(e.label))
+		for _, l := range m.sideBlock(lay.bodyY + lay.paneH - lay.extraY) {
+			lines = append(lines, l.text)
 		}
 	}
 	lines = lines[:min(len(lines), lay.paneH)]
@@ -227,8 +225,15 @@ func (m model) journalRow(j jot.JournalInfo, active bool) string {
 		counts = "   —    "
 	}
 	marker, nameStyle := " ", m.theme.muted()
+	if c := m.journalColor(j.Name); c != "" {
+		nameStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(c))
+	}
 	if active {
-		marker, nameStyle = "▸", m.theme.accent().Bold(true)
+		marker = "▸"
+		if m.journalColor(j.Name) == "" {
+			nameStyle = m.theme.accent()
+		}
+		nameStyle = nameStyle.Bold(true)
 	}
 	return marker + " " + nameStyle.Render(name) + " " + m.theme.dim().Render(counts)
 }
