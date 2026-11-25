@@ -11,10 +11,10 @@ and a full-screen terminal interface.
 [Usage guide](https://moneytosms.github.io/jot/guide/) ·
 [Command reference](docs/commands.md)
 
-A 36-second tour of the CLI, the calendar and search, captured from the real
-binary:
+A 40-second tour: quick adds from the CLI, then the calendar, fuzzy search and
+year heatmap in the TUI. Every line of terminal output comes from the real binary:
 
-![A tour of jot: the CLI, the calendar TUI and fuzzy search, recorded in a terminal](assets/readme/tour.mp4)
+![A tour of jot: quick adds from the CLI, then the calendar, fuzzy search and year heatmap in the TUI](assets/readme/tour.mp4)
 
 ## Why
 
