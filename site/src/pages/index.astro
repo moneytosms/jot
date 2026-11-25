@@ -43,6 +43,17 @@ const adds: [string, string][] = [
 const matches = search.trimEnd().split("\n");
 const total = matches.pop() ?? "";
 // [left %, width %, length %] over the search results only, so the adds and :q lines stay readable.
+// Real output from the jot binary on the sample journal (see the tour video).
+const prices = [
+  { name: "Tasks™ add-on", price: "$6/mo per seat", pen: "it's a checkbox.", cmd: "jot todo --open", out: "[ ]  work  2026-11-25  23:41  fix the flaky test #work\n7 open . 3 done" },
+  { name: "AI Smart Tags™", price: "join the waitlist", pen: "it's a # sign.", cmd: "jot tags", out: "    3  #work\n    2  #parser\n    2  #regret" },
+  { name: "Reminders", price: "download our app", pen: "it's a timer.", cmd: 'jot remind "touch grass" 20m', out: "reminder set: touch grass\n  fires in 20m0s" },
+  { name: "Enterprise Vault", price: "contact sales", pen: "it's age. it's free.", cmd: "jot journal encrypt ideas", out: "encrypted 49 days in ideas" },
+  { name: "Export to PDF", price: "PRO MAX only", pen: "you can just have it.", cmd: "jot export --format pdf -j work", out: "wrote ~/jot-export/work.pdf" },
+  { name: "Your data, exported", price: "allow 30 days", pen: "74.8 KB. right now.", cmd: "jot backup --zip", out: "backup written to ~/.jot/backups/\njot-backup-20261125-234145.zip (74.8 KB)" },
+  { name: "Search", price: "indexing your workspace…", pen: "it's grep, but nicer.", cmd: 'jot search "#work is:open"', out: "- [ ] fix the flaky test #work\n\n1 match" },
+  { name: "Sync", price: "3 devices max", pen: "it's git. obviously.", cmd: 'git log --oneline -2', out: "a3eae16 jot: add work/2026-11-25\n3b49643 jot: add ideas/2026-11-25" },
+];
 const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [57, 2, 84], [68, 4, 40], [80, 2, 70], [90, 3, 52]];
 ---
 
@@ -58,7 +69,8 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
         <a class="masthead__sec" href="#year"><i>01</i>Year</a>
         <a class="masthead__sec" href="#day"><i>02</i>The day</a>
         <a class="masthead__sec" href="#tool"><i>03</i>Interface</a>
-        <a class="masthead__sec" href="#tour"><i>04</i>Tour</a>
+        <a class="masthead__sec" href="#features"><i>04</i>Features</a>
+        <a class="masthead__sec" href="#tour"><i>05</i>Tour</a>
         <a href={withBase("guide/")}>Guide</a>
         <a href={cfg.repoUrl}>Source</a>
       </nav>
@@ -73,7 +85,7 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
       </h1>
       <div class="hero__text">
         <p class="lede">
-          One Markdown file per day. No account, no sync, no AI summary of your grocery list.
+          One Markdown file per day. No account, no sync service, no AI summary of your grocery list.
           <code>jot</code> appends a timestamped entry to today's file and gets out of the way. Read it
           with <code>cat</code>, search it with <code>grep</code>, browse it in the calendar.
         </p>
@@ -249,26 +261,58 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
       </div>
     </section>
 
-    <section class="band" id="tour">
+    <section class="band" id="features" aria-labelledby="features-title" data-play>
       <div class="wrap">
         <header class="sec">
           <p class="sec__no">04</p>
           <div>
-            <h2>Forty seconds of jot.</h2>
+            <h2 id="features-title">"But NOTESPACE has <em>features.</em>"</h2>
             <p class="sec__note">
-              One notes app, roasted. Then quick adds from the CLI, the calendar, fuzzy search and
-              the year heatmap in the TUI. Every line of terminal output is the real binary on the
-              sample journal.
+              So does jot. Here is their price list, marked up. Every feature below is a flag or a
+              file, works offline, and costs the same as the rest of jot.
+            </p>
+          </div>
+        </header>
+        <ul class="prices">
+          {prices.map((p, i) => (
+            <li class="price">
+              <div class="price__tag" aria-hidden="true">
+                <p class="price__brand">NOTESPACE PRO MAX</p>
+                <p class="price__name">{p.name}</p>
+                <p class="price__cost">{p.price}</p>
+                <i class="price__x pop" style={`--i:${i * 0.5 + 1}`}></i>
+              </div>
+              <p class="pen price__pen pop" style={`--i:${i * 0.5 + 1.4}`}><span class="sr">{p.name}: </span>{p.pen}</p>
+              <div class="term term--small">
+                <p><span class="term__ps">❯</span> {p.cmd}</p>
+                <pre class="term__out">{p.out}</pre>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <section class="band" id="tour">
+      <div class="wrap">
+        <header class="sec">
+          <p class="sec__no">05</p>
+          <div>
+            <h2>Fifty-five seconds of jot.</h2>
+            <p class="sec__note">
+              One notes app, roasted. Quick adds, the calendar, fuzzy search and the year heatmap,
+              then NOTESPACE's whole price list in fourteen seconds. Every line of terminal output
+              is the real binary on the sample journal.
             </p>
           </div>
         </header>
         <figure class="film">
-          <video controls preload="none" poster={`${withBase("clips/launch.jpg")}`} aria-label="A forty second tour of jot: quick adds from the CLI, then the calendar, fuzzy search and year heatmap in the TUI">
+          <video controls preload="none" poster={`${withBase("clips/launch.jpg")}`} aria-label="A fifty-five second tour of jot: quick adds from the CLI, the TUI calendar, fuzzy search and year heatmap, then todos, tags, reminders, encryption, PDF export, backups and git sync">
             <source src={`${withBase("clips/launch.mp4")}`} type="video/mp4" />
             Your browser cannot play this video. <a href={`${withBase("clips/launch.mp4")}`}>Download it</a>.
           </video>
           <figcaption class="film__cap">
-            <span>40s · real output on the sample journal</span>
+            <span>55s · real output on the sample journal</span>
             <span class="film__tag">demo</span>
           </figcaption>
         </figure>
@@ -278,7 +322,7 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
     <section class="band" id="record">
       <div class="wrap">
         <header class="sec">
-          <p class="sec__no">05</p>
+          <p class="sec__no">06</p>
           <div>
             <h2>What it does not do.</h2>
             <p class="sec__note">
@@ -302,10 +346,10 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
           <div class="record__col">
             <h3>No server, no account</h3>
             <p>
-              Nothing is uploaded and nothing is fetched to read your journal. Sync it with
-              whatever you already use, or don't; jot will not notice either way.
+              Nothing is uploaded and nothing is fetched to read your journal. Turn on git sync
+              and jot commits for you; otherwise sync with whatever you already use, or don't.
             </p>
-            <p>Nothing runs in the background. When you close it, it's closed.</p>
+            <p>Nothing runs in the background, except a reminder you asked for. When you close it, it's closed.</p>
           </div>
           <div class="record__col">
             <h3>Read-mostly by design</h3>
@@ -334,7 +378,7 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
     <div class="wrap foot__grid">
       <div>
         <p class="foot__mark">jot</p>
-        <p>0.5.0 · free and open source</p>
+        <p>0.7.0 · free and open source</p>
       </div>
       <nav class="foot__links" aria-label="Project">
         <a href={withBase("guide/")}>Guide</a>
@@ -831,6 +875,47 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
     color: var(--forest);
     flex: none;
   }
+
+  /* Price list: NOTESPACE tags, struck out in red pen */
+  .prices {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+    gap: 34px 28px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .price { display: grid; align-content: start; gap: 10px; min-width: 0; }
+  .price__tag {
+    position: relative;
+    justify-self: start;
+    padding: 10px 16px 12px;
+    border-radius: 12px;
+    background: var(--foil);
+    box-shadow: 0 10px 26px color-mix(in srgb, var(--foil-ink) 14%, transparent), 0 0 0 1px color-mix(in srgb, var(--foil-accent) 14%, transparent);
+    font-family: system-ui, sans-serif; /* generic on purpose: it's the foil */
+    color: var(--foil-ink);
+    rotate: -1.5deg;
+  }
+  .price:nth-child(even) .price__tag { rotate: 1.5deg; }
+  .price__tag p { margin: 0; }
+  .price__brand { font-size: 0.58rem; font-weight: 800; letter-spacing: 0.1em; color: var(--foil-accent); }
+  .price__name { font-size: 1.02rem; font-weight: 700; }
+  .price__cost { font-size: 0.8rem; font-weight: 600; color: #d6336c; }
+  .price__x {
+    position: absolute;
+    left: -6px;
+    right: -6px;
+    top: 52%;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--pen);
+    rotate: -6deg;
+  }
+  .price__pen { margin: 0; font-size: 1.3rem; rotate: -2deg; transform-origin: left; }
+  .price .term { padding: 10px 12px; font-size: 0.72rem; }
+  .price .term__out { margin: 0; font: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
   /* Scope */
   .record {
