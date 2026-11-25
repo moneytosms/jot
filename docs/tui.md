@@ -107,8 +107,22 @@ punctuation and clips the calendar.
 day pane takes the full width; press it again to bring it back. The journal
 list is also hidden when the terminal is narrower than 70 columns. Below the
 calendar, when there is room, a legend explains the colours (none, 1-5 and 6+
-entries) and a list of clickable shortcuts opens settings, search, todos, the
-year view and help. Terminals five rows tall or shorter show only the header and hint
+entries), then small widgets that appear only when they have something to show
+and fit whole:
+
+- **Streak:** consecutive days written (still alive until you skip today) and
+  the best run, one dim line.
+- **On this day:** the first line of entries written on today's date in
+  earlier years; click one to open that day.
+- **Open todos:** the count plus the first three unchecked items; click one to
+  jump to its day.
+- **Reminders:** the next two pending reminders.
+
+Each can be hidden in Settings → General. Last comes a list of clickable
+shortcuts for settings, search, todos, the year view and help.
+
+Journals given a colour in Settings show their name in it. Entries render
+`#tags` highlighted and `- [ ]` / `- [x]` items as ☐ / ☑. Terminals five rows tall or shorter show only the header and hint
 line.
 
 ## Calendar navigation
@@ -270,6 +284,7 @@ entry times, not journal names or day labels.
 | Home / End | first / last result |
 | `g` / `G` | first / last result when the result list has focus |
 | `/` | return focus to the query line |
+| `alt+1` … `alt+8` | toggle the filter chip with that position |
 | Enter | jump to the highlighted entry's day |
 | Esc | close search |
 
@@ -281,7 +296,12 @@ pressing Backspace, clears the results and resumes normal editing, after which
 The result list shows journal, day, time, and the first line of each hit. When
 the panel is wide enough, a preview of the highlighted entry appears beside the
 list. `Tab` switches the scope and reloads immediately, without the debounce. A
-scope line shows `all journals` or `this journal (NAME)`.
+scope line shows `all journals` or `this journal (NAME)` and the match count,
+followed by filter chips: `[has:todo] [is:open] [after:7d] [after:30d]` and
+your four most used `#tags`. Click a chip (or `alt+N`) to add that token to the
+query, again to remove it; the two date chips replace each other. You can also
+type any filter from [`jot search`](commands.md#search): `#tag`, `tag:`,
+`journal:`, `after:`, `before:`, `has:todo`, `is:open`.
 
 Enter jumps to the entry's day, switching journals first when the hit belongs
 to another journal. The TUI remembers that journal in `tui.journal`. An empty
@@ -442,7 +462,7 @@ produce a toast.
 ## Settings
 
 Press `S`, or click `S settings` under the calendar, to open the settings
-panel. It has three tabs; `Tab` and `Shift+Tab` (or a click on a tab name)
+panel. It has four tabs; `Tab` and `Shift+Tab` (or a click on a tab name)
 switch between them, Up and Down move between rows, Esc closes.
 
 **General**
@@ -453,10 +473,12 @@ switch between them, Up and Down move between rows, Esc closes.
 | Editor command | Enter saves the `editor` key. Empty means auto-detect. |
 | Default journal | Enter saves `default_journal` and warns when that journal does not exist yet. |
 | Reminders | Enter or Left/Right cycles `auto`, `omarchy`, `systemd`, `background`, `off`; saves `reminders` and shows which provider it resolves to. |
+| Git sync | Enter or Left/Right cycles `off`, `commit`, `push`; saves `git`. |
+| Streak, On this day, Open todos, Reminders | Enter shows or hides that widget under the calendar; saves `tui.hide`. |
 | Config file | Read-only path of the config file in use. |
 
 **Journals** lists every journal with its days, notes, last write and
-`open`/`default` tags; the list scrolls with Up/Down, `j`/`k` or the wheel.
+`open`/`default`/`encrypted`/colour tags; the list scrolls with Up/Down, `j`/`k` or the wheel.
 
 | Key | Action on the highlighted journal |
 | --- | --- |
@@ -465,6 +487,9 @@ switch between them, Up and Down move between rows, Esc closes.
 | `a` | archive to `<root>/backups/jot-<name>-<stamp>.tar.gz`, journal untouched |
 | `d` | delete: type the name to confirm; it is archived first |
 | `s` | make it the default journal |
+| `x` | press twice: encrypt with age, or decrypt back to markdown (see [`jot journal encrypt`](commands.md#journal)) |
+| `t` | edit its daily template (`.template`) in your editor |
+| `c` | cycle its sidebar colour: none, green, yellow, cyan, magenta, red, blue |
 | `n` | create a new journal |
 
 The default journal cannot be renamed or deleted.
@@ -478,6 +503,10 @@ expanded), then pick a row and press Enter:
 | Use path only | Saves `root` without moving anything, for pointing jot at an existing journal folder. |
 
 Both refuse while `JOT_ROOT` is set, since the variable overrides the config.
+
+**Archives** lists the archives and backups in `<root>/backups`, newest first.
+Enter restores the highlighted one; it refuses when a journal in it already
+exists, so rename or delete that journal first.
 
 Saving the editor writes `editor`, which affects `jot edit` as well as the
 TUI's `e` handoff. Setting the default journal does not switch the journal

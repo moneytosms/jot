@@ -283,6 +283,19 @@ DAY         ENTRIES  SIZE
 
 ---
 
+## tags
+
+```
+jot tags [-j name]
+```
+
+Lists every `#tag` with the number of entries using it, most used first. A
+tag is `#` at the start of a line or after a space, then a letter, then
+letters, digits, `_`, `-` or `/` (`#work`, `#work/infra`). Markdown headings
+(`# Title`) are not tags. Tags are highlighted in `show`, the TUI and exports.
+
+---
+
 ## search
 
 ```
@@ -360,6 +373,23 @@ the parser should accept empty input
 4 matches, showing first 2
 ```
 
+
+**Filters.** Tokens in the query filter entries; any filter switches to
+entry-level (fuzzy) results, and a query of filters alone lists every match
+newest first.
+
+| Token | Matches entries |
+| --- | --- |
+| `#tag`, `tag:name` | carrying that tag (all given tags) |
+| `journal:name` | in one journal |
+| `after:DAY`, `before:DAY` | on or after / before a day: `YYYY-MM-DD`, `today`, `yesterday`, or `Nd` (N days ago) |
+| `has:todo` | with a checkbox item |
+| `is:open` | with an unchecked checkbox |
+
+```bash
+jot search "#release after:30d"
+jot search "deploy journal:work is:open"
+```
 ---
 
 ## todo
@@ -598,9 +628,22 @@ A positional `dir` overrides `--out`.
 | Flag | Default | Meaning |
 | --- | --- | --- |
 | `-o`, `--out <dir>` | `./jot-export` | Destination directory |
+| `--format <fmt>` | `md` | `md`, `html` or `pdf` |
+| `-j`, `--journal <name>` | every journal | html/pdf: export one journal |
+| `--from`, `--to <day>` | open | html/pdf: first and last day, inclusive |
+
+`--format html` writes `<journal>.html`, a self-contained document: a cover
+page (journal name, date range, days, entries, words, tags), a contents page
+listing each month, then every day with its entries rendered from markdown
+(lists, task boxes, quotes, code, tables, links, `#tags`). `--format pdf`
+prints that page with a headless Chrome, Chromium, Edge or Brave into
+`<journal>.pdf` (A4, page numbers, each month on a new page); without such a
+browser, export HTML and print it from any browser. Encrypted journals are
+exported decrypted.
 
 ```bash
 jot export --out ~/Documents/journal-export
+jot export --format pdf -j work --from 2026-01-01
 ```
 
 ```
@@ -626,6 +669,29 @@ sanitising rules as `-j`, and `rm` archives a journal before deleting it.
 | `jot journal ls` | List journals, same as `jot ls` |
 | `jot journal rename OLD NEW` | Rename a journal directory |
 | `jot journal rm [--yes] NAME` | Archive, then delete a journal |
+| `jot journal encrypt NAME` | Age-encrypt every day file; later writes stay encrypted |
+| `jot journal decrypt NAME` | Turn an encrypted journal back into plain markdown |
+| `jot journal archives` | List archives and backups in `<root>/backups` |
+| `jot journal restore ARCHIVE` | Unpack an archive (a name in `backups/` or a path) back into the root |
+
+**Encryption.** `encrypt` creates an [age](https://age-encryption.org) key at
+`~/.config/jot/age-key.txt` on first use (`JOT_KEY` points elsewhere) and
+writes a `.encrypted` marker in the journal. Files keep their `.md` names; the
+content becomes armored age ciphertext. Every command (add, show, search, todo,
+edit, the TUI) decrypts transparently with the key, so there are no prompts.
+`jot edit` opens a decrypted copy in a private temp directory
+(`$XDG_RUNTIME_DIR` when set) and re-encrypts it when the editor exits. This
+protects journals that are synced or backed up elsewhere, not against someone
+logged in as you. **Back up the key file**: without it the journal is
+unreadable. `jot doctor` checks it.
+
+**Restore** refuses before writing anything if a journal in the archive
+already exists, and rejects archive entries that are not `<journal>/<file>`.
+
+**Daily template.** A file named `.template` in a journal directory (or in
+the root, for every journal) seeds each new day opened with `jot edit` or the
+TUI's `e`, as a first timestamped entry. There is none by default; the TUI
+edits it with `t` in Settings → Journals.
 
 `journal rm` writes a gzip archive to
 `<root>/backups/jot-<name>-YYYYMMDD-HHMMSS.tar.gz` first. Without `--yes` it

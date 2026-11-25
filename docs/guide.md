@@ -519,8 +519,11 @@ Set `JOT_CONFIG` to use another path.
   "default_journal": "daily",
   "editor": "code --wait",
   "reminders": "auto",
+  "git": "commit",
   "tui": {
-    "theme": "nord"
+    "theme": "nord",
+    "hide": ["reminders"],
+    "colors": { "work": "cyan" }
   }
 }
 ```
@@ -529,8 +532,13 @@ Every key is optional. A missing file means the defaults apply. `~` is expanded
 in `root`. `reminders` picks how reminders are delivered: `auto` (the default)
 tries Omarchy, then a systemd timer, then a background process with the
 system's notifier; `omarchy`, `systemd` or `background` pins one; `off` turns
-reminders off. See [`jot remind`](commands.md#remind). The `tui` block holds interface preferences: `theme` and the journal
-last selected with `J`/`K` in the TUI. `jot setup` writes this file from its
+reminders off. See [`jot remind`](commands.md#remind). `git` turns on git
+sync of the root: `off` (default), `commit` after every write (the root becomes
+a git repository on first use, with `backups/` ignored), or `push` to also push
+when a remote is set; a failed sync is a warning, never a lost write. The `tui`
+block holds interface preferences: `theme`, the journal last selected with
+`J`/`K`, `hide` (below-calendar widgets turned off: `streak`, `onthisday`,
+`todos`, `reminders`) and `colors` (a sidebar colour per journal). `jot setup` writes this file from its
 answers, replacing the previous contents; it does not preserve the `tui` block.
 
 ### Environment variables
@@ -541,6 +549,7 @@ answers, replacing the previous contents; it does not preserve the `tui` block.
 | `JOT_JOURNAL` | Default journal name |
 | `JOT_EDITOR` | Editor command for `jot edit` |
 | `JOT_CONFIG` | Path of the config file |
+| `JOT_KEY` | age key file for encrypted journals (default `age-key.txt` next to the config) |
 | `JOT_INSTALL_DIR` | Default directory for `jot install`, `jot update` and `jot setup` |
 | `JOT_SRC` | Source checkout for `jot update --source` |
 | `JOT_THEME` | TUI colour theme, above `tui.theme` and below `--theme`; `show --render` uses it for light/dark |
