@@ -11,11 +11,25 @@ and a full-screen terminal interface.
 [Usage guide](https://moneytosms.github.io/jot/guide/) ·
 [Command reference](docs/commands.md)
 
-A 55-second tour: quick adds from the CLI, the TUI's calendar, fuzzy search and
-year heatmap, then todos, tags, reminders, encryption, PDF export, backups and
-git sync. Every line of terminal output comes from the real binary:
+## Install
 
-![A tour of jot: quick adds, the TUI calendar and search, then todos, tags, reminders, encryption, PDF export, backups and git sync](assets/readme/tour.mp4)
+```sh
+curl -fsSL https://raw.githubusercontent.com/moneytosms/jot/main/install-release.sh | sh
+```
+
+or, with Go 1.24+:
+
+```sh
+go install github.com/moneytosms/jot/cmd/jot@latest
+```
+
+## Tour
+
+[![Play the 55-second tour of jot: quick adds, the TUI calendar and search, then todos, tags, reminders, encryption, PDF export, backups and git sync](assets/readme/tour-play.jpg)](https://moneytosms.github.io/jot/clips/launch.mp4)
+
+55 seconds: quick adds from the CLI, the TUI's calendar, fuzzy search and year
+heatmap, then todos, tags, reminders, encryption, PDF export, backups and git
+sync. Every line of terminal output comes from the real binary.
 
 ## Why
 
@@ -69,28 +83,13 @@ rewritten.
 - **Tight permissions.** Journal directories are `0700`; day files and the
   config file are `0600`.
 
-## Install
+## More install options
 
-### Release script
+The release script downloads the right binary for your machine, verifies it,
+and installs it to `~/.local/bin`. Set `JOT_INSTALL_DIR` to choose another
+directory, or `JOT_VERSION` to pin a release.
 
-```sh
-curl -fsSL https://raw.githubusercontent.com/moneytosms/jot/main/install-release.sh | sh
-```
-
-The script downloads the right release for your machine, verifies it, and
-installs it to `~/.local/bin`. Set
-`JOT_INSTALL_DIR` to choose another directory, or `JOT_VERSION` to pin a
-release.
-
-### Build from source
-
-Go 1.24 or newer is required.
-
-```sh
-go install github.com/moneytosms/jot/cmd/jot@latest
-```
-
-Or from a checkout:
+### From a checkout
 
 ```sh
 git clone https://github.com/moneytosms/jot
