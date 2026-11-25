@@ -6,7 +6,7 @@
 #   ./install.sh --prefix /usr/local install into /usr/local/bin
 #   BINDIR=~/bin ./install.sh        install into ~/bin
 #
-# Requires Go 1.22 or newer. Builds with the version from git when available.
+# Requires Go 1.24 or newer. Builds with the version from git when available.
 
 set -euo pipefail
 

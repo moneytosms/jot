@@ -4,8 +4,10 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/moneytosms/jot"
 )
@@ -13,8 +15,17 @@ import (
 func (a *app) searchCmd(args []string) error {
 	fs := a.flags("search")
 	journal := journalFlag(fs)
+	fuzzy := fs.Bool("fuzzy", false, "fuzzy entry-level search with previews")
+	limit := fs.Int("limit", 20, "maximum results in fuzzy mode (0 = unlimited)")
 	if err := fs.Parse(args); err != nil {
 		return err
+	}
+	// Go's flag package stops at the first non-flag argument, so flags written
+	// after the query would silently become part of the query.
+	for _, arg := range fs.Args() {
+		if strings.HasPrefix(arg, "-") && arg != "-" {
+			return fmt.Errorf("flags must come before the query, for example: jot search --fuzzy --limit 10 parser")
+		}
 	}
 	query := strings.TrimSpace(strings.Join(fs.Args(), " "))
 	if query == "" {
@@ -35,6 +46,10 @@ func (a *app) searchCmd(args []string) error {
 		}
 	})
 
+	if *fuzzy {
+		return a.searchFuzzy(j, scoped, *journal, query, *limit)
+	}
+
 	var matches []jot.Match
 	if scoped {
 		name := pickJournal(j, *journal)
@@ -52,10 +67,112 @@ func (a *app) searchCmd(args []string) error {
 		fmt.Fprintf(a.out, "no matches for %q\n", query)
 		return nil
 	}
-	for _, m := range matches {
-		fmt.Fprintf(a.out, "%s/%s.md:%d: %s\n", m.Journal, m.Day, m.Line, m.Text)
-	}
+	printSearchHits(a.out, matches)
 	return nil
+}
+
+// printSearchHits prints substring-search hits grouped by journal and day: a
+// header line per day with the hit count, every hit with its line number, and
+// a final summary.
+func printSearchHits(w io.Writer, matches []jot.Match) {
+	type group struct {
+		journal, day string
+		matches      []jot.Match
+	}
+	var groups []group
+	for _, m := range matches {
+		if n := len(groups); n > 0 && groups[n-1].journal == m.Journal && groups[n-1].day == m.Day {
+			groups[n-1].matches = append(groups[n-1].matches, m)
+			continue
+		}
+		groups = append(groups, group{m.Journal, m.Day, []jot.Match{m}})
+	}
+	journals := 0
+	prev := ""
+	for _, g := range groups {
+		if g.journal != prev {
+			journals++
+			prev = g.journal
+		}
+	}
+	for _, g := range groups {
+		fmt.Fprintf(w, "%s . %s . %d %s\n", g.journal, g.day, len(g.matches), plural(len(g.matches), "hit", "hits"))
+		for _, m := range g.matches {
+			fmt.Fprintf(w, "  %s/%s.md:%d: %s\n", m.Journal, m.Day, m.Line, m.Text)
+		}
+	}
+	fmt.Fprintf(w, "\n%d %s in %d %s\n",
+		len(matches), plural(len(matches), "match", "matches"),
+		journals, plural(journals, "journal", "journals"))
+}
+
+// searchFuzzy runs the entry-level fuzzy search and prints one block per hit:
+// a "journal . day . time" header, the first three body lines truncated to
+// the render width, and a blank line. Hits keep the library's score order;
+// only the count is capped at limit (0 means no limit).
+func (a *app) searchFuzzy(j *jot.Jot, scoped bool, journal, query string, limit int) error {
+	var hits []jot.EntryMatch
+	var err error
+	if scoped {
+		name := pickJournal(j, journal)
+		hits, err = j.SearchEntriesJournal(name, query)
+		if errors.Is(err, jot.ErrNoJournal) {
+			return noJournalErr(name)
+		}
+	} else {
+		hits, err = j.SearchEntries(query)
+	}
+	if err != nil {
+		return err
+	}
+	if len(hits) == 0 {
+		fmt.Fprintf(a.out, "no matches for %q\n", query)
+		return nil
+	}
+	shown := hits
+	if limit > 0 && len(hits) > limit {
+		shown = hits[:limit]
+	}
+	for _, h := range shown {
+		at := h.Time
+		if at == "" {
+			at = "-"
+		}
+		fmt.Fprintf(a.out, "%s . %s . %s\n", h.Journal, h.Day, at)
+		for _, line := range previewLines(h.Body, 3, renderWidth) {
+			fmt.Fprintln(a.out, line)
+		}
+		fmt.Fprintln(a.out)
+	}
+	if len(shown) < len(hits) {
+		fmt.Fprintf(a.out, "%d %s, showing first %d\n",
+			len(hits), plural(len(hits), "match", "matches"), len(shown))
+		return nil
+	}
+	fmt.Fprintf(a.out, "%d %s\n", len(hits), plural(len(hits), "match", "matches"))
+	return nil
+}
+
+// previewLines returns up to n lines of body, each truncated to width columns.
+func previewLines(body string, n, width int) []string {
+	lines := strings.Split(body, "\n")
+	if len(lines) > n {
+		lines = lines[:n]
+	}
+	out := make([]string, 0, len(lines))
+	for _, line := range lines {
+		out = append(out, truncateCols(line, width))
+	}
+	return out
+}
+
+// truncateCols cuts s to width runes, appending "..." when anything was cut.
+func truncateCols(s string, width int) string {
+	if width <= 0 || utf8.RuneCountInString(s) <= width {
+		return s
+	}
+	r := []rune(s)
+	return string(r[:width]) + "..."
 }
 
 func (a *app) backupCmd(args []string) error {

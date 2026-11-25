@@ -9,22 +9,27 @@ func printHelp(w io.Writer) {
 	fmt.Fprint(w, `jot: a fast, plaintext journal that lives in markdown files
 
 Usage:
+  jot                    Open the TUI when run in a terminal, else this help
   jot <command> [flags] [arguments]
 
 Commands:
+  tui        Open the interactive interface (bare `+"`jot`"+` in a terminal)
   add        Append a timestamped entry
   show       Print entries
   edit       Open a day in your editor
   ls         List journals, or the days inside one journal
   search     Search across journals
+  todo       List checkbox todos inside entries
   watch      Follow today's entries live
+  remind     Set and manage countdown reminders
   backup     Write a compressed archive of every journal
   export     Write one markdown file per journal
+  journal    Create, delete or rename journals
   init       Create the journal root
   setup      Interactive first-run configuration
   install    Copy the jot binary into a bin directory
-  update     Rebuild and reinstall from a source checkout
-  uninstall  Delete journal data (the binary stays)
+  update     Update to the latest release, or rebuild from source
+  uninstall  Remove journal data, the binary and/or config
   doctor     Check the installation
   version    Print the version
   help       Show this help, or help for one command
@@ -34,6 +39,8 @@ Common flags:
   -d, --date <day>       today (default), yesterday or YYYY-MM-DD
 
 Examples:
+  jot
+  jot tui
   jot setup
   jot add "shipped the first release"
   jot add -j work "standup: on track"
@@ -47,13 +54,41 @@ Examples:
 
 Storage:
   ~/.jot/<journal>/YYYY-MM-DD.md     change with JOT_ROOT or the config file
-  ~/.config/jot/config.json          root, default journal and editor
+  ~/.config/jot/config.json          root, default journal, editor and the
+                                     tui block (theme, last journal)
 
 Run `+"`jot help <command>`"+` for details on any command.
 `)
 }
 
 var commandHelp = map[string]string{
+	"tui": `jot tui [-j NAME] [--theme NAME]
+
+Open the interactive interface: a month calendar, the rendered entries of
+the selected day, a journal sidebar, and a one-line quick-add box.
+
+Press ? inside the TUI for every keybinding.
+
+The interface is read-mostly. Quick add appends an entry; editing or
+removing content always happens in your editor (press e), and jot never
+rewrites entries itself. R renames the open journal and D deletes it after
+archiving it under <root>/backups and asking you to type its name; the
+default journal is protected.
+
+Flags:
+  -j, --journal <name>  journal to open (default: the last journal you
+                        opened, else the configured journal)
+      --theme <name>    color theme: auto, default, light, dark, gruvbox,
+                        nord, dracula, catppuccin, tokyo-night or omarchy
+                        (default: JOT_THEME, then tui.theme, then auto)
+
+Examples:
+  jot tui
+  jot tui -j work
+  jot tui --theme nord
+
+Running bare ` + "`jot`" + ` in a terminal opens the TUI with the same
+defaults.`,
 	"add": `jot add [flags] [text...]
 
 Append one timestamped entry to a journal. The text can be given as
@@ -80,13 +115,19 @@ Flags:
   -j, --journal <name>  journal to read (default: configured journal)
   -d, --date <day>      today (default), yesterday, YYYY-MM-DD, or all
   -a, --all             print every day, with day headings
-      --render          render markdown with a simple terminal layout
+      --render          render markdown for the terminal; honours NO_COLOR
+                        and picks light styles when JOT_THEME names a light
+                        theme
+      --calendar [YYYY-MM]  print a month grid for YYYY-MM (default: the
+                        current month); a dot marks 1-2 entries, a star 3+
 
 Examples:
   jot show
   jot show yesterday
   jot show -j work -a
-  jot show -d 2026-10-01 --render`,
+  jot show -d 2026-10-01 --render
+  jot show --calendar 2026-01
+  jot show --calendar`,
 	"edit": `jot edit [flags] [day]
 
 Open a journal day in $JOT_EDITOR, then the config editor setting, then
@@ -116,15 +157,73 @@ Examples:
 	"search": `jot search [flags] <query>
 
 Case-insensitive substring search across every journal, or one journal
-when -j is given. Results are printed as journal/day.md:line: text.
+when -j is given. Hits are grouped by journal and day under a header
+line, each hit shows its line number, and a summary closes the list.
 
 Flags:
   -j, --journal <name>  limit the search to one journal
+      --fuzzy           fuzzy entry-level search with a scored preview per
+                        entry, best first
+      --limit <n>       maximum fuzzy results (default 20)
 
 Examples:
   jot search parser
   jot search -j work standup
-  jot search "next steps"`,
+  jot search "next steps"
+  jot search --fuzzy --limit 10 parser`,
+	"todo": `jot todo [flags]
+
+List checkbox items ("- [ ]" / "- [x]") found in entry bodies across every
+journal, newest day first, one line per item with its journal, day and
+time, and an "N open . M done" summary.
+
+The command is read-only: toggling a box is done by editing the day, e.g.
+jot edit -d 2026-11-01 -j work.
+
+Flags:
+  -j, --journal <name>  limit the list to one journal
+      --open            only unchecked items
+      --done            only completed items
+      --all             everything (the default)
+      --limit <n>       show at most n items
+
+Examples:
+  jot todo
+  jot todo --open -j work
+  jot todo --limit 10`,
+	"remind": `jot remind <MESSAGE DURATION | list | clear>
+
+Set a countdown reminder, or manage existing ones. Durations take Go-style
+units (90s, 20m, 2h, 1h30m); a bare number means minutes. Reminders fire
+through omarchy when it is present, otherwise through systemd user timers
+with notify-send.
+
+  jot remind MESSAGE DURATION  set a reminder; the duration may come first
+  jot remind list              show active reminders
+  jot remind clear             stop and remove every jot reminder
+
+Examples:
+  jot remind "stretch" 20m
+  jot remind 2h "review the draft"
+  jot remind list`,
+	"journal": `jot journal <new|rm|rename|ls> [arguments]
+
+Manage journals.
+
+  jot journal new NAME         create a journal and print its directory
+  jot journal rm [--yes] NAME  archive to <root>/backups, confirm, then delete
+  jot journal rename OLD NEW   rename a journal
+  jot journal ls               list journals (same output as jot ls)
+
+` + "`journal rm`" + ` always writes an archive into <root>/backups before deleting,
+refuses the default journal and the backups name, and asks you to type the
+journal name exactly; anything else aborts with the journal intact. Pass
+--yes to skip the prompt in scripts.
+
+Examples:
+  jot journal new ideas
+  jot journal rm --yes old-notes
+  jot journal rename work deep-work`,
 	"watch": `jot watch [flags]
 
 Follow today's file and print entries as they are appended, until Ctrl+C.
@@ -209,29 +308,62 @@ Examples:
   JOT_INSTALL_DIR=~/bin jot install`,
 	"update": `jot update [flags]
 
-Rebuild the binary from a local source checkout and install it, replacing
-the copy in your bin directory. Requires Go and the repository.
+Check the published releases and install the build for this platform,
+replacing the copy in your bin directory. By default it shows the
+available release and asks before installing. The download is verified
+against the release SHA256SUMS before it is renamed into place.
 
 Flags:
-      --src <dir>  source checkout (default: JOT_SRC, then the current
-                   directory and its parents)
-      --dir <dir>  install directory (default: JOT_INSTALL_DIR, else ~/.local/bin)
+      --check          report the release status without installing
+      --source         rebuild from a local source checkout instead
+      --src <dir>      source checkout for --source (default: JOT_SRC,
+                       then the current directory and its parents)
+      --dir <dir>      install directory (default: JOT_INSTALL_DIR, else
+                       ~/.local/bin)
+      --version <tag>  install a specific release, e.g. v0.2.0
+  -y, --yes            install without asking
+      --notes          print the full release notes
+      --json           print one machine-readable status object
+
+Without a terminal and without --yes, update only reports the status and
+exits 0. Set JOT_RELEASES_API to use a mirror or a test server.
 
 Examples:
   jot update
-  jot update --src ~/code/jot --dir ~/.local/bin`,
+  jot update --check
+  jot update --yes
+  jot update --version v0.2.0
+  jot update --check --json
+  jot update --source --src ~/code/jot`,
 	"uninstall": `jot uninstall [flags]
 
-Delete the journal root and every entry in it. The binary is left in
-place; remove it with rm $(command -v jot) if you want it gone too.
-Refuses to run without confirmation unless -y is given.
+Choose what to remove: journal data, the running binary, the config file,
+or all three. With no component flag and an interactive terminal, jot
+lists what exists and asks. Component flags remove only what is named;
+--yes skips the confirmation prompts.
+
+Data removal deletes the journal root, including journals, every entry
+and every backup. It warns first and asks you to type "delete". Removal
+runs in a safe order: config, then data, then the binary last.
 
 Flags:
-  -y, --yes  do not ask for confirmation
+      --data      remove the journal root (journals, backups, all entries)
+      --binary    remove the running jot executable
+      --config    remove the config file (when it exists)
+      --all       remove data, binary and config
+      --dry-run   print what would be removed, remove nothing
+  -y, --yes       do not ask for confirmation
+
+Without a terminal and without a component flag, uninstall is a usage
+error: it never guesses what to delete. jot uninstall --yes keeps the old
+behaviour and removes journal data only.
 
 Examples:
   jot uninstall
-  jot uninstall --yes`,
+  jot uninstall --dry-run --all
+  jot uninstall --data --yes
+  jot uninstall --binary
+  jot uninstall --config --yes`,
 	"doctor": `jot doctor
 
 Check the installation: root directory and its permissions, config file,

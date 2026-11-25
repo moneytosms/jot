@@ -12,6 +12,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/moneytosms/jot"
+	"github.com/moneytosms/jot/internal/tui"
 )
 
 // version is overridden at build time:
@@ -24,7 +25,17 @@ func main() {
 }
 
 func run(args []string, in io.Reader, out, errw io.Writer) int {
+	a := &app{in: in, out: out, errw: errw}
 	if len(args) == 0 {
+		// In a real terminal, bare jot is the interactive interface; anywhere
+		// else (pipes, redirects, tests) it stays the help page.
+		if interactive(in, out) {
+			if err := a.runTUI("", ""); err != nil {
+				fmt.Fprintf(errw, "jot: %v\n", err)
+				return 1
+			}
+			return 0
+		}
 		printHelp(out)
 		return 0
 	}
@@ -45,9 +56,10 @@ func run(args []string, in io.Reader, out, errw io.Writer) int {
 		return 0
 	}
 
-	a := &app{in: in, out: out, errw: errw}
 	var err error
 	switch args[0] {
+	case "tui":
+		err = a.tuiCmd(args[1:])
 	case "init":
 		err = a.initCmd(args[1:])
 	case "add":
@@ -60,12 +72,18 @@ func run(args []string, in io.Reader, out, errw io.Writer) int {
 		err = a.lsCmd(args[1:])
 	case "search":
 		err = a.searchCmd(args[1:])
+	case "todo":
+		err = a.todoCmd(args[1:])
 	case "watch":
 		err = a.watchCmd(args[1:])
+	case "remind":
+		err = a.remindCmd(args[1:])
 	case "backup":
 		err = a.backupCmd(args[1:])
 	case "export":
 		err = a.exportCmd(args[1:])
+	case "journal":
+		err = a.journalCmd(args[1:])
 	case "install":
 		err = a.installCmd(args[1:])
 	case "update":
@@ -84,10 +102,26 @@ func run(args []string, in io.Reader, out, errw io.Writer) int {
 		if errors.Is(err, flag.ErrHelp) {
 			return 0
 		}
+		if errors.Is(err, errUsage) {
+			return 2
+		}
 		fmt.Fprintf(errw, "jot: %v\n", err)
 		return 1
 	}
 	return 0
+}
+
+// errUsage marks a usage error whose help page has already been printed. run
+// turns it into exit status 2, the convention the flag package follows.
+var errUsage = errors.New("usage error")
+
+// plural returns one for n == 1, otherwise many. It keeps summary lines
+// grammatical without a template engine.
+func plural(n int, one, many string) string {
+	if n == 1 {
+		return one
+	}
+	return many
 }
 
 // app carries the streams a command writes to, which keeps the CLI testable.
@@ -97,13 +131,54 @@ type app struct {
 	errw io.Writer
 }
 
+// loadConfig resolves the effective configuration.
+func (a *app) loadConfig() (jot.Config, error) {
+	return jot.DefaultConfig()
+}
+
 // loadJot resolves configuration and returns a ready handle.
 func (a *app) loadJot() (*jot.Jot, error) {
-	cfg, err := jot.DefaultConfig()
+	cfg, err := a.loadConfig()
 	if err != nil {
 		return nil, err
 	}
 	return jot.New(cfg), nil
+}
+
+// tuiCmd parses the tui flags and hands over to the interactive interface.
+func (a *app) tuiCmd(args []string) error {
+	fs := a.flags("tui")
+	journal := journalFlag(fs)
+	theme := fs.String("theme", "", "colour theme name")
+	if err := fs.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return err
+		}
+		return errUsage // the flag set already printed the help page
+	}
+	if fs.NArg() > 0 {
+		_ = printCommandHelp("tui", a.out)
+		return errUsage
+	}
+	return a.runTUI(*journal, *theme)
+}
+
+// runTUI refuses non-terminal streams, then blocks inside the interface.
+func (a *app) runTUI(journal, theme string) error {
+	if !interactive(a.in, a.out) {
+		return errors.New("jot tui needs an interactive terminal; run jot help for the command line")
+	}
+	cfg, err := a.loadConfig()
+	if err != nil {
+		return err
+	}
+	return tui.Run(tui.Options{
+		Cfg:     cfg,
+		Journal: journal,
+		Theme:   theme,
+		In:      a.in,
+		Out:     a.out,
+	})
 }
 
 // flags returns a flag set that prints jot's own help page for -h/--help
@@ -149,6 +224,22 @@ func stdinPiped(in io.Reader) bool {
 		return true
 	}
 	return !jot.IsTerminal(f)
+}
+
+// interactive reports whether both streams are real terminals, so the TUI
+// only starts where it can read keys and draw. It never looks at TERM.
+func interactive(in io.Reader, out io.Writer) bool {
+	return terminalFile(in) && terminalFile(out)
+}
+
+// terminalFile reports whether v is an *os.File on a character device.
+// jot.IsTerminal holds the actual check so the CLI has one definition.
+func terminalFile(v any) bool {
+	f, ok := v.(*os.File)
+	if !ok {
+		return false
+	}
+	return jot.IsTerminal(f)
 }
 
 func readBody(r io.Reader) (string, error) {

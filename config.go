@@ -19,6 +19,8 @@ const (
 	EnvConfig = "JOT_CONFIG"
 	// EnvInstallDir sets the default directory for `jot install`.
 	EnvInstallDir = "JOT_INSTALL_DIR"
+	// EnvTheme overrides the TUI color theme.
+	EnvTheme = "JOT_THEME"
 )
 
 // DefaultJournalName is the journal used when none is named.
@@ -26,6 +28,18 @@ const DefaultJournalName = "default"
 
 // ModulePath is the import path of this module.
 const ModulePath = "github.com/moneytosms/jot"
+
+// TUI holds preferences used only by the interactive interface. They are kept
+// apart from the command-line settings so the TUI never changes how `jot add`
+// or `jot show` behave.
+type TUI struct {
+	// Theme is the color theme name, or "auto" to follow the terminal and the
+	// Omarchy theme. Empty means "auto".
+	Theme string `json:"theme,omitempty"`
+	// Journal is the journal the TUI last had open. It is a convenience only:
+	// commands still default to DefaultJournal.
+	Journal string `json:"journal,omitempty"`
+}
 
 // Config controls where journals live, which journal commands default to and
 // which editor `jot edit` launches.
@@ -39,6 +53,8 @@ type Config struct {
 	DefaultJournal string `json:"default_journal,omitempty"`
 	// Editor is the command `jot edit` launches.
 	Editor string `json:"editor,omitempty"`
+	// TUI holds interactive-interface preferences.
+	TUI TUI `json:"tui,omitempty"`
 }
 
 // DefaultConfig resolves the effective configuration.
@@ -58,6 +74,7 @@ func DefaultConfig() (Config, error) {
 	if file.Editor != "" {
 		cfg.Editor = file.Editor
 	}
+	cfg.TUI = file.TUI
 
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -134,6 +151,20 @@ func SaveConfig(cfg Config) (string, error) {
 		return "", err
 	}
 	return path, nil
+}
+
+// SaveTUIPreferences records interactive-interface preferences in the config
+// file and returns the path written. Only the "tui" block is changed, so a
+// user's root, default journal and editor settings are preserved verbatim and
+// JOT_* environment overrides are never baked into the file.
+func SaveTUIPreferences(theme, journal string) (string, error) {
+	file, err := LoadConfigFile()
+	if err != nil {
+		return "", err
+	}
+	file.TUI.Theme = theme
+	file.TUI.Journal = journal
+	return SaveConfig(file)
 }
 
 // ConfigError describes a problem with the config file.

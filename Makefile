@@ -7,7 +7,7 @@ GO      ?= go
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo 0.0.0-dev)
 LDFLAGS := -s -w -X main.version=$(VERSION)
 
-.PHONY: all build test vet fmt check install uninstall clean help
+.PHONY: all build test vet fmt check vendor install uninstall clean help
 
 all: build
 
@@ -31,6 +31,11 @@ fmt:
 ## check: vet + tests, the same checks CI would run
 check: vet test
 
+## vendor: refresh vendored dependencies (go mod tidy + go mod vendor)
+vendor:
+	$(GO) mod tidy
+	$(GO) mod vendor
+
 ## install: build and copy the binary into BINDIR (default ~/.local/bin)
 install: build
 	mkdir -p $(BINDIR)
@@ -38,7 +43,7 @@ install: build
 	@echo "installed $(BINDIR)/$(BINARY)"
 	@echo "run \`jot setup\` if this is your first install"
 
-## uninstall: remove the binary (journal data is left alone)
+## uninstall: remove the installed binary (same as `jot uninstall --binary --yes`)
 uninstall:
 	rm -f $(BINDIR)/$(BINARY)
 	@echo "removed $(BINDIR)/$(BINARY); journal data is untouched"

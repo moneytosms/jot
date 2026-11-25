@@ -1,288 +1,288 @@
 # jot
 
-<p align="center"><img src="assets/readme/hero.svg" alt="jot: a terminal journal with one plain Markdown file per day" width="100%"></p>
+jot is a fast, plaintext journal: one Markdown file per day, a scriptable CLI,
+and a full-screen terminal interface.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Go 1.22](https://img.shields.io/badge/Go-1.22-00ADD8?logo=go&logoColor=white)](go.mod)
-[![stdlib only](https://img.shields.io/badge/dependencies-stdlib%20only-brightgreen)](go.mod)
+## Why
 
-**jot is a fast command-line journal that stores your notes as plain Markdown files you can read and edit with any tool.**
-
-It keeps one terminal journal with one plain Markdown file per day, per journal.
-Entries are timestamped and appended, never rewritten. There is no database, no
-daemon and no proprietary format. jot is written in Go and uses only the standard
-library.
-
-```sh
-$ jot add "shipped the parser rewrite"
-added to default/2026-11-10.md
-
-$ jot show
-## 09:41:07
-
-shipped the parser rewrite
-```
-
-## Contents
-
-- [Features](#features)
-- [Install](#install)
-- [First run](#first-run)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [Storage](#storage)
-- [Platform support](#platform-support)
-- [Development](#development)
-- [Contributing](#contributing)
-- [License](#license)
+Your notes are ordinary Markdown files in a directory you own. Read them with
+`cat`, edit them with any editor, search them with `grep`, back them up with
+`tar`, and sync them with whatever you already use. There is no database, no
+jot daemon, and no lock-in. The core Go library uses only the standard
+library; the TUI is built with Bubble Tea.
 
 ## Features
 
-- **Plain Markdown storage.** Each day is a file at `<root>/<journal>/YYYY-MM-DD.md`.
-- **Append-only writes.** New entries are appended to the day's file. Earlier entries are not rewritten.
-- **Timestamped entries.** Each entry starts with a `## HH:MM:SS` heading in local time.
-- **Named journals.** Keep separate journals with `-j`/`--journal`. Names are sanitised before they become directories.
-- **Any day.** Use `today`, `yesterday`, `tomorrow` or `YYYY-MM-DD` with `-d`/`--date`, or as a positional argument to `show` and `edit`.
-- **Flexible input.** Pass text as arguments, pipe it on stdin, or write it in your editor with `jot edit`.
-- **Search.** `jot search` does a case-insensitive substring match and prints `journal/day.md:line: text`.
-- **Live tail.** `jot watch` prints new entries as they are appended and follows the file across midnight.
-- **Rendering.** `jot show --render` prints Markdown with a simple terminal layout.
-- **Backup and export.** `jot backup` writes a `.tar.gz` of all journals. `jot export` writes one Markdown file per journal.
-- **Guided setup and checks.** `jot setup` writes the configuration. `jot doctor` checks the installation.
-- **Restrictive permissions.** Journal directories are created with mode `0700` and files with mode `0600`. Export and install directories are `0755`.
+- **One file per day.** Every day is `<root>/<journal>/YYYY-MM-DD.md`. Entries
+  are appended under a `## HH:MM:SS` heading; earlier bytes are never
+  rewritten.
+- **Calendar with entry heat.** The TUI shows a month at a glance. Cell color
+  reflects how many entries a day has, and the header totals the displayed
+  month's days and entries.
+- **Rendered day pane.** The selected day is rendered as Markdown in the
+  terminal, with a scrollable entry pane.
+- **Quick add.** Press `a`, type one line, press Enter. The entry is appended
+  to the selected day and the input stays open for the next note.
+- **Editor handoff.** Press `e` to open the selected day in your editor, then
+  return to the TUI. Long notes, edits, deletions, and checkbox changes all
+  happen there.
+- **Journals.** Keep separate journals, switch them with `-j` or `J`/`K`, and
+  create one from the TUI with `n`.
+- **Fuzzy search across journals.** Search every entry by default, or limit
+  the search to the current journal with Tab.
+- **Read-only todos.** Collect every `- [ ]` and `- [x]` item in one overlay.
+  jot never toggles boxes; you do that in your editor.
+- **Countdown reminders.** Set a transient reminder through Omarchy when it is
+  available, or through a systemd user timer plus `notify-send`.
+- **Ten themes.** `auto`, `default`, `light`, `dark`, `gruvbox`, `nord`,
+  `dracula`, `catppuccin`, `tokyo-night`, and `omarchy`. `dark` is the
+  fixed dark palette; `default` follows the terminal background. The Omarchy
+  theme is read from the current Omarchy theme file.
+- **Backups and exports.** `jot backup` writes a compressed archive of every
+  journal; `jot export` writes one Markdown file per journal.
+- **Checked self-update.** `jot update` downloads the release asset and
+  verifies it against `SHA256SUMS` before replacing the binary.
+- **Selective uninstall.** Remove journal data, the binary, the config file,
+  or all three. Data removal is explicit and confirmed.
+- **Plain storage and tight permissions.** Journal directories are `0700`;
+  day files and the config file are `0600`.
+- **Scriptable CLI.** `add`, `show`, `edit`, `ls`, `search`, `watch`, `todo`,
+  `remind`, `backup`, `export`, `journal`, `init`, `setup`, `install`,
+  `update`, `uninstall`, `doctor`, `version`, and `help`.
 
 ## Install
 
-### Quick install (Linux and macOS)
+### Release script
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/moneytosms/jot/main/install-release.sh | sh
 ```
 
-Downloads the release binary for your OS and architecture, verifies it against `SHA256SUMS`, and installs it to `~/.local/bin` (override with `JOT_INSTALL_DIR`).
+The script downloads the Linux or macOS release for x86-64 or ARM64,
+verifies it against `SHA256SUMS`, and installs it to `~/.local/bin`. Set
+`JOT_INSTALL_DIR` to choose another directory, or `JOT_VERSION` to pin a
+release.
 
-To pin a version, set `JOT_VERSION`, e.g. `JOT_VERSION=v0.1.0 sh`. Windows users: download `jot-windows-amd64.exe` from the [release page](https://github.com/moneytosms/jot/releases/tag/v0.1.0).
+### Build from source
 
-The options below build jot from source. You need **Go 1.22 or newer** ([download](https://go.dev/dl/)).
-
-### Build from source: `install.sh`
-
-From a checkout of this repository:
-
-```sh
-cd jot
-./install.sh                        # installs to ~/.local/bin/jot
-./install.sh --prefix /usr/local    # installs to /usr/local/bin/jot
-./install.sh --bin-dir ~/bin        # installs to ~/bin/jot
-```
-
-The script builds with the version from `git describe` when available, copies the
-binary into place, and prints the line to add to your shell configuration if the
-install directory is not on `PATH`. Run `./install.sh --help` for all options.
-
-### Alternative: `go install`
+Go 1.24 or newer is required.
 
 ```sh
 go install github.com/moneytosms/jot/cmd/jot@latest
 ```
 
-The binary is placed in the Go bin directory (`go env GOBIN`, or
-`$(go env GOPATH)/bin` when `GOBIN` is unset). That directory must be on `PATH`.
-
-### Alternative: Make
+Or from a checkout:
 
 ```sh
+git clone https://github.com/moneytosms/jot
 cd jot
-make build                          # writes bin/jot
-make install                        # copies bin/jot to ~/.local/bin/jot
-make install BINDIR="$HOME/bin"     # copies bin/jot to ~/bin/jot
+make install                    # build and copy to ~/.local/bin
+BINDIR=$HOME/bin make install   # or choose another directory
 ```
 
-### Verify
+`make build` writes `bin/jot` without installing it. `make check` runs vet
+and the test suite.
+
+### Upgrade
 
 ```sh
-jot version
-jot doctor
+jot update --check   # show the available release without installing
+jot update           # download, verify and install
 ```
 
-`jot doctor` reports `[ok]`, `[warn]` or `[fail]` for the root directory, its
-permissions, the config file, journals, the editor and `PATH`. It exits non-zero
-when a check fails. Warnings do not cause a failure.
+`jot update` verifies the download against the release's `SHA256SUMS` and
+replaces the binary only after the checksum matches. See
+[docs/commands.md](docs/commands.md) for the full set of update flags.
 
-## First run
+### First run
 
 ```sh
-jot setup          # interactive wizard
-jot setup --yes    # accept all defaults without prompts
+jot setup    # config, root, default journal, optional binary install
+jot doctor   # check root permissions, config, journals, editor and PATH
 ```
 
-The wizard asks for the journal root (default `~/.jot`), the default journal
-(default `default`) and the editor. It writes the config file, creates the root
-and can install the binary. If you skip setup, jot works with `~/.jot`, the
-`default` journal and your editor.
+## Layout and keys
 
-Add an entry and read it back:
-
-```sh
-jot add "first entry"
-```
+A layout sketch, not a screenshot; punctuation is simplified and the calendar
+is clipped here:
 
 ```text
-added to default/2026-11-10.md
+jot  default  November 2026  7d 23e
+ JOURNALS              +--------------------------------------+
+ > default   12d 84e   | Wednesday, 25 November 2026          |
+   work       4d 19e   |                                      |
+                       | ## 09:41:07                          |
+                       | shipped the parser rewrite           |
+ Mo Tu We Th Fr Sa Su  |                                      |
+                    1  |                                      |
+  2  3  4  5  6  7  8  |                                      |
+  9 10 11 12 13 14 15  |                                      |
+ 16 17 18 19 20 21 22  +--------------------------------------+
+ / search - ctrl+p palette - T todos - S settings - ? help - q quit
+ [status line: quick add, toast, or error]
 ```
+
+| Key | Action |
+| --- | --- |
+| `h`, `l`, Left, Right | previous / next day |
+| `j`, `k`, Up, Down | previous / next week |
+| `H`, `L`, `<`, `>` | previous / next month |
+| `g`, `G` | first / last day file in the journal |
+| `t` | today |
+| `Tab` | toggle the journal sidebar |
+| `J` `K` | next / previous journal |
+| `n` / `R` / `D` | new / rename / delete journal |
+| `a` / `e` | quick add / open in editor |
+| `/` / `ctrl+p` | search / command palette |
+| `T` / `S` / `?` | todos / settings / help |
+| `r` / `ctrl+r` | reminder / reload |
+| `q`, `ctrl+c` | quit |
+
+Press `?` inside the TUI for the full cheatsheet, or read
+[docs/tui.md](docs/tui.md) for the complete reference.
+
+## Everyday use
 
 ```sh
-jot show
+jot add "shipped the parser rewrite"   # append to today
+jot show --calendar                    # month grid with entry density
+jot show -d yesterday                  # yesterday's entries
+jot search --fuzzy parser              # scored search across journals
+jot todo                               # checkbox items, read-only
+jot remind "stretch" 20m               # transient countdown reminder
+jot journal new ideas                  # create a journal
+jot tui                                # open the interactive interface
 ```
 
+`jot show` prints today's entries. `jot edit` opens today in `$JOT_EDITOR`,
+the configured editor, `$VISUAL`, `$EDITOR`, or the first of `vim`, `vi`, or
+`nano` found on `PATH`.
+
+## Storage and config
+
 ```text
+~/.jot/
+  default/
+    2026-11-25.md
+  work/
+    2026-11-25.md
+  backups/
+    jot-backup-20261125-150405.tar.gz
+```
+
+jot only appends to day files. The format is plain Markdown, so you can still
+edit them. A new entry looks like this:
+
+```markdown
 ## 09:41:07
 
-first entry
+shipped the parser rewrite
 ```
 
-## Usage
+Journal directories are created with mode `0700`; day files and the config
+file with mode `0600`. `jot backup` writes a `.tar.gz` under `backups/`.
+`jot journal rm` archives a journal before deleting it.
 
-| Command | Purpose |
-| --- | --- |
-| `jot add [text...]` | Append a timestamped entry from arguments, stdin (`-` or piped input) |
-| `jot show [day]` | Print entries for a day (default today), or every day with `-a` |
-| `jot edit [day]` | Open a day's file in your editor, creating it if needed |
-| `jot ls [journal]` | List journals with counts, or the days in one journal |
-| `jot search <query>` | Case-insensitive search across journals, with file and line numbers |
-| `jot watch` | Follow today's entries live until Ctrl+C |
-| `jot backup [dir]` | Write a `.tar.gz` of every journal (default `<root>/backups`) |
-| `jot export [dir]` | Write one Markdown file per journal (default `./jot-export`) |
-| `jot init` | Create the journal root and the default journal |
-| `jot setup` | First-run wizard for config, root and optional binary install |
-| `jot install [dir]` | Copy the running binary into a bin directory |
-| `jot update` | Rebuild and reinstall from a local source checkout |
-| `jot uninstall` | Delete all journal data. The binary is kept |
-| `jot doctor` | Check the installation |
-| `jot version` | Print the version |
-| `jot help [command]` | Show overview help or the help page for one command |
-
-Common flags:
-
-| Flag | Meaning |
-| --- | --- |
-| `-j, --journal <name>` | Journal to act on |
-| `-d, --date <day>` | `today`, `yesterday`, `tomorrow` or `YYYY-MM-DD` |
-
-Each command has a help page, for example `jot help backup`. The full reference
-is in [docs/commands.md](docs/commands.md). Workflows such as editor setup,
-sync, restore and migration are in [docs/guide.md](docs/guide.md).
-
-Backups and exports:
-
-```sh
-jot backup ~/Dropbox/jot-backups                     # archive every journal
-tar -tzf ~/.jot/backups/jot-backup-*.tar.gz          # list an archive
-tar -xzf ~/.jot/backups/jot-backup-20261105-150405.tar.gz -C ~/.jot   # restore
-jot export --out ~/Documents/journal-export          # one .md per journal
-```
-
-## Configuration
-
-Configuration is optional. Without any configuration jot uses `~/.jot`, the
-`default` journal and your editor.
-
-Precedence, highest first: command-line flags, `JOT_*` environment variables,
-the config file, built-in defaults.
-
-### Config file
-
-`jot setup` writes this file. You can also edit it by hand:
+The config file is `$JOT_CONFIG` when set, otherwise
+`~/.config/jot/config.json` on Linux (the user config directory on other
+systems). Every key is optional:
 
 ```json
 {
   "root": "~/.jot",
   "default_journal": "default",
-  "editor": "nvim"
+  "editor": "nvim",
+  "tui": {
+    "theme": "auto",
+    "journal": "work"
+  }
 }
 ```
 
 | Key | Meaning |
 | --- | --- |
-| `root` | Journal root directory. `~` is expanded |
-| `default_journal` | Journal used when `-j` is not given |
-| `editor` | Editor command for `jot edit`. Split on whitespace |
+| `root` | Journal root directory. `~` is expanded. |
+| `default_journal` | Journal used when a command names none. |
+| `editor` | Editor command for `jot edit` and the TUI. |
+| `tui.theme` | TUI theme name. |
+| `tui.journal` | Journal last selected inside the TUI; a convenience only. |
 
-The config file location is:
+Environment variables:
 
-- `$JOT_CONFIG`, if set.
-- Otherwise `<user config dir>/jot/config.json`. On Linux the user config dir is
-  `$XDG_CONFIG_HOME` or `~/.config`, so the default is `~/.config/jot/config.json`.
-  On macOS it is `~/Library/Application Support/jot/config.json`.
-
-A malformed config file is reported by `jot doctor` and by commands that read it.
-
-### Environment variables
-
-| Variable | Effect |
+| Variable | Meaning |
 | --- | --- |
-| `JOT_ROOT` | Journal root directory (overrides the config file) |
-| `JOT_JOURNAL` | Default journal name (overrides the config file) |
-| `JOT_EDITOR` | Editor for `jot edit` (overrides the config file) |
-| `JOT_CONFIG` | Path to an alternative config file |
-| `JOT_INSTALL_DIR` | Default directory for `jot install` (default `~/.local/bin`) |
-| `JOT_SRC` | Source checkout used by `jot update` |
-| `VISUAL`, `EDITOR` | Editor fallbacks used by `jot edit` |
+| `JOT_ROOT` | Override the journal root. |
+| `JOT_CONFIG` | Use an alternative config file. |
+| `JOT_EDITOR` | Editor command, above the config file. |
+| `JOT_THEME` | TUI theme, above `tui.theme` and below `--theme`. |
 
-The editor for `jot edit` is chosen in this order: `JOT_EDITOR`, the `editor`
-config key, `$VISUAL`, `$EDITOR`, then the first of `vim`, `vi` or `nano` found
-on `PATH`. Terminal editors are recommended. `jot edit` waits for the editor to
-exit, so GUI editors need a blocking flag such as `code --wait`.
+CLI precedence is flags, then `JOT_*` variables, then the config file, then
+built-in defaults. The TUI theme follows the same shape: `--theme`, then
+`JOT_THEME`, then `tui.theme`, then `auto`. `JOT_JOURNAL` sets the default
+journal; `JOT_INSTALL_DIR` changes the install directory.
 
-## Storage
+## Updating and uninstalling
 
-```text
-~/.jot/                                   root (JOT_ROOT or config "root")
-├── default/
-│   ├── 2026-11-04.md
-│   └── 2026-11-05.md
-├── work/
-│   └── 2026-11-05.md
-└── backups/
-    └── jot-backup-20261105-150405.tar.gz
-```
+`jot update` checks the latest release, shows the available version, verifies
+the download against `SHA256SUMS`, and replaces the binary. Useful flags:
 
-| Path | Contents |
+| Flag | Effect |
 | --- | --- |
-| `<root>/<journal>/YYYY-MM-DD.md` | Entries for one day, oldest first |
-| `<root>/backups/jot-backup-YYYYMMDD-HHMMSS.tar.gz` | Archive from `jot backup`. Never included in archives or listed as a journal |
-| `./jot-export/<journal>.md` | Output of `jot export` (or the directory given to `--out`) |
-| `~/.config/jot/config.json` | Config file (see [Config file](#config-file) for other platforms) |
+| `--check` | Report whether an update is available; install nothing. |
+| `--json` | Print one machine-readable JSON object. |
+| `--notes` | Print the full release notes. |
+| `--version TAG` | Target a specific release tag. |
+| `--yes` | Do not ask for confirmation. |
+| `--source` | Rebuild from a local checkout instead of downloading. |
 
-Journal names are sanitised: surrounding whitespace is trimmed, ASCII letters,
-digits, `-` and `_` are kept, and every other character becomes `-`. Repeated
-dashes collapse, leading and trailing dashes are removed, and an empty result
-becomes `default`. `backups` is a reserved name and is rejected as a journal name
-with an error. Day files are named by local date.
+`--src DIR` selects the source checkout for `--source`; `--dir DIR` selects
+the install directory.
 
-Journal directories are created with mode `0700` and files with mode `0600`.
-Export and install directories are `0755`. The root is
-plain files, so backing up or syncing the root captures all journal data. The
-config file is the only data kept outside the root.
+`jot uninstall` removes only the components you name. With no component
+flags and a terminal it prints an inventory and asks for `d`, `b`, `c`, `a`,
+or `q`.
 
-## Platform support
+| Flag | Effect |
+| --- | --- |
+| `--data` | Remove the journal root, including journals and backups. |
+| `--binary` | Remove the running jot executable. |
+| `--config` | Remove the config file. |
+| `--all` | Remove data, binary, and config. |
+| `--dry-run` | Print the plan and remove nothing. |
+| `--yes` | Skip confirmations. Without it, data removal requires typing `delete`. |
 
-Linux and macOS. The config path rules above cover both, and the release build
-targets (see [docs/development.md](docs/development.md)) include both.
+Data removal deletes the journal root and does not archive it at that point.
+Run `jot backup` first if you want a copy. The removal order is config, data,
+then the running binary.
 
-Windows: builds cross-compile but is untested.
+## Compatibility and scope
+
+- The CLI is the stable surface. Existing flags and output are preserved.
+- The TUI is read-mostly. Quick add is the only journal write the TUI
+  itself makes; edits, deletions, and checkbox toggles go through your editor.
+- Journals are flat: no nested journals, tags, or database.
+- There is no sync and no server. Your files are yours to move, copy, or
+  version however you like.
+- Go 1.24 or newer. Linux and macOS are the release targets; Windows is
+  not a release target.
+
+## Documentation
+
+- [Command reference](docs/commands.md)
+- [Usage guide](docs/guide.md)
+- [TUI guide](docs/tui.md)
+- [Development](docs/development.md)
 
 ## Development
 
 ```sh
-make check     # go vet ./... and go test ./...
-make build     # bin/jot
-make fmt       # gofmt -w .
-make clean     # remove build output
+make check   # go vet + go test ./...
+make build   # write bin/jot
 ```
 
-Project layout, test notes, the storage format and release builds are described
-in [docs/development.md](docs/development.md).
+Dependencies are vendored in `vendor/`, so builds and tests work offline. Go
+1.24 or newer is required. See [docs/development.md](docs/development.md) for
+layout, testing, and release details.
 
 ## Contributing
 
@@ -290,4 +290,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-jot is released under the [MIT License](LICENSE).
+MIT. See [LICENSE](LICENSE).

@@ -122,10 +122,14 @@ func Setup(in io.Reader, out io.Writer, opts SetupOptions) (SetupResult, error) 
 		}
 	}
 
+	// Keep the interactive preferences (theme, last journal) across a re-run;
+	// the wizard only rewrites the three fields it asks about.
+	tui := cfg.TUI
 	cfg = Config{
 		Root:           root,
 		DefaultJournal: journal,
 		Editor:         editor,
+		TUI:            tui,
 	}
 	if _, err := os.UserHomeDir(); err == nil {
 		cfg.Root = filepath.Clean(expandHome(cfg.Root, mustHome()))

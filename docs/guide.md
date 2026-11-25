@@ -21,6 +21,9 @@ jot doctor
 If `jot` is not found afterwards, `install.sh` prints the line that adds
 `~/.local/bin` to `PATH`. Add it to your shell config and open a new shell.
 
+Run `jot` with no command in a terminal to open the TUI; see
+[The TUI](#the-tui).
+
 ## Daily workflow
 
 ### Capture a line
@@ -68,19 +71,44 @@ and trailing whitespace is trimmed.
 file by hand:
 
 ```markdown
-# 2026-11-05
+## 09:00:00
 
-## 09:00 standup
+standup
 
 - parser merged
 - docs next
 
-## 14:30 design review
+## 14:30:00
 
 Decision: keep the file format plain markdown.
 ```
 
-`jot show` prints the file as written. `jot ls` counts only `## ` headings.
+`jot show` prints the file as written below a one-line bar naming the journal,
+day, weekday and entry count. `jot ls` counts only `## ` headings.
+
+### Track small todos
+
+Checkboxes are ordinary markdown, so write them in the day file:
+
+```markdown
+## 09:00:00
+
+- [ ] book the room
+- [x] send the agenda
+```
+
+`jot todo` gathers every box across your journals, with the journal, day and
+entry time. Filter and limit the list, then open the day to tick a box:
+
+```bash
+jot todo --open
+jot todo -j work --limit 10
+jot edit -d 2026-11-20 -j work
+```
+
+There is no toggle command: jot never rewrites entries, so the editor is where
+a box changes. Use `--done` to review what is finished; without a filter, both
+open and done items appear.
 
 ### Backdate an entry
 
@@ -111,6 +139,26 @@ jot edit -j ideas
 To change the journal used when `-j` is not given, see
 [Configuration](#configuration).
 
+### Tidy journals
+
+`jot journal` creates, renames and removes journals without touching the
+directories by hand:
+
+```bash
+jot journal new scratch
+jot journal rename scratch notes
+jot journal rm --yes notes
+```
+
+`journal rm` writes an archive to `<root>/backups` before deleting anything.
+Without `--yes` it asks you to type the journal name; a wrong answer leaves
+the journal and the archive alone. The default journal cannot be removed or
+renamed. Flags go before the name: `jot journal rm --yes notes`, not
+`jot journal rm notes --yes`.
+
+To switch journals for one command, use `-j`; in the TUI, `J` and `K` cycle
+journals.
+
 ### Follow entries live
 
 Keep a pane open while you work:
@@ -123,6 +171,25 @@ It prints the current day, then streams new text and switches to the next
 day's file at midnight. It is read-only. Press Ctrl+C to stop. For a slow
 filesystem, raise the poll interval with `--poll 2s`.
 
+### Set a quick reminder
+
+```bash
+jot remind "stretch" 20m
+jot remind 1h30m "review the draft"
+jot remind list
+jot remind clear
+```
+
+Durations accept `90s`, `20m`, `2h` and `1h30m`; a bare number means minutes.
+jot hands the reminder to omarchy when it is installed, otherwise to a
+transient systemd user timer that calls `notify-send`. Nothing is daemonised
+and the reminder does not survive a reboot.
+
+Omarchy is minute-granular: durations under a minute are rejected, and partial
+minutes round up (the status line still shows the delay you asked for).
+`jot remind list` and `clear` only see jot's systemd timers; omarchy owns its
+own.
+
 ## Searching and reviewing
 
 ### Read a day
@@ -134,8 +201,11 @@ jot show 2026-10-01
 jot show -j work -d all    # every day, same as -a
 ```
 
-Add `--render` for a terminal-friendly view: headings get `→` and list items
-get `•`.
+A single day starts with a `-- <journal> . <day> (<weekday>) . <N> entries`
+bar, using `entry` when there is one. Add `--render` to render the markdown
+for the terminal: headings, emphasis, inline code, nested lists, quotes and
+rules are styled, and text wraps at 80 columns. ANSI styling is used only on a
+terminal; `NO_COLOR` turns it off.
 
 ### Read a whole journal
 
@@ -152,6 +222,39 @@ jot ls                     # journals, with entry and day counts
 jot ls work                # days in one journal, with sizes
 ```
 
+### Find a day without dates
+
+Start with the month grid when you remember roughly when something happened
+but not the date:
+
+```bash
+jot show -j work --calendar 2026-11
+```
+
+```
+November 2026
+Mo Tu We Th Fr Sa Su
+                                1
+  2    3    4.   5*   6    7    8
+  9   10   11   12   13   14   15
+ 16   17   18   19   20.  21   22
+ 23   24  [25]  26   27   28   29
+ 30
+
+legend: . 1-2 entries, * 3+ entries, [..] today
+7 entries in November 2026
+```
+
+`.` marks a day with 1-2 entries and `*` a day with 3 or more. Today is
+bracketed when you ask for the current month. Pick a marked day and show it:
+
+```bash
+jot show -j work -d 2026-11-20
+```
+
+In the TUI the calendar stays visible: `h`/`l` move a day, `j`/`k` a week and
+`H`/`L` a month.
+
 ### Search
 
 ```bash
@@ -160,10 +263,37 @@ jot search -j work standup
 jot search "next steps"
 ```
 
-Matching is case-insensitive substring search. Results look like
-`work/2026-11-05.md:3: shipped the parser rewrite`, so most terminals and
-editors can open them directly. Journals are listed alphabetically and days
-newest first. If nothing matches, the output is `no matches for "..."`.
+Plain search is a case-insensitive substring match, one line at a time. Results
+are grouped by journal and day, and each hit keeps a
+`journal/day.md:line:` prefix that most terminals and editors can open:
+
+```
+work . 2026-11-05 . 2 hits
+  work/2026-11-05.md:3: shipped the parser rewrite
+  work/2026-11-05.md:7: parser tests are green
+
+2 matches in 1 journal
+```
+
+Journals are alphabetical and days newest first. If nothing matches, the
+output is `no matches for "..."`.
+
+### Find an old note
+
+When you remember the gist but not the exact words, use `--fuzzy`:
+
+```bash
+jot search --fuzzy --limit 10 "parser empty input"
+```
+
+Fuzzy search matches query characters in order across the whole entry, ranks
+the entries, and prints `journal . day . time` with a short preview. `--limit`
+defaults to 20; `0` removes the cap. It searches every journal unless `-j` is
+given.
+
+In the TUI press `/` for the same entry-level search; Enter jumps to the day.
+Plain `jot search` only finds contiguous substrings, so try fuzzy first when a
+phrase is half-remembered.
 
 ### Use other tools
 
@@ -177,6 +307,25 @@ rg -n --glob '*.md' "TODO" ~/.jot/work
 
 If the root is not `~/.jot`, substitute the path shown on the `root` line of
 `jot doctor`.
+
+## The TUI
+
+Run `jot` with no command in a terminal, or `jot tui`, to open the full-screen
+interface: a month calendar, the selected day's rendered entries, a journal
+sidebar and a one-line quick-add box. Bare `jot` in a pipe or redirect still
+prints help.
+
+- `h`/`l` move a day, `j`/`k` a week, `H`/`L` a month, and `t` returns to today.
+- `a` adds one line without leaving the view; `e` opens the day in your editor.
+- `/` fuzzy-searches every entry, `T` browses todos, and `r` sets a reminder.
+- `J`/`K` switch journals, `n` creates one, `R` renames it, and `D` archives
+  then deletes it after you type its name. `?` lists every keybinding, and
+  `q` quits.
+
+The quick-add box only appends a line. Editing an entry opens the day in your
+editor, and jot never rewrites entries behind your back. The calendar colours
+days by how many entries they hold. See [tui.md](tui.md) for the complete
+keybinding reference.
 
 ## Editors
 
@@ -215,8 +364,8 @@ jot backup                              # <root>/backups/jot-backup-<timestamp>.
 jot backup /mnt/usb/journal-backups     # somewhere else
 ```
 
-Each archive holds every `.md` file of every journal, stored as paths such as
-`work/2026-11-05.md`. The default `backups` directory is not archived.
+Each archive holds every `.md` file under the root, stored as paths such as
+`work/2026-11-05.md`. The default `backups` directory is skipped.
 
 Inspect or restore an archive:
 
@@ -243,7 +392,7 @@ jot export --out ~/Documents/journal-export
 
 This writes one `<journal>.md` file per journal. Each file has a `# <journal>`
 heading, a `## YYYY-MM-DD` heading per day, and the day's entries below it.
-Exported files are `0644`, so other users on the machine can read them. Export
+Exported files are created with mode `0644` (subject to your umask). Export
 includes every entry in every journal. To share a single journal, use
 `jot show -j reading -a > reading.md` instead.
 
@@ -269,16 +418,47 @@ while IFS= read -r line; do
 done < old-journal.txt
 ```
 
-### Remove all data
+## Updating and removing jot
+
+### Update
+
+`jot update` reads the latest GitHub release, compares it with the running
+binary, prints what changed and asks before installing. The download is the
+`jot-<os>-<arch>` asset, checked against the release's `SHA256SUMS` and swapped
+in atomically.
 
 ```bash
-jot uninstall              # asks first, deletes the root and every entry in it
-rm "$(command -v jot)"     # remove the binary as well
+jot update --check       # report without installing
+jot update               # ask, then install
+jot update --notes       # full release notes, not the first 15 lines
 ```
 
-`jot uninstall` deletes the root, including the default `backups` directory.
-Back up somewhere else first if the entries matter. Without a terminal it
-refuses unless `--yes` is given.
+`--json` prints one machine-readable object for scripts, and `--version <tag>`
+targets a specific release; it installs only when that tag is newer than the
+running binary. For a source checkout, use
+`jot update --source --src ~/code/jot --dir ~/.local/bin`. Set
+`JOT_RELEASES_API` to a mirror when GitHub is unreachable. Restart jot, or the
+TUI, after an update.
+
+### Remove jot
+
+`jot uninstall` removes selected components instead of everything:
+
+```bash
+jot uninstall --dry-run --all   # show the plan
+jot uninstall --data            # root, including backups; asks for confirmation
+jot uninstall --all --yes       # data, config and binary for a script
+```
+
+With no component flag and a terminal, it prints what exists and asks
+`remove [d]ata, [b]inary, [c]onfig, [a]ll, or [q]uit?`. `--data` is the journal
+root and its `backups`; `--binary` removes the running executable; `--config`
+removes the config file. Before deleting data without `--yes`, it makes you
+type `delete`; config and binary use `[y/N]` prompts.
+
+`jot uninstall --yes` on its own still means data only, for compatibility with
+older versions. Back up somewhere else first if the entries matter, because
+data removal also deletes the default `backups` directory.
 
 ## Sync with git
 
@@ -308,9 +488,9 @@ mv ~/journal-clone/.git ~/.jot/
 git -C ~/.jot status    # inspect the state before changing anything
 ```
 
-jot only appends to files and never rewrites them, so diffs stay small. If you
-also edit files by hand on two machines, resolve conflicts as you would for
-any markdown file.
+jot only appends to journal files and never rewrites them, so diffs stay
+small. If you also edit files by hand on two machines, resolve conflicts as
+you would for any markdown file.
 
 ### Other sync tools
 
@@ -342,13 +522,17 @@ Set `JOT_CONFIG` to use another path.
 {
   "root": "~/.jot",
   "default_journal": "daily",
-  "editor": "code --wait"
+  "editor": "code --wait",
+  "tui": {
+    "theme": "nord"
+  }
 }
 ```
 
-All three keys are optional. A missing file means the defaults apply. `~` is
-expanded in `root`. `jot setup` writes this file, replacing its previous
-contents with the resolved values.
+Every key is optional. A missing file means the defaults apply. `~` is expanded
+in `root`. The `tui` block holds interface preferences: `theme` and the journal
+last selected with `J`/`K` in the TUI. `jot setup` writes this file from its
+answers, replacing the previous contents; it does not preserve the `tui` block.
 
 ### Environment variables
 
@@ -359,10 +543,14 @@ contents with the resolved values.
 | `JOT_EDITOR` | Editor command for `jot edit` |
 | `JOT_CONFIG` | Path of the config file |
 | `JOT_INSTALL_DIR` | Default directory for `jot install`, `jot update` and `jot setup` |
-| `JOT_SRC` | Source checkout for `jot update` |
+| `JOT_SRC` | Source checkout for `jot update --source` |
+| `JOT_THEME` | TUI colour theme, above `tui.theme` and below `--theme`; `show --render` uses it for light/dark |
+| `JOT_RELEASES_API` | Full release API base URL for `jot update`, including `/releases` |
 
-Precedence, highest first: command-line flags, `JOT_*` variables, the config
-file, built-in defaults.
+For the command-line settings, precedence highest first: flags, `JOT_*`
+variables, the config file, built-in defaults. The TUI theme follows the same
+order: `--theme`, then `JOT_THEME`, then `tui.theme` in the config file, then
+`auto`.
 
 To change the default journal for one shell session:
 
@@ -375,30 +563,40 @@ export JOT_JOURNAL=daily
 - Journal files are created `0600` and journal directories `0700`, so only the
   owner can read them.
 - The config file is written with mode `0600`.
-- Exports are `0644`. Backup archives get the default mode for new files
-  (`0644` with a common umask); move them somewhere private if that matters.
-- jot makes no network calls and has no account or telemetry.
+- Exports are created with mode `0644` (subject to your umask). Backup
+  archives get the default mode for new files (`0644` with a common umask);
+  move them somewhere private if that matters.
+- `jot update` contacts the GitHub releases API (or the mirror in
+  `JOT_RELEASES_API`) and downloads the release binary; reminders call your
+  existing notification tools. There is no account, telemetry or background
+  daemon.
 - jot does not encrypt data. Use full-disk encryption (LUKS, FileVault,
   BitLocker) or an encrypted volume for the root and the backup medium. Deleting
   a file does not guarantee its contents are gone from an SSD.
 
 ## Troubleshooting
 
-Run `jot doctor` first. It checks the root, config file, journals, editor and
-`PATH`.
+Run `jot doctor` first. It checks the root, config file, journals, editor,
+`PATH`, the reminder provider and optional helper binaries.
 
 | Symptom | Cause and fix |
 | --- | --- |
 | ``nothing to add: pass text, pipe it in, or use `jot edit` `` | No text was given and stdin is a terminal. Pass the text as arguments or pipe it in. |
 | `entry body is empty` | The text was blank and was piped in. Nothing was written. At a terminal, `jot add ""` prints `nothing to add` instead. |
-| `no journal named "x" yet` | The journal does not exist. Check `jot ls`, then create it with `jot add -j x "..."` or `jot init -j x`. |
+| `no journal named "x" yet` | The journal does not exist. Check `jot ls`, then create it with `jot journal new x`, `jot add -j x "..."` or `jot init -j x`. |
 | `invalid date "..."` | Use `today`, `yesterday`, `tomorrow`, or `YYYY-MM-DD`. |
 | Entry is on the wrong day | Entries use local time. Check `date`, and use `-d` to pick the day. |
 | Editor does not block | Use `--wait` (or the equivalent flag) for GUI editors. |
 | `no editor found: set JOT_EDITOR or $EDITOR` | Set `JOT_EDITOR`, or install `vim`, `vi` or `nano`. |
 | `jot` not found after install | Add the bin directory to `PATH`. `jot install` prints the line. |
-| `no matches for "..."` | Try a shorter query. Search is a case-insensitive substring match. |
+| `no matches for "..."` | Plain search is a line-based substring match. Try a shorter query, or `jot search --fuzzy "..."` for entry-level matching. |
+| A flag is treated as part of the query or name | Flags go before arguments: `jot search --fuzzy parser`, `jot journal rm --yes notes`. |
+| `invalid month "..."` | `show --calendar` takes `YYYY-MM`, or no value for the current month. |
 | `jot: config file <path>: ...` on commands that read config | The config file is not valid JSON. Fix or remove it. Every command that reads config stops at this error, `jot doctor` included. `jot version` and `jot help` still run. |
 | Backup is missing a journal | Only `.md` files are archived. Check that the files end in `.md`. |
-| `refusing to delete journal data without confirmation; pass --yes` | `jot uninstall` ran without a terminal. Pass `--yes` only if you mean it. |
+| `refusing to delete journal data without confirmation; re-run with --yes` | `jot uninstall --data` ran without a terminal. Pass `--yes` only if you mean it. |
+| `refusing to remove anything without an explicit component` | `jot uninstall` had no terminal to show its menu. Pass `--data`, `--binary`, `--config` or `--all`; `--yes` alone means data only. |
+| `reminders need systemd (user) with notify-send, or omarchy` | Install omarchy, or use a systemd user session with `notify-send`. |
+| `jot tui needs an interactive terminal` | Run `jot tui`, or bare `jot`, in a real terminal rather than through a pipe. |
+| `jot update` cannot reach the release API | Check the network, or point `JOT_RELEASES_API` at a mirror. |
 | Empty day files (`0 entries`) | `jot edit` was quit without writing. Delete them with `find ~/.jot -name '*.md' -size 0 -delete`. |
