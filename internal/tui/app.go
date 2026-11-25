@@ -29,10 +29,12 @@ const (
 	modeReminder                  // reminder form
 	modeSettings                  // settings panel
 	modeHelp                      // keybinding cheatsheet
+	modeOnboard                   // intro tour
 )
 
 // model is the root Bubble Tea model.
 type model struct {
+	onboard int // card shown by the intro tour
 	jot     *jot.Jot
 	cfg     jot.Config
 	journal string
@@ -436,6 +438,8 @@ func (m model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.keySettings(msg)
 	case modeHelp:
 		return m.keyHelp(msg)
+	case modeOnboard:
+		return m.keyOnboard(msg)
 	default:
 		return m.keyBrowse(msg)
 	}
@@ -934,6 +938,10 @@ func (m model) handleOverlayMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 		return m.handleSettingsMouse(msg)
 	case modeHelp:
 		return m.handleHelpMouse(msg)
+	case modeOnboard:
+		if msg.Button == tea.MouseButtonLeft && msg.Action == tea.MouseActionPress {
+			return m.moveOnboard(1)
+		}
 	}
 	return m, nil
 }

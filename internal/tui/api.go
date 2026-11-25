@@ -47,7 +47,11 @@ func Run(opts Options) error {
 		popts = append(popts, tea.WithInput(opts.In))
 	}
 
-	p := tea.NewProgram(newModel(j, opts.Cfg, journal, themeName, theme), popts...)
+	m := newModel(j, opts.Cfg, journal, themeName, theme)
+	if !opts.Cfg.TUI.Onboarded {
+		m.mode = modeOnboard // first run: the intro tour
+	}
+	p := tea.NewProgram(m, popts...)
 	_, err := p.Run()
 	return err
 }

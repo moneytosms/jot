@@ -683,3 +683,52 @@ func TestSearchChipsToggleFilters(t *testing.T) {
 		t.Fatalf("chip did not toggle off: %q", m.search.input.value())
 	}
 }
+
+func TestHelpFilter(t *testing.T) {
+	_, m := newTestModel(t)
+	m = send(m, keyMsg("?"))
+	for _, k := range []string{"r", "e", "m", "i", "n"} {
+		m = send(m, keyMsg(k))
+	}
+	if m.mode != modeHelp || m.help.query != "remin" {
+		t.Fatalf("mode %v query %q", m.mode, m.help.query)
+	}
+	text := strings.Join(m.helpTextLines(), "\n")
+	if !strings.Contains(text, "set a reminder") || strings.Contains(text, "previous / next month") {
+		t.Errorf("filter result:\n%s", text)
+	}
+	if m = press(m, "esc"); m.mode != modeHelp || m.help.query != "" {
+		t.Errorf("first esc should clear the filter, got mode %v query %q", m.mode, m.help.query)
+	}
+}
+
+func TestOnboardTour(t *testing.T) {
+	_, m := newTestModel(t)
+	nm, _ := m.startOnboard()
+	m = nm.(model)
+	if m.mode != modeOnboard || !strings.Contains(m.onboardView(m.layout()), "Welcome to jot") {
+		t.Fatalf("tour did not open")
+	}
+	for range onboardSteps[1:] {
+		m = press(m, "enter")
+	}
+	if m.mode != modeOnboard || m.onboard != len(onboardSteps)-1 {
+		t.Fatalf("at card %d mode %v", m.onboard, m.mode)
+	}
+	m = press(m, "left")
+	if m.onboard != len(onboardSteps)-2 {
+		t.Errorf("back went to %d", m.onboard)
+	}
+	nm, cmd := m.Update(keyMsg("q"))
+	m = nm.(model)
+	if m.mode != modeBrowse || cmd == nil {
+		t.Fatalf("skip should close and save, mode %v", m.mode)
+	}
+	if m = drain(m, cmd); !m.cfg.TUI.Onboarded {
+		t.Error("onboarded not remembered")
+	}
+	file, _ := jot.LoadConfigFile()
+	if !file.TUI.Onboarded {
+		t.Error("onboarded not saved to the config file")
+	}
+}

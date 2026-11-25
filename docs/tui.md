@@ -106,8 +106,8 @@ punctuation and clips the calendar.
 `Tab` hides the whole left column (journals, calendar and shortcuts) so the
 day pane takes the full width; press it again to bring it back. The journal
 list is also hidden when the terminal is narrower than 70 columns. Below the
-calendar, when there is room, a legend explains the colours (none, 1-5 and 6+
-entries), then small widgets that appear only when they have something to show
+calendar, when there is room, a one-line legend explains the colours (green
+for 1-5 entries, yellow for 6 or more; plain days have none), then small widgets that appear only when they have something to show
 and fit whole:
 
 - **On this day:** the first line of entries written on today's date in
@@ -357,6 +357,9 @@ The actions are:
 - Open day in editor
 - Backup journals
 - Export journals
+- Export this journal as HTML / PDF
+- Export this day as HTML / PDF
+- Show the intro tour
 - Help
 - Quit
 
@@ -367,8 +370,9 @@ prompt as `R` and `D`. The inline prompts validate on Enter and show the
 error inside the palette; Esc closes the whole palette. Tab does nothing in a
 prompt.
 
-`Backup journals` and `Export journals` run in the background and report the
-archive path or export count in a toast.
+`Backup journals` and the export actions run in the background and report the
+archive path or export count in a toast. Day exports have no cover page, just
+the date and its entries (see [`jot export`](commands.md#export)).
 
 ## Todos
 
@@ -696,12 +700,30 @@ These are the keys the code actually handles. Letter keys are case-sensitive.
 
 ### Help
 
+Type to fuzzy-filter the key list (`rem` finds the reminder key).
+
 | Key | Action |
 | --- | --- |
-| `j`, `k`, Down, Up | scroll |
+| any text | filter the list |
+| Backspace | delete a filter character |
+| Down, Up | scroll |
 | PageDown, PageUp, `ctrl+d`, `ctrl+u` | page |
-| Home, End, `g`, `G` | first / last line |
-| `?`, Esc | close |
+| Home, End | first / last line |
+| Esc | clear the filter, then close |
+| `?` | close (when the filter is empty) |
+
+### Intro tour
+
+The first time the TUI opens it shows a short tour, one card per part of the
+screen with the keys to try. Replay it from Settings (General, Intro tour) or
+the palette (Show the intro tour). Seeing or skipping it sets
+`tui.onboarded` in the config file.
+
+| Key | Action |
+| --- | --- |
+| Enter, Right, `l`, Space | next card (finishes on the last) |
+| Left, `h` | previous card |
+| Esc, `q` | skip |
 
 ## Environment variables
 

@@ -56,6 +56,9 @@ func (m model) paletteActions() []paletteAction {
 		paletteAction{id: "export", label: "Export journals"},
 		paletteAction{id: "export-html", label: "Export this journal as HTML"},
 		paletteAction{id: "export-pdf", label: "Export this journal as PDF"},
+		paletteAction{id: "export-day-html", label: "Export this day as HTML"},
+		paletteAction{id: "export-day-pdf", label: "Export this day as PDF"},
+		paletteAction{id: "intro", label: "Show the intro tour"},
 		paletteAction{id: "help", label: "Help"},
 		paletteAction{id: "quit", label: "Quit"},
 	)
@@ -346,16 +349,23 @@ func (m model) runPaletteAction(a paletteAction) (tea.Model, tea.Cmd) {
 	case a.id == "backup" || a.id == "backup-zip":
 		m.closeOverlay()
 		return m, backupWithCmd(m.jot, jot.BackupOptions{Zip: a.id == "backup-zip"})
-	case a.id == "export-html" || a.id == "export-pdf":
+	case strings.HasPrefix(a.id, "export-"):
 		m.closeOverlay()
-		j, name, format := m.jot, m.journal, strings.TrimPrefix(a.id, "export-")
+		j, name, format := m.jot, m.journal, strings.TrimPrefix(strings.TrimPrefix(a.id, "export-"), "day-")
+		opt := jot.ExportOptions{Format: format}
+		if strings.HasPrefix(a.id, "export-day-") {
+			opt.From, opt.To = dayKey(m.selected), dayKey(m.selected)
+		}
 		return m, func() tea.Msg {
-			path, err := j.ExportDocument(name, jot.ExportOptions{Format: format})
+			path, err := j.ExportDocument(name, opt)
 			if err != nil {
 				return errMsg{err}
 			}
 			return toastMsg("exported " + path)
 		}
+	case a.id == "intro":
+		m.closeOverlay()
+		return m.startOnboard()
 	case a.id == "export":
 		m.closeOverlay()
 		return m, exportCmd(m.jot)

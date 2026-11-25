@@ -24,8 +24,8 @@ const (
 var settingsTabs = []string{"General", "Journals", "Storage", "Archives"}
 
 // generalRows is the number of General rows: theme, editor, default journal,
-// reminders, git sync, then one toggle per widget.
-var generalRows = 5 + len(widgetNames)
+// reminders, git sync, one toggle per widget, then the intro tour.
+var generalRows = 6 + len(widgetNames)
 
 // settingsBodyH is the number of content lines each tab body gets, so the
 // panel keeps one size across tabs.
@@ -463,6 +463,9 @@ func (m model) activateSettingsRow() (tea.Model, tea.Cmd) {
 	if i := m.settings.cursor - 5; i >= 0 && i < len(widgetNames) {
 		return m, saveSettingCmd(m.jot, "hide", widgetNames[i].id)
 	}
+	if m.settings.cursor == generalRows-1 {
+		return m.startOnboard()
+	}
 	return m, nil
 }
 
@@ -535,6 +538,8 @@ func saveSettingCmd(j *jot.Jot, kind, value string) tea.Cmd {
 			} else {
 				file.TUI.Hide = append(file.TUI.Hide, value)
 			}
+		case "onboarded":
+			file.TUI.Onboarded = true
 		case "color":
 			name, color, _ := strings.Cut(value, "=")
 			if file.TUI.Colors == nil {
@@ -642,6 +647,9 @@ func (m model) applySettingsSaved(msg settingsSavedMsg) (tea.Model, tea.Cmd) {
 		m.cfg.Git = msg.value
 		m.jot = jot.New(m.cfg)
 		return m, m.setToast("git sync: " + msg.value)
+	case "onboarded":
+		m.cfg.TUI.Onboarded = true
+		return m, nil
 	case "hide":
 		m.cfg.TUI.Hide = nil
 		if msg.value != "" {
@@ -757,6 +765,7 @@ func (m model) settingsGeneralBody() ([]string, string) {
 		}
 		out = append(out, m.settingsRow("  "+w.label, state+m.theme.dim().Render("  under the calendar"), cur == 5+i))
 	}
+	out = append(out, m.settingsRow("Intro tour", m.theme.dim().Render("enter to replay what each part does"), cur == generalRows-1))
 	return append(out, "", m.settingsRow("Config file", m.theme.fg().Render(m.settings.configPath), false)),
 		"tab next tab · up/down row · enter save, cycle or toggle · esc close"
 }

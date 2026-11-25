@@ -646,6 +646,8 @@ A positional `dir` overrides `--out`.
 | `--format <fmt>` | `md` | `md`, `html` or `pdf` |
 | `-j`, `--journal <name>` | every journal | html/pdf: export one journal |
 | `--from`, `--to <day>` | open | html/pdf: first and last day, inclusive |
+| `-d`, `--date <day>` | none | html/pdf: one day, no cover page |
+| `--entry <times>` | every entry | with `-d`: only entries whose time starts with one of these, comma-separated (`09:41` or `09:41:07`) |
 
 `--format html` writes `<journal>.html`, a self-contained document: a cover
 page (journal name, date range, days, entries, words, tags), a contents page
@@ -656,9 +658,17 @@ prints that page with a headless Chrome, Chromium, Edge or Brave into
 browser, export HTML and print it from any browser. Encrypted journals are
 exported decrypted.
 
+A range (`--from`/`--to`) is named `<journal>-<from>_<to>` (`start`/`end`
+for an open side). One day (`-d`) skips the cover and contents: the date, then
+its entries, in `<journal>-<day>.html`; with `--entry`, only the picked entries,
+named after their times. Without `-j`, journals with nothing in the chosen days
+are skipped.
+
 ```bash
 jot export --out ~/Documents/journal-export
-jot export --format pdf -j work --from 2026-01-01
+jot export --format pdf -j work --from 2026-01-01 --to 2026-03-31
+jot export --format pdf -j work -d yesterday
+jot export --format html -d 2026-11-25 --entry 09:41,14:30
 ```
 
 ```

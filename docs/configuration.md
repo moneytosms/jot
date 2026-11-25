@@ -33,7 +33,7 @@ a git repository on first use, with `backups/` ignored), or `push` to also push
 when a remote is set; a failed sync is a warning, never a lost write. The `tui`
 block holds interface preferences: `theme`, the journal last selected with
 `J`/`K`, `hide` (below-calendar widgets turned off: `onthisday`, `todos`,
-`reminders`) and `colors` (a sidebar colour per journal). `jot setup` writes this file from its
+`reminders`), `colors` (a sidebar colour per journal) and `onboarded` (set once the intro tour has been seen). `jot setup` writes this file from its
 answers, replacing the previous contents; it does not preserve the `tui` block.
 
 ## Environment variables

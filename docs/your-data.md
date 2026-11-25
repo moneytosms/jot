@@ -54,7 +54,17 @@ printed by a headless Chrome, Chromium, Edge or Brave.
 
 ```bash
 jot export --format html
-jot export --format pdf -j work --from 2026-01-01
+jot export --format pdf -j work --from 2026-01-01 --to 2026-03-31
+```
+
+To share one day, or just a few notes from it, pass `-d`. A single day has no
+cover page, just the date and its entries; `--entry` keeps only the entries at
+the times you name. The TUI palette has "Export this day as HTML / PDF" for
+the selected day.
+
+```bash
+jot export --format pdf -j work -d yesterday
+jot export --format html -d 2026-11-25 --entry 09:41,14:30
 ```
 
 ## Encrypt a journal

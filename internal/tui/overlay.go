@@ -11,7 +11,7 @@ import (
 // of the calendar and day pane.
 func isOverlayMode(m mode) bool {
 	switch m {
-	case modeSearch, modePalette, modeTodos, modeHeatmap, modeReminder, modeSettings, modeHelp:
+	case modeSearch, modePalette, modeTodos, modeHeatmap, modeReminder, modeSettings, modeHelp, modeOnboard:
 		return true
 	}
 	return false

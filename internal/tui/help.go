@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/moneytosms/jot"
 )
 
 // helpEntry is one keybinding line in the help overlay.
@@ -94,9 +96,10 @@ var helpSections = []helpSection{
 	},
 }
 
-// helpState is the scroll position of the help overlay.
+// helpState is the scroll position and filter of the help overlay.
 type helpState struct {
 	offset int
+	query  string // typed text; fuzzy-filters the keybindings
 }
 
 // openHelp opens the help cheatsheet.
@@ -113,22 +116,36 @@ func (m model) helpRect(lay layout) boxRect {
 	return m.centerRect(lay, w, h)
 }
 
-// helpVisibleRows is how many cheatsheet lines fit.
+// helpVisibleRows is how many cheatsheet lines fit under the filter line.
 func (m model) helpVisibleRows(lay layout) int {
 	rect := m.helpRect(lay)
-	return max(rect.h-2, 1)
+	return max(rect.h-4, 1)
 }
 
 // keyHelp feeds keys to the help overlay.
 func (m model) keyHelp(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
-	case "esc", "?":
+	case "esc":
+		if m.help.query != "" {
+			m.help = helpState{}
+			return m, nil
+		}
 		m.closeOverlay()
 		return m, nil
-	case "up", "k":
+	case "?":
+		if m.help.query == "" {
+			m.closeOverlay()
+			return m, nil
+		}
+	case "backspace":
+		if r := []rune(m.help.query); len(r) > 0 {
+			m.help = helpState{query: string(r[:len(r)-1])}
+		}
+		return m, nil
+	case "up":
 		m.moveHelp(-1)
 		return m, nil
-	case "down", "j":
+	case "down":
 		m.moveHelp(1)
 		return m, nil
 	case "pgup", "ctrl+u":
@@ -137,12 +154,19 @@ func (m model) keyHelp(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "pgdown", "ctrl+d":
 		m.moveHelp(m.helpPage())
 		return m, nil
-	case "home", "g":
+	case "home":
 		m.help.offset = 0
 		return m, nil
-	case "end", "G":
+	case "end":
 		m.help.offset = m.helpMaxOffset()
 		return m, nil
+	}
+	// Anything typed filters the list.
+	switch msg.Type {
+	case tea.KeyRunes:
+		m.help = helpState{query: m.help.query + string(msg.Runes)}
+	case tea.KeySpace:
+		m.help = helpState{query: m.help.query + " "}
 	}
 	return m, nil
 }
@@ -160,16 +184,28 @@ func (m model) helpMaxOffset() int {
 	return max(len(m.helpTextLines())-m.helpVisibleRows(m.layout()), 0)
 }
 
-// helpTextLines renders the constant table into styled lines.
+// helpTextLines renders the table into styled lines, keeping only the
+// entries the typed query fuzzy-matches (keys, description or section).
 func (m model) helpTextLines() []string {
 	lines := make([]string, 0, 80)
+	q := strings.TrimSpace(m.help.query)
 	for _, section := range helpSections {
-		lines = append(lines, m.theme.accent().Bold(true).Render(strings.ToUpper(section.title)))
+		var rows []string
 		for _, entry := range section.entries {
+			if q != "" && !jot.FuzzyMatch(q, entry.desc+" "+entry.keys+" "+section.title) {
+				continue
+			}
 			keys := m.theme.fg().Render(padRight(entry.keys, 20))
-			lines = append(lines, "  "+keys+m.theme.muted().Render(entry.desc))
+			rows = append(rows, "  "+keys+m.theme.muted().Render(entry.desc))
 		}
-		lines = append(lines, "")
+		if len(rows) == 0 {
+			continue
+		}
+		lines = append(lines, m.theme.accent().Bold(true).Render(strings.ToUpper(section.title)))
+		lines = append(append(lines, rows...), "")
+	}
+	if len(lines) == 0 {
+		lines = append(lines, m.theme.muted().Render("  no key matches "+q))
 	}
 	return lines
 }
@@ -181,7 +217,11 @@ func (m model) helpView(lay layout) string {
 	m.help.offset = clamp(m.help.offset, 0, m.helpMaxOffset())
 	rows := m.helpVisibleRows(lay)
 	end := min(m.help.offset+rows, len(lines))
-	content := append([]string(nil), lines[m.help.offset:end]...)
+	prompt := m.theme.accent().Render("› ") + m.theme.fg().Render(m.help.query) + m.theme.accent().Render("▏")
+	if m.help.query == "" {
+		prompt = m.theme.accent().Render("› ") + m.theme.dim().Render("type to filter · esc close")
+	}
+	content := append([]string{prompt, ""}, lines[m.help.offset:end]...)
 	for len(content) < rect.h-2 {
 		content = append(content, "")
 	}

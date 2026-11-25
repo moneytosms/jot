@@ -45,6 +45,8 @@ type TUI struct {
 	// Colors maps journal names to a theme color name (green, yellow, cyan,
 	// magenta, red, accent) used in the sidebar.
 	Colors map[string]string `json:"colors,omitempty"`
+	// Onboarded is set once the intro tour has been seen or skipped.
+	Onboarded bool `json:"onboarded,omitempty"`
 }
 
 // Config controls where journals live, which journal commands default to and

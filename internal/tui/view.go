@@ -127,6 +127,8 @@ func (m model) overlayView(lay layout) string {
 		return m.settingsView(lay)
 	case modeHelp:
 		return m.helpView(lay)
+	case modeOnboard:
+		return m.onboardView(lay)
 	}
 	return ""
 }
@@ -205,10 +207,8 @@ func (m model) leftColumn(lay layout) string {
 
 // legendLine explains the calendar colors in the same styles cellText uses.
 func (m model) legendLine() string {
-	return m.theme.muted().Render("none ") +
-		m.theme.fg().Foreground(lipgloss.Color(m.theme.Green)).Render("1-5 ") +
-		m.theme.fg().Foreground(lipgloss.Color(m.theme.Yellow)).Render("6+") +
-		m.theme.dim().Render(" entries")
+	return m.theme.fg().Foreground(lipgloss.Color(m.theme.Green)).Render("■") + m.theme.muted().Render(" 1-5  ") +
+		m.theme.fg().Foreground(lipgloss.Color(m.theme.Yellow)).Render("■") + m.theme.muted().Render(" 6+ entries")
 }
 
 // journalRow renders one sidebar row: marker, name and day/entry counts.
@@ -417,7 +417,11 @@ func (m model) hintText() string {
 		}, sep)
 	case modeHelp:
 		return strings.Join([]string{
-			key.Render("j/k") + " scroll", key.Render("esc") + " close",
+			key.Render("type") + " filter", key.Render("up/down") + " scroll", key.Render("esc") + " clear or close",
+		}, sep)
+	case modeOnboard:
+		return strings.Join([]string{
+			key.Render("enter/→") + " next", key.Render("←") + " back", key.Render("esc") + " skip",
 		}, sep)
 	case modeHeatmap:
 		return strings.Join([]string{
