@@ -250,6 +250,7 @@ func TestReminderProvider(t *testing.T) {
 	}{
 		{name: "auto prefers omarchy", stubs: all, setting: "", in: 5 * time.Minute, want: RemindOmarchy},
 		{name: "auto skips omarchy under a minute", stubs: all, setting: "auto", in: 30 * time.Second, want: RemindSystemd},
+		{name: "auto skips omarchy off the minute", stubs: all, setting: "auto", in: 90 * time.Second, want: RemindSystemd},
 		{name: "auto falls back to background", stubs: map[string]string{"notify-send": ""}, setting: "auto", in: time.Minute, want: RemindBackground},
 		{name: "auto with nothing", stubs: nil, setting: "auto", in: time.Minute, wantErr: ErrRemindersUnsupported},
 		{name: "pinned provider", stubs: all, setting: "background", in: time.Minute, want: RemindBackground},

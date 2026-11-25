@@ -86,17 +86,19 @@ func (j *Jot) RemindVia(setting, message string, in time.Duration) (string, erro
 	if err != nil {
 		return "", err
 	}
+	if provider == RemindOmarchy {
+		unit, err := remindOmarchy(message, in)
+		auto := setting == "" || strings.TrimSpace(setting) == RemindAuto
+		if err == nil || !auto {
+			return unit, err
+		}
+		// auto: a broken omarchy install should not cost the reminder.
+		provider = RemindBackground
+		if reminderAvailable(RemindSystemd) {
+			provider = RemindSystemd
+		}
+	}
 	switch provider {
-	case RemindOmarchy:
-		minutes, err := omarchyMinutes(in)
-		if err != nil {
-			return "", err
-		}
-		_, stderr, err := runCapture(exec.Command("omarchy", "reminder", strconv.Itoa(minutes), message))
-		if err != nil {
-			return "", fmt.Errorf("omarchy reminder: %s: %w", strings.TrimSpace(stderr), err)
-		}
-		return fmt.Sprintf("omarchy-reminder-%dm", minutes), nil
 	case RemindSystemd:
 		return j.remindSystemd(message, in)
 	default:
@@ -113,7 +115,7 @@ func ReminderProvider(setting string, in time.Duration) (string, error) {
 	switch setting = strings.TrimSpace(setting); setting {
 	case "", RemindAuto:
 		for _, p := range []string{RemindOmarchy, RemindSystemd, RemindBackground} {
-			if p == RemindOmarchy && in > 0 && in < time.Minute {
+			if p == RemindOmarchy && in > 0 && in%time.Minute != 0 {
 				continue
 			}
 			if reminderAvailable(p) {
@@ -205,6 +207,31 @@ func backgroundReminders(dir string) []Reminder {
 		out = append(out, Reminder{Unit: unit, Message: readStash(p), At: at})
 	}
 	return out
+}
+
+// remindOmarchy hands the reminder to "omarchy reminder". Omarchy's scripts
+// need OMARCHY_PATH, which a terminal started outside the Omarchy session
+// may not have, so it is filled in from the usual install locations.
+func remindOmarchy(message string, in time.Duration) (string, error) {
+	minutes, err := omarchyMinutes(in)
+	if err != nil {
+		return "", err
+	}
+	cmd := exec.Command("omarchy", "reminder", strconv.Itoa(minutes), message)
+	if os.Getenv("OMARCHY_PATH") == "" {
+		home, _ := os.UserHomeDir()
+		for _, p := range []string{filepath.Join(home, ".local", "share", "omarchy"), "/usr/share/omarchy"} {
+			if st, err := os.Stat(filepath.Join(p, "default")); err == nil && st.IsDir() {
+				cmd.Env = append(os.Environ(), "OMARCHY_PATH="+p)
+				break
+			}
+		}
+	}
+	_, stderr, err := runCapture(cmd)
+	if err != nil {
+		return "", fmt.Errorf("omarchy reminder: %s: %w", strings.TrimSpace(stderr), err)
+	}
+	return fmt.Sprintf("omarchy-reminder-%dm", minutes), nil
 }
 
 // omarchyMinutes converts a duration into whole minutes, rounding up, for
