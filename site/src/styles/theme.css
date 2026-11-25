@@ -24,6 +24,18 @@
 
   --terminal: #141712;
   --terminal-fg: #d7dccf;
+  --terminal-dim: #88907f;
+  --terminal-yel: #dcb26b;
+
+  /* The landing page's editor: red pen and highlighter. */
+  --pen: #c8352a;
+  --hi: #e9f56b;
+  /* The parody notes app (landing only): generic SaaS on purpose. */
+  --foil: #ffffff;
+  --foil-bg: #f4f1fb;
+  --foil-ink: #2a2440;
+  --foil-mute: #6d6690;
+  --foil-accent: #7b61ff;
 
   --serif: "Newsreader Variable", Newsreader, "Iowan Old Style", Georgia, serif;
   --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;

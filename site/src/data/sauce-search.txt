@@ -1,0 +1,170 @@
+default . 2026-11-25 . 2 hits
+  default/2026-11-25.md:3: morning pages, then the parser rewrite
+  default/2026-11-25.md:7: shipped the parser rewrite
+default . 2026-11-23 . 1 hit
+  default/2026-11-23.md:11: parser fuzz suite is green
+default . 2026-11-20 . 1 hit
+  default/2026-11-20.md:7: the parser should accept empty input
+default . 2026-11-13 . 1 hit
+  default/2026-11-13.md:7: parser bench numbers, 40us per day
+default . 2026-11-12 . 1 hit
+  default/2026-11-12.md:3: refactored the day parser
+default . 2026-11-11 . 2 hits
+  default/2026-11-11.md:3: standup: parser is close
+  default/2026-11-11.md:27: shipped the new parser
+default . 2026-11-10 . 1 hit
+  default/2026-11-10.md:3: day parser: first pass
+default . 2026-11-04 . 1 hit
+  default/2026-11-04.md:3: standup: parser is done, docs next
+default . 2026-11-03 . 1 hit
+  default/2026-11-03.md:9: ## parser:
+default . 2026-10-13 . 1 hit
+  default/2026-10-13.md:11: refactored the day parser
+default . 2026-10-09 . 1 hit
+  default/2026-10-09.md:3: refactored the day parser
+default . 2026-10-02 . 1 hit
+  default/2026-10-02.md:15: refactored the day parser
+default . 2026-09-23 . 2 hits
+  default/2026-09-23.md:3: parser bench numbers, 40us per day
+  default/2026-09-23.md:11: parser fuzz suite is green
+default . 2026-09-21 . 1 hit
+  default/2026-09-21.md:7: refactored the day parser
+default . 2026-09-17 . 1 hit
+  default/2026-09-17.md:11: parser bench numbers, 40us per day
+default . 2026-08-27 . 1 hit
+  default/2026-08-27.md:15: parser fuzz suite is green
+default . 2026-08-03 . 1 hit
+  default/2026-08-03.md:7: parser bench numbers, 40us per day
+default . 2026-05-24 . 1 hit
+  default/2026-05-24.md:3: parser bench numbers, 40us per day
+default . 2026-05-22 . 1 hit
+  default/2026-05-22.md:3: parser bench numbers, 40us per day
+default . 2026-05-14 . 1 hit
+  default/2026-05-14.md:7: refactored the day parser
+default . 2026-05-08 . 1 hit
+  default/2026-05-08.md:7: parser fuzz suite is green
+default . 2026-05-06 . 1 hit
+  default/2026-05-06.md:3: parser bench numbers, 40us per day
+default . 2026-04-13 . 1 hit
+  default/2026-04-13.md:3: parser bench numbers, 40us per day
+default . 2026-03-16 . 1 hit
+  default/2026-03-16.md:7: refactored the day parser
+default . 2026-03-02 . 1 hit
+  default/2026-03-02.md:11: refactored the day parser
+default . 2026-02-18 . 1 hit
+  default/2026-02-18.md:3: parser bench numbers, 40us per day
+default . 2026-02-12 . 1 hit
+  default/2026-02-12.md:7: refactored the day parser
+default . 2026-01-21 . 1 hit
+  default/2026-01-21.md:3: parser bench numbers, 40us per day
+default . 2026-01-14 . 1 hit
+  default/2026-01-14.md:3: parser fuzz suite is green
+default . 2026-01-06 . 1 hit
+  default/2026-01-06.md:3: parser fuzz suite is green
+default . 2025-11-23 . 1 hit
+  default/2025-11-23.md:7: refactored the day parser
+default . 2025-10-01 . 1 hit
+  default/2025-10-01.md:3: parser bench numbers, 40us per day
+default . 2025-08-25 . 1 hit
+  default/2025-08-25.md:11: parser bench numbers, 40us per day
+default . 2025-06-03 . 1 hit
+  default/2025-06-03.md:3: refactored the day parser
+default . 2025-05-13 . 2 hits
+  default/2025-05-13.md:11: parser fuzz suite is green
+  default/2025-05-13.md:19: parser fuzz suite is green
+default . 2025-04-23 . 1 hit
+  default/2025-04-23.md:11: parser fuzz suite is green
+default . 2025-01-28 . 1 hit
+  default/2025-01-28.md:3: parser fuzz suite is green
+default . 2025-01-02 . 1 hit
+  default/2025-01-02.md:15: parser fuzz suite is green
+ideas . 2026-11-25 . 1 hit
+  ideas/2026-11-25.md:7: the parser should accept empty input
+ideas . 2026-11-22 . 2 hits
+  ideas/2026-11-22.md:3: parser bug: empty input crashes the tokenizer
+  ideas/2026-11-22.md:11: parser: fuzz the timestamps too
+ideas . 2026-11-19 . 1 hit
+  ideas/2026-11-19.md:3: the parser should accept empty input
+ideas . 2026-11-12 . 1 hit
+  ideas/2026-11-12.md:3: idea: the parser should stream, not load
+ideas . 2026-10-01 . 1 hit
+  ideas/2026-10-01.md:3: parser bug: empty input crashes the tokenizer
+ideas . 2026-08-12 . 1 hit
+  ideas/2026-08-12.md:3: parser bug: empty input crashes the tokenizer
+ideas . 2026-07-29 . 1 hit
+  ideas/2026-07-29.md:11: idea: the parser should stream, not load
+ideas . 2026-06-23 . 1 hit
+  ideas/2026-06-23.md:7: the parser should accept empty input
+ideas . 2026-05-18 . 2 hits
+  ideas/2026-05-18.md:11: parser bug: empty input crashes the tokenizer
+  ideas/2026-05-18.md:15: parser bug: empty input crashes the tokenizer
+ideas . 2026-05-12 . 2 hits
+  ideas/2026-05-12.md:11: idea: the parser should stream, not load
+  ideas/2026-05-12.md:19: the parser should accept empty input
+ideas . 2026-05-06 . 2 hits
+  ideas/2026-05-06.md:7: idea: the parser should stream, not load
+  ideas/2026-05-06.md:11: parser bug: empty input crashes the tokenizer
+ideas . 2026-05-01 . 1 hit
+  ideas/2026-05-01.md:7: parser bug: empty input crashes the tokenizer
+ideas . 2026-04-06 . 1 hit
+  ideas/2026-04-06.md:3: parser bug: empty input crashes the tokenizer
+ideas . 2026-03-13 . 1 hit
+  ideas/2026-03-13.md:15: idea: the parser should stream, not load
+ideas . 2026-01-02 . 1 hit
+  ideas/2026-01-02.md:7: parser bug: empty input crashes the tokenizer
+ideas . 2026-01-01 . 1 hit
+  ideas/2026-01-01.md:11: idea: the parser should stream, not load
+ideas . 2025-07-14 . 1 hit
+  ideas/2025-07-14.md:3: idea: the parser should stream, not load
+ideas . 2025-04-11 . 1 hit
+  ideas/2025-04-11.md:3: idea: the parser should stream, not load
+ideas . 2025-02-07 . 1 hit
+  ideas/2025-02-07.md:11: idea: the parser should stream, not load
+work . 2026-11-25 . 1 hit
+  work/2026-11-25.md:3: standup: parser is done, docs next
+work . 2026-11-18 . 1 hit
+  work/2026-11-18.md:5: - [ ] scope the parser API
+work . 2026-10-27 . 1 hit
+  work/2026-10-27.md:7: standup: parser is done, docs next
+work . 2026-10-18 . 1 hit
+  work/2026-10-18.md:19: standup: parser is done, docs next
+work . 2026-10-16 . 1 hit
+  work/2026-10-16.md:7: planning: scope the parser API
+work . 2026-09-23 . 1 hit
+  work/2026-09-23.md:11: planning: scope the parser API
+work . 2026-09-04 . 1 hit
+  work/2026-09-04.md:7: standup: parser is done, docs next
+work . 2026-08-12 . 1 hit
+  work/2026-08-12.md:15: standup: parser is done, docs next
+work . 2026-07-07 . 1 hit
+  work/2026-07-07.md:11: planning: scope the parser API
+work . 2026-06-02 . 1 hit
+  work/2026-06-02.md:3: standup: parser is done, docs next
+work . 2026-05-28 . 1 hit
+  work/2026-05-28.md:7: planning: scope the parser API
+work . 2026-05-15 . 1 hit
+  work/2026-05-15.md:3: planning: scope the parser API
+work . 2026-05-07 . 1 hit
+  work/2026-05-07.md:7: standup: parser is done, docs next
+work . 2026-05-04 . 1 hit
+  work/2026-05-04.md:3: planning: scope the parser API
+work . 2026-04-24 . 1 hit
+  work/2026-04-24.md:3: standup: parser is done, docs next
+work . 2026-04-13 . 1 hit
+  work/2026-04-13.md:7: planning: scope the parser API
+work . 2026-04-06 . 1 hit
+  work/2026-04-06.md:3: planning: scope the parser API
+work . 2026-02-02 . 1 hit
+  work/2026-02-02.md:11: standup: parser is done, docs next
+work . 2026-01-13 . 1 hit
+  work/2026-01-13.md:3: planning: scope the parser API
+work . 2025-11-03 . 1 hit
+  work/2025-11-03.md:3: standup: parser is done, docs next
+work . 2025-08-21 . 1 hit
+  work/2025-08-21.md:3: planning: scope the parser API
+work . 2025-07-08 . 1 hit
+  work/2025-07-08.md:11: planning: scope the parser API
+work . 2025-01-26 . 1 hit
+  work/2025-01-26.md:3: planning: scope the parser API
+
+88 matches in 3 journals
