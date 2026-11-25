@@ -61,9 +61,15 @@ jot/
 ├── README.md
 ├── .gitignore
 └── docs/
-    ├── commands.md         command reference
-    ├── guide.md            task-based usage guide
+    ├── README.md           guide home: what to read, in order
+    ├── getting-started.md  install, first entries, update, remove
+    ├── writing.md          adding entries, todos, journals, reminders, editors
+    ├── finding.md          reading, search, tags, other tools
     ├── tui.md              the interactive interface
+    ├── your-data.md        backup, export, import, encryption, sync
+    ├── configuration.md    config file, environment, permissions
+    ├── troubleshooting.md  symptoms and fixes
+    ├── commands.md         command reference
     └── development.md      this file
 ```
 
@@ -173,7 +179,8 @@ wins.
    library behaviour, a unit test next to it.
 6. Run `make check` and `gofmt -w .`.
 7. Add the command to the command tables in `README.md` and `docs/commands.md`,
-   and to `docs/guide.md` if a task needs it.
+   and to the matching task page in `docs/` if a task needs it. New guide pages
+   also go in the `nav` list in `site/site.config.mjs`.
 
 Things to keep consistent:
 

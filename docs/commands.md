@@ -497,7 +497,7 @@ The duration may come first or last. Go duration syntax is accepted (`90s`,
 is the remaining words, joined with spaces; quote multi-word text.
 
 The `reminders` key in the config file picks the provider (see
-[Configuration](guide.md#config-file)). With `auto`, the default, the first
+[Configuration](configuration.md#config-file)). With `auto`, the default, the first
 available provider wins:
 
 - `omarchy`: runs `omarchy reminder <minutes> <message>`. Omarchy is

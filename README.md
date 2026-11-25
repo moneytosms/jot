@@ -11,10 +11,11 @@ and a full-screen terminal interface.
 [Usage guide](https://moneytosms.github.io/jot/guide/) ·
 [Command reference](docs/commands.md)
 
-A 40-second tour: quick adds from the CLI, then the calendar, fuzzy search and
-year heatmap in the TUI. Every line of terminal output comes from the real binary:
+A 55-second tour: quick adds from the CLI, the TUI's calendar, fuzzy search and
+year heatmap, then todos, tags, reminders, encryption, PDF export, backups and
+git sync. Every line of terminal output comes from the real binary:
 
-![A tour of jot: quick adds from the CLI, then the calendar, fuzzy search and year heatmap in the TUI](assets/readme/tour.mp4)
+![A tour of jot: quick adds, the TUI calendar and search, then todos, tags, reminders, encryption, PDF export, backups and git sync](assets/readme/tour.mp4)
 
 ## Why
 
@@ -41,39 +42,32 @@ rewritten.
 
 ## Features
 
-- **One file per day.** Every day is `<root>/<journal>/YYYY-MM-DD.md`.
-- **Calendar with entry heat.** The TUI shows a month at a glance. Cell color
-  reflects how many entries a day has, and the header totals the displayed
-  month's days and entries.
-- **Rendered day pane.** The selected day is rendered as Markdown in the
-  terminal, with a scrollable entry pane.
-- **Quick add.** Press `a`, type one line, press Enter. The entry is appended
-  to the selected day and the input stays open for the next note.
-- **Editor handoff.** Press `e` to open the selected day in your editor, then
-  return to the TUI. Long notes, edits, deletions, and checkbox changes all
-  happen there.
-- **Journals.** Keep separate journals, switch them with `-j` or `J`/`K`, and
-  create one from the TUI with `n`.
-- **Fuzzy search across journals.** Search every entry by default, or limit
-  the search to the current journal with Tab.
-- **Read-only todos.** Collect every `- [ ]` and `- [x]` item in one overlay.
-  jot never toggles boxes; you do that in your editor.
-- **Countdown reminders.** Set a quick reminder that pops up as a desktop
-  notification.
+- **One file per day.** Every day is `<root>/<journal>/YYYY-MM-DD.md`,
+  appended under `## HH:MM:SS` headings and never rewritten.
+- **Calendar TUI.** A month with entry heat, the selected day rendered as
+  Markdown, quick add (`a`), editor handoff (`e`), a year heatmap (`y`), and
+  widgets for open todos, reminders and "on this day".
+- **Journals.** Keep separate journals, switch with `-j` or `J`/`K`, give
+  each a sidebar colour and a daily `.template`.
+- **Search.** Substring or fuzzy, across every journal, with filters:
+  `#tag`, `has:todo`, `is:open`, `after:7d`, `before:2026-01-01`.
+- **Tags.** Write `#work` anywhere; `jot tags` counts them.
+- **Todos.** `- [ ]` boxes in any entry show up in `jot todo` and the TUI's
+  `T` overlay. jot never toggles them; your editor does.
+- **Reminders.** `jot remind "stretch" 20m` pops a desktop notification via
+  Omarchy, a systemd timer or a background process.
+- **Encryption.** `jot journal encrypt private` turns a journal into
+  [age](https://age-encryption.org) ciphertext; jot still reads and searches it.
+- **Git sync.** Set `"git": "commit"` (or `"push"`) and every write is a commit.
+- **Backups and export.** `jot backup` writes a `.tar.gz` or `.zip` of
+  everything; `jot journal restore` brings it back. `jot export` writes
+  Markdown, HTML or a PDF with a cover page and contents.
 - **Ten themes.** `auto`, `default`, `light`, `dark`, `gruvbox`, `nord`,
-  `dracula`, `catppuccin`, `tokyo-night`, and `omarchy`. `dark` is the
-  fixed dark palette; `default` follows the terminal background.
-- **Backups and exports.** `jot backup` writes a compressed archive of every
-  journal; `jot export` writes one Markdown file per journal.
-- **Checked self-update.** `jot update` downloads the release asset and
-  verifies it against `SHA256SUMS` before replacing the binary.
-- **Selective uninstall.** Remove journal data, the binary, the config file,
-  or all three. Data removal is explicit and confirmed.
-- **Plain storage and tight permissions.** Journal directories are `0700`;
-  day files and the config file are `0600`.
-- **Scriptable CLI.** `add`, `show`, `edit`, `ls`, `search`, `watch`, `todo`,
-  `heatmap`, `remind`, `backup`, `export`, `journal`, `init`, `setup`, `install`,
-  `update`, `uninstall`, `doctor`, `version`, and `help`.
+  `dracula`, `catppuccin`, `tokyo-night`, and `omarchy`.
+- **Checked self-update.** `jot update` verifies the release against
+  `SHA256SUMS` before replacing the binary.
+- **Tight permissions.** Journal directories are `0700`; day files and the
+  config file are `0600`.
 
 ## Install
 
@@ -164,7 +158,7 @@ jot  default  November 2026  7d 23e
 | `q`, `ctrl+c` | quit |
 
 Press `?` inside the TUI for the full cheatsheet, or read
-[docs/tui.md](docs/tui.md) for the complete reference.
+[The TUI](docs/tui.md) for the complete reference.
 
 ## Everyday use
 
@@ -173,9 +167,14 @@ jot add "shipped the parser rewrite"   # append to today
 jot show --calendar                    # month grid with entry density
 jot show -d yesterday                  # yesterday's entries
 jot search --fuzzy parser              # scored search across journals
-jot todo                               # checkbox items, read-only
-jot remind "stretch" 20m               # transient countdown reminder
+jot search "#work is:open"             # tag and todo filters
+jot todo --open                        # unchecked boxes, every journal
+jot tags                               # tags by use
+jot remind "stretch" 20m               # desktop notification in 20 minutes
 jot journal new ideas                  # create a journal
+jot journal encrypt ideas              # age-encrypt it
+jot export --format pdf -j work        # a PDF to print or send
+jot backup --zip                       # everything, in one archive
 jot tui                                # open the interactive interface
 ```
 
@@ -190,107 +189,49 @@ the configured editor, `$VISUAL`, `$EDITOR`, or the first of `vim`, `vi`, or
   default/
     2026-11-25.md
   work/
+    .template
     2026-11-25.md
   backups/
     jot-backup-20261125-150405.tar.gz
 ```
 
-jot only appends to day files; the format is the plain Markdown shown above,
-so you can still edit it by hand.
-
-Journal directories are created with mode `0700`; day files and the config
-file with mode `0600`. `jot backup` writes a `.tar.gz` under `backups/`.
-`jot journal rm` archives a journal before deleting it.
-
-The config file is `$JOT_CONFIG` when set, otherwise
-`~/.config/jot/config.json` on Linux (the user config directory on other
-systems). Every key is optional:
+The config file is `~/.config/jot/config.json` (`$JOT_CONFIG` overrides).
+Every key is optional:
 
 ```json
 {
   "root": "~/.jot",
   "default_journal": "default",
   "editor": "nvim",
-  "tui": {
-    "theme": "auto",
-    "journal": "work"
-  }
+  "reminders": "auto",
+  "git": "commit",
+  "tui": { "theme": "auto", "colors": { "work": "cyan" } }
 }
 ```
 
-| Key | Meaning |
-| --- | --- |
-| `root` | Journal root directory. `~` is expanded. |
-| `default_journal` | Journal used when a command names none. |
-| `editor` | Editor command for `jot edit` and the TUI. |
-| `tui.theme` | TUI theme name. |
-| `tui.journal` | Journal last selected inside the TUI; a convenience only. |
-
-Environment variables:
-
-| Variable | Meaning |
-| --- | --- |
-| `JOT_ROOT` | Override the journal root. |
-| `JOT_CONFIG` | Use an alternative config file. |
-| `JOT_EDITOR` | Editor command, above the config file. |
-| `JOT_THEME` | TUI theme, above `tui.theme` and below `--theme`. |
-
-CLI precedence is flags, then `JOT_*` variables, then the config file, then
-built-in defaults. The TUI theme follows the same shape: `--theme`, then
-`JOT_THEME`, then `tui.theme`, then `auto`. `JOT_JOURNAL` sets the default
-journal; `JOT_INSTALL_DIR` changes the install directory.
-
-## Updating and uninstalling
-
-`jot update` checks the latest release, shows the available version, verifies
-the download against `SHA256SUMS`, and replaces the binary. Useful flags:
-
-| Flag | Effect |
-| --- | --- |
-| `--check` | Report whether an update is available; install nothing. |
-| `--json` | Print one machine-readable JSON object. |
-| `--notes` | Print the full release notes. |
-| `--version TAG` | Target a specific release tag. |
-| `--yes` | Do not ask for confirmation. |
-| `--source` | Rebuild from a local checkout instead of downloading. |
-
-`--src DIR` selects the source checkout for `--source`; `--dir DIR` selects
-the install directory.
-
-`jot uninstall` removes only the components you name. With no component
-flags and a terminal it prints an inventory and asks for `d`, `b`, `c`, `a`,
-or `q`.
-
-| Flag | Effect |
-| --- | --- |
-| `--data` | Remove the journal root, including journals and backups. |
-| `--binary` | Remove the running jot executable. |
-| `--config` | Remove the config file. |
-| `--all` | Remove data, binary, and config. |
-| `--dry-run` | Print the plan and remove nothing. |
-| `--yes` | Skip confirmations. Without it, data removal requires typing `delete`. |
-
-Data removal deletes the journal root and does not archive it at that point.
-Run `jot backup` first if you want a copy. The removal order is config, data,
-then the running binary.
+All keys and `JOT_*` variables: [Configuration](docs/configuration.md).
+Backups, export, encryption and sync: [Your data](docs/your-data.md).
+`jot update` and `jot uninstall`: [Getting started](docs/getting-started.md#update).
 
 ## Compatibility and scope
 
 - The CLI is the stable surface. Existing flags and output are preserved.
-- The TUI is read-mostly. Quick add is the only journal write the TUI
-  itself makes; edits, deletions, and checkbox toggles go through your editor.
-- Journals are flat: no nested journals, tags, or database.
-- There is no sync and no server. Your files are yours to move, copy, or
-  version however you like.
+- jot never rewrites an entry. Edits, deletions and checkbox toggles go
+  through your editor.
+- Journals are flat directories: no nested journals, no database.
+- No server, no account, no telemetry. Sync is git or whatever already syncs
+  your files.
 - Building from source needs Go 1.24 or newer.
 
 ## Documentation
 
 - [Usage guide](https://moneytosms.github.io/jot/guide/) — the repo's own
   docs, rendered and searchable
-- [Command reference](docs/commands.md)
-- [TUI guide](docs/tui.md)
-- [Development](docs/development.md)
+- [Getting started](docs/getting-started.md) · [Writing entries](docs/writing.md) ·
+  [Finding and reviewing](docs/finding.md) · [The TUI](docs/tui.md)
+- [Your data](docs/your-data.md) · [Configuration](docs/configuration.md) ·
+  [Troubleshooting](docs/troubleshooting.md)
+- [Command reference](docs/commands.md) · [Development](docs/development.md)
 
 ## Development
 

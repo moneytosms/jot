@@ -1,12 +1,12 @@
-# jot TUI guide
+# The TUI
 
 The jot TUI is the full-screen view of your journals: a month calendar, a
 journal sidebar, the selected day rendered as Markdown, and a one-line quick
 add. It is read-mostly. The only change it makes to journal content is a
 quick-add entry; edits, deletions, and checkbox changes happen in your editor.
 
-For the command line, see [docs/commands.md](commands.md). For first-run
-setup and storage, see [docs/guide.md](guide.md).
+For the command line, see the [command reference](commands.md). For first-run
+setup, see [Getting started](getting-started.md).
 
 ## Starting the TUI
 
