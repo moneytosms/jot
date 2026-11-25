@@ -37,6 +37,8 @@ type MDStyles struct {
 	ListBullet string
 	// Accent styles ***bold italic*** spans.
 	Accent string
+	// Tag styles #tags.
+	Tag string
 }
 
 // PlainStyles returns styles with every field empty, so RenderStyled emits no
@@ -58,6 +60,7 @@ func DefaultDarkStyles() MDStyles {
 		Dim:        "\x1b[2m",
 		ListBullet: "\x1b[36m",
 		Accent:     "\x1b[1;36m",
+		Tag:        "\x1b[35m",
 	}
 }
 
@@ -76,6 +79,7 @@ func DefaultLightStyles() MDStyles {
 		Dim:        "\x1b[2m",
 		ListBullet: "\x1b[34m",
 		Accent:     "\x1b[1;34m",
+		Tag:        "\x1b[35m",
 	}
 }
 
@@ -563,6 +567,10 @@ func writeInline(b *strings.Builder, line string, s MDStyles) {
 			}
 			b.WriteByte('*')
 			i++
+		case isTagStart(line, i):
+			n := tagLen(line[i+1:]) + 1
+			b.WriteString(styled(s.Tag, line[i:i+n]))
+			i += n
 		default:
 			j := nextMarker(line, i)
 			b.WriteString(line[i:j])
@@ -579,6 +587,10 @@ func nextMarker(line string, i int) int {
 		switch line[j] {
 		case '`', '*':
 			return j
+		case '#':
+			if j > i && isTagStart(line, j) {
+				return j
+			}
 		case '~':
 			if j+1 < len(line) && line[j+1] == '~' {
 				return j

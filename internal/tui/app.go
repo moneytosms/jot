@@ -344,6 +344,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case searchResultMsg:
 		return m.applySearchResult(msg)
 
+	case searchTagsMsg:
+		m.search.tags = msg.tags
+		return m, nil
+
 	case todosResultMsg:
 		return m.applyTodosResult(msg)
 	case heatResultMsg:

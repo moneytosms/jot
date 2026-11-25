@@ -20,6 +20,7 @@ Commands:
   ls         List journals, or the days inside one journal
   search     Search across journals
   todo       List checkbox todos inside entries
+  tags       List #tags and how often each is used
   heatmap    Print a year heatmap of entry density
   watch      Follow today's entries live
   remind     Set and manage countdown reminders
@@ -167,11 +168,25 @@ Flags:
                         entry, best first
       --limit <n>       maximum fuzzy results (default 20)
 
+Filters (any filter switches to entry-level results):
+  #tag or tag:name      entries carrying a #tag
+  journal:name          one journal
+  after:DAY before:DAY  inclusive; DAY is YYYY-MM-DD, today, yesterday or Nd
+  has:todo  is:open     entries with a checkbox / an unchecked one
+
 Examples:
   jot search parser
+  jot search "#work after:7d"
   jot search -j work standup
   jot search "next steps"
   jot search --fuzzy --limit 10 parser`,
+	"tags": `jot tags [flags]
+
+List every #tag (a '#' then a word, e.g. #work or #work/infra) with the number
+of entries using it, most used first. Search with jot search "#tag".
+
+Flags:
+  -j, --journal <name>  count one journal only`,
 	"todo": `jot todo [flags]
 
 List checkbox items ("- [ ]" / "- [x]") found in entry bodies across every

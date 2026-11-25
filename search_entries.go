@@ -33,9 +33,13 @@ func (j *Jot) SearchEntries(query string) ([]EntryMatch, error) {
 	if err != nil {
 		return nil, err
 	}
+	q := ParseQuery(query)
 	var out []EntryMatch
 	for _, info := range infos {
-		matches, err := j.searchEntriesJournal(j.journalName(info.Name), query)
+		if q.Journal != "" && info.Name != q.Journal {
+			continue
+		}
+		matches, err := j.searchEntriesJournal(j.journalName(info.Name), q)
 		if err != nil {
 			return nil, err
 		}
@@ -52,18 +56,22 @@ func (j *Jot) SearchEntriesJournal(name, query string) ([]EntryMatch, error) {
 	if strings.TrimSpace(query) == "" {
 		return nil, errors.New("empty search query")
 	}
-	return j.searchEntriesJournal(j.journalName(name), query)
+	return j.searchEntriesJournal(j.journalName(name), ParseQuery(query))
 }
 
 // searchEntriesJournal runs the fuzzy entry search for an already normalized
-// journal name, without the empty-query check.
-func (j *Jot) searchEntriesJournal(name, query string) ([]EntryMatch, error) {
+// journal name, without the empty-query check. Entries must pass q's filters;
+// a query of filters only matches every passing entry with the same score.
+func (j *Jot) searchEntriesJournal(name string, q Query) ([]EntryMatch, error) {
 	days, err := j.Days(name)
 	if err != nil {
 		return nil, err
 	}
 	var out []EntryMatch
 	for _, day := range days {
+		if (q.After != "" && day < q.After) || (q.Before != "" && day > q.Before) {
+			continue
+		}
 		path := filepath.Join(j.root, name, day+".md")
 		f, err := openDayFile(path)
 		if err != nil {
@@ -75,8 +83,12 @@ func (j *Jot) searchEntriesJournal(name, query string) ([]EntryMatch, error) {
 		flush := func() {
 			// Blank separator lines around the body are file formatting, not
 			// entry content.
-			if b := strings.Trim(body.String(), "\n"); b != "" {
-				if score := FuzzyScore(query, b+"\n"+time.String()); score > 0 {
+			if b := strings.Trim(body.String(), "\n"); b != "" && q.matches(name, day, b) {
+				score := 1
+				if q.Text != "" {
+					score = FuzzyScore(q.Text, b+"\n"+time.String())
+				}
+				if score > 0 {
 					out = append(out, EntryMatch{
 						Journal: name,
 						Day:     day,

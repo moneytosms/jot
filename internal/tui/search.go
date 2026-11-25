@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -26,11 +27,72 @@ type searchState struct {
 	loading  bool
 	err      error
 	results  []jot.EntryMatch
+	tags     []string // most used #tags, offered as chips
 	cursor   int
 	offset   int
 	// listFocus marks the result list as the movement target. Arrows and
 	// page keys set it; typing a non-movement key returns focus to the input.
 	listFocus bool
+}
+
+// searchTagsMsg carries the most used tags for the filter chips.
+type searchTagsMsg struct{ tags []string }
+
+// searchChipBase are the filter chips always offered; tag chips follow.
+var searchChipBase = []string{"has:todo", "is:open", "after:7d", "after:30d"}
+
+// searchChips returns the chip tokens in display order.
+func (m model) searchChips() []string {
+	chips := append([]string(nil), searchChipBase...)
+	for _, t := range m.search.tags {
+		chips = append(chips, "#"+t)
+	}
+	return chips
+}
+
+// searchChipPrefix is the scope text before the chips on the scope line.
+func (m model) searchChipPrefix() string {
+	scope := "all journals"
+	if !m.search.scopeAll {
+		scope = "this journal (" + m.journal + ")"
+	}
+	count := len(m.search.results)
+	return fmt.Sprintf("scope: %s · tab switches · %d %s   ", scope, count, plural(count, "match", "matches"))
+}
+
+// toggleChip adds a filter token to the query, or removes it when present.
+// Date chips replace each other.
+func (m *model) toggleChip(tok string) tea.Cmd {
+	fields := strings.Fields(m.search.input.value())
+	had := false
+	out := fields[:0]
+	for _, f := range fields {
+		switch {
+		case strings.EqualFold(f, tok):
+			had = true
+		case strings.HasPrefix(tok, "after:") && strings.HasPrefix(f, "after:"):
+		default:
+			out = append(out, f)
+		}
+	}
+	if !had {
+		out = append(out, tok)
+	}
+	m.search.input.setValue(strings.Join(out, " "))
+	m.search.listFocus = false
+	return m.searchChanged()
+}
+
+// searchTagsCmd loads the tag chips: the four most used tags.
+func searchTagsCmd(j *jot.Jot) tea.Cmd {
+	return func() tea.Msg {
+		counts, _ := j.TagCounts("")
+		var tags []string
+		for _, c := range counts[:min(len(counts), 4)] {
+			tags = append(tags, c.Tag)
+		}
+		return searchTagsMsg{tags: tags}
+	}
 }
 
 // searchTickMsg fires after the debounce delay and starts the actual search
@@ -66,9 +128,9 @@ func (m model) openSearch() (tea.Model, tea.Cmd) {
 	input := newLineInput()
 	input.placeholder = "type to search every entry"
 	input.focus()
-	m.search = searchState{input: input, scopeAll: true, seq: seq}
+	m.search = searchState{input: input, scopeAll: true, seq: seq, tags: m.search.tags}
 	m.mode = modeSearch
-	return m, nil
+	return m, searchTagsCmd(m.jot)
 }
 
 // searchChanged resets the result state for a new query and schedules the
@@ -158,6 +220,11 @@ func (m model) keySearch(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, m.searchLoadCmd()
 	case "enter":
 		return m.activateSearch()
+	case "alt+1", "alt+2", "alt+3", "alt+4", "alt+5", "alt+6", "alt+7", "alt+8":
+		if chips := m.searchChips(); int(key[4]-'1') < len(chips) {
+			return m, m.toggleChip(chips[key[4]-'1'])
+		}
+		return m, nil
 	case "up", "ctrl+k":
 		m.search.listFocus = true
 		m.moveSearch(-1)
@@ -333,16 +400,22 @@ func (m model) searchView(lay layout) string {
 	innerW := max(rect.w-2, 1)
 	width := max(innerW-1, 1)
 
-	scope := "all journals"
-	if !m.search.scopeAll {
-		scope = "this journal (" + m.journal + ")"
-	}
 	inputLine := m.search.input.view()
 	if !m.search.input.isFocused() {
 		inputLine = m.theme.muted().Render("press / to search")
 	}
-	count := len(m.search.results)
-	scopeLine := m.theme.muted().Render(fmt.Sprintf("scope: %s · tab switches · %d %s", scope, count, plural(count, "match", "matches")))
+	scopeLine := m.theme.muted().Render(m.searchChipPrefix())
+	active := strings.Fields(strings.ToLower(m.search.input.value()))
+	for i, c := range m.searchChips() {
+		if i > 0 {
+			scopeLine += " "
+		}
+		st := m.theme.dim()
+		if slices.Contains(active, c) {
+			st = m.theme.selStyle()
+		}
+		scopeLine += st.Render("[" + c + "]")
+	}
 	header := m.theme.dim().Render(fmt.Sprintf("%-10s %-10s %-8s %s", "JOURNAL", "DAY", "TIME", "ENTRY"))
 
 	content := []string{inputLine, scopeLine, header}
@@ -357,7 +430,7 @@ func (m model) searchView(lay layout) string {
 	if len(m.search.results) == 0 {
 		msg := "No matches. Try a shorter query."
 		if strings.TrimSpace(m.search.query) == "" {
-			msg = "Type to search across every journal. Tab switches scope."
+			msg = "Type to search across every journal. Tab switches scope. Click a chip (or alt+1-8) to filter; also tag:, journal:, after:, before:."
 		} else if m.search.loading {
 			msg = "Searching…"
 		}
@@ -452,6 +525,17 @@ func (m model) handleSearchMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 	case tea.MouseButtonLeft:
 		if msg.Y == 0 || bodyRow(msg.Y) >= lay.paneH {
 			m.closeOverlay()
+			return m, nil
+		}
+		if rect := m.searchRect(lay); contentRow(msg.Y, rect) == 1 {
+			x := msg.X - rect.x - 2 - ansiWidth(m.searchChipPrefix())
+			for _, c := range m.searchChips() {
+				w := len([]rune(c)) + 2
+				if x >= 0 && x < w {
+					return m, m.toggleChip(c)
+				}
+				x -= w + 1
+			}
 			return m, nil
 		}
 		if idx, ok := m.searchRowAt(lay, msg.X, msg.Y); ok {

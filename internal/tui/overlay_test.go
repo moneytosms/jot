@@ -658,3 +658,28 @@ func TestJournalListScrollsInFixedRegion(t *testing.T) {
 		t.Fatal("calendar month label missing")
 	}
 }
+
+func TestSearchChipsToggleFilters(t *testing.T) {
+	j, m := newTestModel(t)
+	if err := j.Add(jot.Entry{Name: "default", Body: "plan #ops\n- [ ] call"}); err != nil {
+		t.Fatal(err)
+	}
+	m = pressRun(m, "/")
+	if len(m.search.tags) != 1 || m.search.tags[0] != "ops" {
+		t.Fatalf("tag chips = %v", m.search.tags)
+	}
+	nm, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("2"), Alt: true}) // is:open
+	m = nm.(model)
+	if m.search.input.value() != "is:open" {
+		t.Fatalf("query = %q", m.search.input.value())
+	}
+	m = drain(m, cmd)
+	m = drain(m, m.searchLoadCmd())
+	if len(m.search.results) != 1 {
+		t.Fatalf("results = %+v", m.search.results)
+	}
+	m = send(m, tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("2"), Alt: true})
+	if m.search.input.value() != "" {
+		t.Fatalf("chip did not toggle off: %q", m.search.input.value())
+	}
+}

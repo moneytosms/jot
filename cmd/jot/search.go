@@ -46,7 +46,7 @@ func (a *app) searchCmd(args []string) error {
 		}
 	})
 
-	if *fuzzy {
+	if *fuzzy || jot.ParseQuery(query).Filtered() { // filters work on entries
 		return a.searchFuzzy(j, scoped, *journal, query, *limit)
 	}
 
@@ -231,6 +231,34 @@ func (a *app) exportCmd(args []string) error {
 	}
 	for _, path := range written {
 		fmt.Fprintf(a.out, "wrote %s\n", path)
+	}
+	return nil
+}
+
+// tagsCmd lists #tags with the number of entries using each.
+func (a *app) tagsCmd(args []string) error {
+	fs := a.flags("tags")
+	journal := journalFlag(fs)
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	j, err := a.loadJot()
+	if err != nil {
+		return err
+	}
+	counts, err := j.TagCounts(*journal)
+	if errors.Is(err, jot.ErrNoJournal) {
+		return noJournalErr(*journal)
+	}
+	if err != nil {
+		return err
+	}
+	if len(counts) == 0 {
+		fmt.Fprintln(a.out, "no #tags yet; write one in any entry, e.g. jot add \"shipped it #work\"")
+		return nil
+	}
+	for _, c := range counts {
+		fmt.Fprintf(a.out, "%5d  #%s\n", c.Count, c.Tag)
 	}
 	return nil
 }

@@ -509,5 +509,6 @@ func (t Theme) mdStyles() jot.MDStyles {
 		Dim:        "\x1b[2m",
 		ListBullet: tc(t.Cyan),
 		Accent:     "\x1b[1m" + tc(t.Magenta),
+		Tag:        tc(t.Magenta),
 	}
 }
