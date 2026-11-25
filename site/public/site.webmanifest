@@ -1,0 +1,13 @@
+{
+  "name": "jot",
+  "short_name": "jot",
+  "description": "A plaintext journal for people who live in the terminal.",
+  "start_url": "/jot/",
+  "display": "browser",
+  "background_color": "#f3efe4",
+  "theme_color": "#f3efe4",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
