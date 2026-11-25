@@ -82,6 +82,14 @@ func TestOmarchyThemeParsing(t *testing.T) {
 	if theme.SelFg == "" {
 		t.Error("theme.SelFg is empty")
 	}
+	// The fixture's "yellow" is a dim grey next to muted, so busy calendar
+	// days would look empty; it falls back to red. Green is distinct and kept.
+	if theme.Yellow != "#c38b7b" {
+		t.Errorf("theme.Yellow = %q, want the red fallback #c38b7b", theme.Yellow)
+	}
+	if theme.Green != "#87a9b0" {
+		t.Errorf("theme.Green = %q, want the theme's own #87a9b0", theme.Green)
+	}
 }
 
 func TestOmarchyThemeLightMode(t *testing.T) {

@@ -13,10 +13,28 @@ import (
 	"time"
 )
 
-// ErrRemindersUnsupported is returned when no reminder provider is available:
-// transient reminders need either omarchy or a systemd user session with
-// notify-send.
-var ErrRemindersUnsupported = errors.New("reminders need systemd (user) with notify-send, or omarchy")
+// ErrRemindersUnsupported is returned when no reminder provider is available.
+var ErrRemindersUnsupported = errors.New("no reminder provider: need omarchy, systemd-run with notify-send, or a desktop notifier (notify-send, osascript or PowerShell)")
+
+// ErrRemindersOff is returned when the reminders setting is "off".
+var ErrRemindersOff = errors.New(`reminders are turned off ("reminders": "off" in the config file)`)
+
+// Reminder settings. "auto" picks the first available provider in the order
+// omarchy, systemd, background; the others pin one provider.
+const (
+	RemindAuto       = "auto"
+	RemindOmarchy    = "omarchy"
+	RemindSystemd    = "systemd"
+	RemindBackground = "background"
+	RemindOff        = "off"
+)
+
+// ReminderSettings lists every valid value of the "reminders" setting.
+var ReminderSettings = []string{RemindAuto, RemindOmarchy, RemindSystemd, RemindBackground, RemindOff}
+
+// backgroundPrefix marks the stash file of a background reminder. The fire
+// time is encoded after it as Unix nanoseconds.
+const backgroundPrefix = "jot-bg-"
 
 // reminderUnitPrefix is the unit-name prefix that marks a jot reminder timer.
 // systemctl list-timers glob patterns and the stash file names are derived
@@ -36,31 +54,40 @@ type Reminder struct {
 	At time.Time
 }
 
-// Remind sets a transient countdown reminder that fires the given message
-// after in has passed, and returns the unit name or a passthrough label.
-//
-// Providers, first available wins:
+// Remind sets a countdown reminder using the configured "reminders" setting.
+// See RemindVia.
+func (j *Jot) Remind(message string, in time.Duration) (string, error) {
+	return j.RemindVia(j.cfg.Reminders, message, in)
+}
+
+// RemindVia sets a countdown reminder that fires message after in has passed,
+// using the provider that setting resolves to (see ReminderProvider), and
+// returns the unit name or a passthrough label.
 //
 //   - omarchy: run "omarchy reminder <minutes> <message>". Omarchy is
-//     minute-granular, so durations shorter than one minute are rejected.
-//     The returned label is "omarchy-reminder-<minutes>m"; omarchy owns the
-//     real timer, so nothing is created under systemd.
-//   - systemd: create a transient user timer "jot-reminder-<unix-nano>" via
-//     systemd-run; when it fires, the stash file is shown through
-//     notify-send and removed.
+//     minute-granular; the label is "omarchy-reminder-<minutes>m" and omarchy
+//     owns the timer.
+//   - systemd: a transient user timer "jot-reminder-<unix-nano>" that shows
+//     the stashed message through notify-send.
+//   - background: a detached process that sleeps, then shows the stashed
+//     message with the platform notifier (notify-send, osascript or
+//     PowerShell). It does not survive a reboot or logout.
 //
-// The message is validated for every provider: empty text and non-positive
-// durations are rejected. User text is never interpolated into a shell
-// command line; it travels in the stash file only.
-func (j *Jot) Remind(message string, in time.Duration) (string, error) {
+// User text is never interpolated into a command line; it travels in the
+// stash file (or as a plain argument to omarchy).
+func (j *Jot) RemindVia(setting, message string, in time.Duration) (string, error) {
 	if strings.TrimSpace(message) == "" {
 		return "", errors.New("reminder message is empty")
 	}
 	if in <= 0 {
 		return "", fmt.Errorf("reminder duration must be positive, got %s", in)
 	}
-	switch {
-	case lookPath("omarchy"):
+	provider, err := ReminderProvider(setting, in)
+	if err != nil {
+		return "", err
+	}
+	switch provider {
+	case RemindOmarchy:
 		minutes, err := omarchyMinutes(in)
 		if err != nil {
 			return "", err
@@ -70,11 +97,114 @@ func (j *Jot) Remind(message string, in time.Duration) (string, error) {
 			return "", fmt.Errorf("omarchy reminder: %s: %w", strings.TrimSpace(stderr), err)
 		}
 		return fmt.Sprintf("omarchy-reminder-%dm", minutes), nil
-	case lookPath("systemd-run") && lookPath("notify-send"):
+	case RemindSystemd:
 		return j.remindSystemd(message, in)
 	default:
-		return "", ErrRemindersUnsupported
+		return remindBackground(message, in)
 	}
+}
+
+// ReminderProvider resolves a "reminders" setting to the provider that would
+// handle a reminder of length in. An empty setting means "auto", which tries
+// omarchy, then systemd, then background, and skips omarchy for reminders
+// under a minute because it is minute-granular. A pinned provider that is
+// not available is an error, never a silent switch. in <= 0 means any length.
+func ReminderProvider(setting string, in time.Duration) (string, error) {
+	switch setting = strings.TrimSpace(setting); setting {
+	case "", RemindAuto:
+		for _, p := range []string{RemindOmarchy, RemindSystemd, RemindBackground} {
+			if p == RemindOmarchy && in > 0 && in < time.Minute {
+				continue
+			}
+			if reminderAvailable(p) {
+				return p, nil
+			}
+		}
+		return "", ErrRemindersUnsupported
+	case RemindOff:
+		return "", ErrRemindersOff
+	case RemindOmarchy, RemindSystemd, RemindBackground:
+		if !reminderAvailable(setting) {
+			return "", fmt.Errorf("reminders are set to %q, but %s", setting, reminderNeeds(setting))
+		}
+		return setting, nil
+	default:
+		return "", fmt.Errorf("unknown reminders setting %q: use one of %s", setting, strings.Join(ReminderSettings, ", "))
+	}
+}
+
+// reminderAvailable reports whether a provider's commands are on PATH.
+func reminderAvailable(provider string) bool {
+	switch provider {
+	case RemindOmarchy:
+		return lookPath("omarchy")
+	case RemindSystemd:
+		return runtime.GOOS == "linux" && lookPath("systemd-run") && lookPath("notify-send")
+	case RemindBackground:
+		return backgroundSupported()
+	}
+	return false
+}
+
+// reminderNeeds says what a provider is missing, for error messages.
+func reminderNeeds(provider string) string {
+	switch provider {
+	case RemindOmarchy:
+		return "omarchy is not on PATH"
+	case RemindSystemd:
+		return "it needs Linux with systemd-run and notify-send on PATH"
+	default:
+		return "it needs " + backgroundNotifier + " on PATH"
+	}
+}
+
+// remindBackground starts a detached process that sleeps for in, then shows
+// the stashed message. Clearing a reminder deletes its stash file; the
+// sleeping process then wakes, finds nothing and exits quietly, so jot never
+// has to signal a process by PID.
+func remindBackground(message string, in time.Duration) (string, error) {
+	at := time.Now().Add(in)
+	unit := fmt.Sprintf("%s%d", backgroundPrefix, at.UnixNano())
+	dir := reminderStashDir()
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return "", err
+	}
+	msgFile, err := writeStash(dir, unit, message)
+	if err != nil {
+		return "", err
+	}
+	secs := int((in + time.Second - 1) / time.Second)
+	cmd := backgroundCommand(secs, msgFile)
+	detach(cmd)
+	if err := cmd.Start(); err != nil {
+		os.Remove(msgFile)
+		return "", fmt.Errorf("start background reminder: %w", err)
+	}
+	_ = cmd.Process.Release()
+	return unit, nil
+}
+
+// backgroundReminders lists pending background reminders from their stash
+// files. Files whose fire time passed over a minute ago are leftovers from a
+// reboot or logout and are removed.
+func backgroundReminders(dir string) []Reminder {
+	paths, _ := filepath.Glob(filepath.Join(dir, backgroundPrefix+"*.message"))
+	now := time.Now()
+	var out []Reminder
+	for _, p := range paths {
+		unit := strings.TrimSuffix(filepath.Base(p), ".message")
+		nano, err := strconv.ParseInt(strings.TrimPrefix(unit, backgroundPrefix), 10, 64)
+		if err != nil {
+			continue
+		}
+		at := time.Unix(0, nano)
+		if now.Sub(at) > time.Minute {
+			os.Remove(p)
+			continue
+		}
+		out = append(out, Reminder{Unit: unit, Message: readStash(p), At: at})
+	}
+	return out
 }
 
 // omarchyMinutes converts a duration into whole minutes, rounding up, for
@@ -108,7 +238,7 @@ func (j *Jot) remindSystemd(message string, in time.Duration) (string, error) {
 	}
 	// The fired command re-reads the message from the stash file, so the
 	// only text interpolated here is a path jot built itself.
-	notify := fmt.Sprintf(`notify-send -a jot "jot" "$(cat %s)"; rm -f %s`, shQuote(msgFile), shQuote(msgFile))
+	notify := fmt.Sprintf(`notify-send -a jot -- "jot" "$(cat %s)"; rm -f %s`, shQuote(msgFile), shQuote(msgFile))
 	_, stderr, err := runCapture(exec.Command("systemd-run",
 		"--user", "--collect",
 		"--on-active="+strconv.Itoa(secs)+"s",
@@ -164,41 +294,51 @@ func readStash(path string) string {
 	return string(data)
 }
 
-// Reminders lists active jot reminders. Only transient timers named
-// jot-reminder-*.timer are enumerated; omarchy-passthrough reminders are
-// deliberately left out, because omarchy's own reminder UI owns those units.
+// Reminders lists active jot reminders: transient jot-reminder-*.timer units
+// (when systemd is available) and pending background reminders.
+// Omarchy-passthrough reminders are deliberately left out, because omarchy's
+// own reminder UI owns those units.
 func (j *Jot) Reminders() ([]Reminder, error) {
-	if !systemctlAvailable() {
-		return nil, ErrRemindersUnsupported
+	dir := reminderStashDir()
+	var rems []Reminder
+	if systemctlAvailable() {
+		out, stderr, err := runCapture(exec.Command("systemctl", "--user",
+			"list-timers", "--all", "--output=json", reminderUnitPrefix+"*.timer"))
+		if err != nil {
+			return nil, fmt.Errorf("systemctl list-timers: %s: %w", strings.TrimSpace(stderr), err)
+		}
+		boot, _ := bootTime()
+		if rems, err = parseTimerList([]byte(out), boot, dir); err != nil {
+			return nil, err
+		}
 	}
-	out, stderr, err := runCapture(exec.Command("systemctl", "--user",
-		"list-timers", "--all", "--output=json", reminderUnitPrefix+"*.timer"))
-	if err != nil {
-		return nil, fmt.Errorf("systemctl list-timers: %s: %w", strings.TrimSpace(stderr), err)
-	}
-	boot, _ := bootTime()
-	return parseTimerList([]byte(out), boot, reminderStashDir())
+	return append(rems, backgroundReminders(dir)...), nil
 }
 
-// ClearReminders stops and removes every active jot reminder timer, returning
-// how many were cleared. Stopping a unit that already went away counts as
-// success. Only jot's own timers are touched; omarchy-passthrough reminders
-// are managed by omarchy.
+// ClearReminders cancels every active jot reminder, returning how many were
+// cleared: background reminders by deleting their stash files, systemd ones
+// by stopping their units (a unit that already went away counts as success).
+// Omarchy-passthrough reminders are managed by omarchy.
 func (j *Jot) ClearReminders() (int, error) {
+	cleared := 0
+	for _, r := range backgroundReminders(reminderStashDir()) {
+		if os.Remove(stashPath(reminderStashDir(), r.Unit)) == nil {
+			cleared++
+		}
+	}
 	if !systemctlAvailable() {
-		return 0, ErrRemindersUnsupported
+		return cleared, nil
 	}
 	out, stderr, err := runCapture(exec.Command("systemctl", "--user",
 		"list-timers", "--all", "--output=json", reminderUnitPrefix+"*.timer"))
 	if err != nil {
-		return 0, fmt.Errorf("systemctl list-timers: %s: %w", strings.TrimSpace(stderr), err)
+		return cleared, fmt.Errorf("systemctl list-timers: %s: %w", strings.TrimSpace(stderr), err)
 	}
 	boot, _ := bootTime()
 	reminders, err := parseTimerList([]byte(out), boot, "")
 	if err != nil {
-		return 0, err
+		return cleared, err
 	}
-	cleared := 0
 	var failed []string
 	for _, r := range reminders {
 		for _, suffix := range []string{".timer", ".service"} {
@@ -235,15 +375,6 @@ func stopUnit(unit string) error {
 // can be used at all.
 func systemctlAvailable() bool {
 	return runtime.GOOS == "linux" && lookPath("systemctl")
-}
-
-// RemindersSupported reports whether any reminder provider is available. It
-// is a cheap PATH check for `jot doctor`, it runs nothing.
-func RemindersSupported() bool {
-	if lookPath("omarchy") {
-		return true
-	}
-	return lookPath("systemd-run") && lookPath("notify-send")
 }
 
 // systemdTimer is one row of `systemctl list-timers --output=json`. systemd

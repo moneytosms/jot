@@ -13,6 +13,7 @@ type settingsState struct {
 	editor     lineInput
 	journal    lineInput
 	configPath string
+	remindVia  string // what the reminders setting resolves to, for display
 	err        string
 	warn       string
 }
@@ -42,6 +43,7 @@ func (m model) openSettings() (tea.Model, tea.Cmd) {
 		journal = m.jot.DefaultJournal()
 	}
 	st.journal.setValue(journal)
+	st.remindVia = remindViaText(m.cfg.Reminders)
 	m.settings = st
 	m.mode = modeSettings
 	m.applySettingsFocus()
@@ -68,21 +70,24 @@ func (m model) keySettings(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.closeOverlay()
 		return m, nil
 	case "tab", "down":
-		m.settings.cursor = (m.settings.cursor + 1) % 3
+		m.settings.cursor = (m.settings.cursor + 1) % settingsRows
 		m.applySettingsFocus()
 		return m, nil
 	case "shift+tab", "up":
-		m.settings.cursor = (m.settings.cursor + 2) % 3
+		m.settings.cursor = (m.settings.cursor + settingsRows - 1) % settingsRows
 		m.applySettingsFocus()
 		return m, nil
 	case "enter":
 		return m.activateSettingsRow()
 	case "left", "right":
-		if m.settings.cursor == 0 {
+		switch m.settings.cursor {
+		case 0:
 			return m, m.cycleTheme()
+		case 3:
+			return m.cycleReminders(key == "left")
 		}
 	case "home", "end":
-		if m.settings.cursor != 0 {
+		if m.settings.cursor == 1 || m.settings.cursor == 2 {
 			break
 		}
 	}
@@ -126,8 +131,41 @@ func (m model) activateSettingsRow() (tea.Model, tea.Cmd) {
 		m.settings.journal.setValue(name)
 		m.settings.err = ""
 		return m, saveSettingCmd(m.jot, "journal", name)
+	case 3:
+		return m.cycleReminders(false)
 	}
 	return m, nil
+}
+
+// settingsRows is the number of editable rows in the settings panel.
+const settingsRows = 4
+
+// cycleReminders moves the reminders setting to the next (or previous)
+// value and saves it.
+func (m model) cycleReminders(back bool) (tea.Model, tea.Cmd) {
+	opts := jot.ReminderSettings
+	cur := 0
+	for i, o := range opts {
+		if o == m.cfg.Reminders {
+			cur = i
+		}
+	}
+	step := 1
+	if back {
+		step = len(opts) - 1
+	}
+	next := opts[(cur+step)%len(opts)]
+	m.settings.err = ""
+	return m, saveSettingCmd(m.jot, "reminders", next)
+}
+
+// remindViaText describes where a reminder would go under setting.
+func remindViaText(setting string) string {
+	p, err := jot.ReminderProvider(setting, 0)
+	if err != nil {
+		return "unavailable"
+	}
+	return "via " + p
 }
 
 // saveSettingCmd loads the config file, changes one field and saves it so
@@ -144,6 +182,8 @@ func saveSettingCmd(j *jot.Jot, kind, value string) tea.Cmd {
 		case "journal":
 			file.DefaultJournal = jot.SanitizeName(value)
 			value = file.DefaultJournal
+		case "reminders":
+			file.Reminders = value
 		}
 		path, err := jot.SaveConfig(file)
 		msg := settingsSavedMsg{kind: kind, value: value, path: path, exists: true, err: err}
@@ -177,6 +217,10 @@ func (m model) applySettingsSaved(msg settingsSavedMsg) (tea.Model, tea.Cmd) {
 		}
 		m.settings.warn = "journal " + msg.value + " does not exist yet"
 		return m, m.setToast("default journal saved (does not exist yet)")
+	case "reminders":
+		m.cfg.Reminders = msg.value
+		m.settings.remindVia = remindViaText(msg.value)
+		return m, m.setToast("reminders: " + msg.value)
 	}
 	return m, nil
 }
@@ -184,7 +228,7 @@ func (m model) applySettingsSaved(msg settingsSavedMsg) (tea.Model, tea.Cmd) {
 // settingsRect is the centered settings panel.
 func (m model) settingsRect(lay layout) boxRect {
 	w := min(max(m.width-8, 1), 74)
-	return m.centerRect(lay, w, 11)
+	return m.centerRect(lay, w, 12)
 }
 
 // settingsRow renders one labeled settings row.
@@ -206,6 +250,8 @@ func (m model) settingsView(lay layout) string {
 		m.settingsRow("Theme", themeValue, m.settings.cursor == 0),
 		m.settingsRow("Editor command", m.settings.editor.view(), m.settings.cursor == 1),
 		m.settingsRow("Default journal", m.settings.journal.view(), m.settings.cursor == 2),
+		m.settingsRow("Reminders", m.theme.fg().Render(reminderSettingName(m.cfg.Reminders))+
+			m.theme.dim().Render("  "+m.settings.remindVia+" · enter cycles"), m.settings.cursor == 3),
 		"",
 		m.settingsRow("Config file", m.theme.fg().Render(m.settings.configPath), false),
 		m.settingsRow("Journal root", m.theme.fg().Render(m.jot.Root()), false),
@@ -223,14 +269,22 @@ func (m model) settingsView(lay layout) string {
 	return m.overlayCanvas(lay, rect, m.boxLines("SETTINGS", rect, content))
 }
 
-// settingsRowAt maps a mouse coordinate to a settings row (0-2).
+// reminderSettingName shows the empty setting as the "auto" it means.
+func reminderSettingName(s string) string {
+	if s == "" {
+		return jot.RemindAuto
+	}
+	return s
+}
+
+// settingsRowAt maps a mouse coordinate to a settings row.
 func (m model) settingsRowAt(lay layout, x, y int) (int, bool) {
 	rect := m.settingsRect(lay)
 	if !pointInRect(x, y, rect) {
 		return 0, false
 	}
 	row := contentRow(y, rect)
-	if row < 0 || row > 2 {
+	if row < 0 || row >= settingsRows {
 		return 0, false
 	}
 	return row, true
@@ -253,8 +307,11 @@ func (m model) handleSettingsMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 	}
 	m.settings.cursor = row
 	m.applySettingsFocus()
-	if row == 0 {
+	switch row {
+	case 0:
 		return m, m.cycleTheme()
+	case 3:
+		return m.cycleReminders(false)
 	}
 	return m, nil
 }

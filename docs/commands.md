@@ -466,26 +466,35 @@ The duration may come first or last. Go duration syntax is accepted (`90s`,
 `20m`, `2h`, `1h30m`), and a bare positive number means minutes. The message
 is the remaining words, joined with spaces; quote multi-word text.
 
-Providers, first available wins:
+The `reminders` key in the config file picks the provider (see
+[Configuration](guide.md#config-file)). With `auto`, the default, the first
+available provider wins:
 
 - `omarchy`: runs `omarchy reminder <minutes> <message>`. Omarchy is
-  minute-granular, so durations under one minute are rejected and partial
-  minutes round up (`90s` becomes `omarchy-reminder-2m`). The status line
-  still prints the delay you asked for, so `90s` reports `fires in 1m30s`
-  even though omarchy fires at two minutes.
-- `systemd-run` and `notify-send`: creates a transient user timer named
-  `jot-reminder-*` that shows the message with `notify-send` when it fires.
-  `90s` stays 90 seconds here.
-- Neither: the command fails with
-  `reminders need systemd (user) with notify-send, or omarchy` and a hint to
-  install one of them.
+  minute-granular, so partial minutes round up (`90s` becomes
+  `omarchy-reminder-2m`) and `auto` skips it for reminders under a minute. The
+  status line still prints the delay you asked for, so `90s` reports
+  `fires in 1m30s` even though omarchy fires at two minutes.
+- `systemd`: on Linux with `systemd-run` and `notify-send`, creates a
+  transient user timer named `jot-reminder-*` that shows the message with
+  `notify-send` when it fires. `90s` stays 90 seconds here.
+- `background`: starts a detached process that waits, then shows the message
+  with the platform's notifier: `notify-send` on Linux and other Unix systems,
+  `osascript` on macOS, PowerShell on Windows. It is lost on reboot or logout.
+- None available: the command fails with `no reminder provider: ...` and a
+  hint.
+
+Setting `reminders` to `omarchy`, `systemd` or `background` pins that provider;
+if it is unavailable, jot reports what is missing instead of switching. `off`
+turns reminders off. A provider that fails is reported, never retried through
+another one.
 
 `jot remind list` prints the remaining time and message for jot's systemd
-timers, for example `in 19m59s  stretch`; once the fire time has passed it
-prints the clock time instead. `jot remind clear` stops and removes those
-timers and prints `cleared N reminders` or `no reminders to clear`. Omarchy
-owns its own reminders, so ones created through omarchy do not appear in
-`jot remind list` and are not cleared by `jot remind clear`.
+timers and background reminders, for example `in 19m59s  stretch`; once the
+fire time has passed it prints the clock time instead. `jot remind clear`
+cancels them and prints `cleared N reminders` or `no reminders to clear`.
+Omarchy owns its own reminders, so ones created through omarchy do not appear
+in `jot remind list` and are not cleared by `jot remind clear`.
 
 ```bash
 jot remind "stretch" 20m
@@ -496,8 +505,8 @@ reminder set: stretch
   fires in 20m0s via omarchy-reminder-20m
 ```
 
-With the systemd fallback the provider label is a `jot-reminder-...` unit
-name instead. `jot remind list` with no reminders prints `no reminders`.
+With the systemd provider the label is a `jot-reminder-...` unit name, and
+with the background provider a `jot-bg-...` name. `jot remind list` with no reminders prints `no reminders`.
 
 ---
 
@@ -942,10 +951,8 @@ command that reads config; the error is printed as `jot: config file <path>: ...
 | `default journal` | Directory exists | Does not exist yet (`jot add` creates it) | (none) |
 | `editor` | Configured or detected editor is found | No editor found | Configured editor is not executable |
 | `binary` | `jot` resolves on `PATH` | `jot` is not on `PATH` | (none) |
-| `reminders` | A provider is available (`omarchy`, or `systemd-run` with `notify-send`) | No provider available | (none) |
-| `omarchy` | Found on `PATH` | Not found (optional) | (none) |
-| `notify-send` | Found on `PATH` | Not found (optional) | (none) |
-| `systemd-run` | Found on `PATH` | Not found (optional) | (none) |
+| `reminders` | The `reminders` setting resolves to a provider; shows which one | No provider available, the pinned one is missing, or reminders are `off` | (none) |
+| `omarchy`, `notify-send`, `systemd-run` | Found on `PATH` (macOS checks `omarchy` and `osascript`; Windows checks `powershell`) | Not found (optional) | (none) |
 | `vendor` | `vendor/` directory present | No `vendor/` directory | (none) |
 
 ```bash
@@ -962,7 +969,7 @@ jot 0.0.0-dev
 [ok]    default journal  default
 [ok]    editor           nvim
 [warn]  binary           `jot` is not on your PATH
-[ok]    reminders        available via omarchy
+[ok]    reminders        available via omarchy (setting: auto)
 [ok]    omarchy          found on PATH
 [ok]    notify-send      found on PATH
 [ok]    systemd-run      found on PATH

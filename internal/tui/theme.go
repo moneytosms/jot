@@ -364,6 +364,11 @@ func parseOmarchy(data []byte) (Theme, bool) {
 			*kv.dst = kv.fb
 		}
 	}
+	// Calendar heat is drawn in Green and Yellow against Muted empty days. Some
+	// themes define a "yellow" that is really a dim grey, which makes busy days
+	// look empty, so fall back to the next palette color that stands apart.
+	t.Green = distinctFrom(t.Muted, t.Green, hex("bright_green"), t.Cyan, fg)
+	t.Yellow = distinctFrom(t.Muted, t.Yellow, hex("bright_yellow"), t.Red, t.Accent, fg)
 	// Pick readable foreground colors for accent and selection backgrounds.
 	t.AccentFg = contrastPick(t.Accent, fg, bg)
 	t.SelFg = contrastPick(t.SelBg, fg, bg)
@@ -452,6 +457,18 @@ func hexLuminance(hex string) float64 {
 		return 0
 	}
 	return (0.2126*float64(r) + 0.7152*float64(g) + 0.0722*float64(b)) / 255
+}
+
+// distinctFrom returns the first candidate whose luminance differs from ref
+// enough to tell apart at a glance; the last candidate is the fallback.
+func distinctFrom(ref string, candidates ...string) string {
+	l := hexLuminance(ref)
+	for _, c := range candidates {
+		if c != "" && abs(hexLuminance(c)-l) >= 0.15 {
+			return c
+		}
+	}
+	return candidates[len(candidates)-1]
 }
 
 // contrastPick returns whichever of a and b contrasts more with against.

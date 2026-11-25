@@ -53,6 +53,10 @@ type Config struct {
 	DefaultJournal string `json:"default_journal,omitempty"`
 	// Editor is the command `jot edit` launches.
 	Editor string `json:"editor,omitempty"`
+	// Reminders picks how reminders are delivered: "auto" (or empty) tries
+	// omarchy, then systemd, then a background process; "omarchy", "systemd"
+	// and "background" pin one provider; "off" disables reminders.
+	Reminders string `json:"reminders,omitempty"`
 	// TUI holds interactive-interface preferences.
 	TUI TUI `json:"tui,omitempty"`
 }
@@ -74,6 +78,7 @@ func DefaultConfig() (Config, error) {
 	if file.Editor != "" {
 		cfg.Editor = file.Editor
 	}
+	cfg.Reminders = file.Reminders
 	cfg.TUI = file.TUI
 
 	home, err := os.UserHomeDir()

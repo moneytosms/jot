@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 
 	"github.com/moneytosms/jot"
 )
@@ -21,7 +22,7 @@ func (a *app) doctorCmd(args []string) error {
 	}
 
 	fmt.Fprintf(a.out, "jot %s\n\n", version)
-	checks := append(j.Doctor(), cliDoctorChecks()...)
+	checks := append(j.Doctor(), cliDoctorChecks(j.ReminderSetting())...)
 	failures := 0
 	tw := newTable(a.out)
 	for _, c := range checks {
@@ -48,18 +49,24 @@ func (a *app) doctorCmd(args []string) error {
 // cliDoctorChecks adds CLI-side checks after the library checks, in the same
 // table style. They only ever warn: reminders and helper binaries are
 // optional, so a warning must not fail the command.
-func cliDoctorChecks() []jot.Check {
+func cliDoctorChecks(setting string) []jot.Check {
 	var checks []jot.Check
-	if jot.RemindersSupported() {
-		how := "systemd-run + notify-send"
-		if execLookPath("omarchy") {
-			how = "omarchy"
-		}
-		checks = append(checks, jot.Check{Name: "reminders", Status: "ok", Detail: "available via " + how})
-	} else {
-		checks = append(checks, jot.Check{Name: "reminders", Status: "warn", Detail: "unavailable: need omarchy, or systemd-run + notify-send"})
+	if setting == "" {
+		setting = jot.RemindAuto
 	}
-	for _, bin := range []string{"omarchy", "notify-send", "systemd-run"} {
+	if provider, err := jot.ReminderProvider(setting, 0); err == nil {
+		checks = append(checks, jot.Check{Name: "reminders", Status: "ok", Detail: "available via " + provider + " (setting: " + setting + ")"})
+	} else {
+		checks = append(checks, jot.Check{Name: "reminders", Status: "warn", Detail: err.Error()})
+	}
+	bins := []string{"omarchy", "notify-send", "systemd-run"}
+	switch runtime.GOOS {
+	case "darwin":
+		bins = []string{"omarchy", "osascript"}
+	case "windows":
+		bins = []string{"powershell"}
+	}
+	for _, bin := range bins {
 		if execLookPath(bin) {
 			checks = append(checks, jot.Check{Name: bin, Status: "ok", Detail: "found on PATH"})
 		} else {

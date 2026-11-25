@@ -130,9 +130,8 @@ func (m model) applySearchResult(msg searchResultMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 	m.search.results = msg.matches
-	// Once results are on screen j/k move the selection; typing any other
-	// printable key returns focus to the input.
-	m.search.listFocus = len(msg.matches) > 0
+	// Results arriving never steal focus: j and k keep typing until an arrow
+	// or ctrl+j/k moves into the list.
 	return m, nil
 }
 
@@ -168,12 +167,12 @@ func (m model) keySearch(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.moveSearch(1)
 		return m, nil
 	case "k":
-		if m.search.listFocus || len(m.search.results) > 0 {
+		if m.search.listFocus {
 			m.moveSearch(-1)
 			return m, nil
 		}
 	case "j":
-		if m.search.listFocus || len(m.search.results) > 0 {
+		if m.search.listFocus {
 			m.moveSearch(1)
 			return m, nil
 		}

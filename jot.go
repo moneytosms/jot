@@ -58,6 +58,9 @@ func New(cfg Config) *Jot {
 			if strings.TrimSpace(cfg.Editor) == "" {
 				cfg.Editor = def.Editor
 			}
+			if strings.TrimSpace(cfg.Reminders) == "" {
+				cfg.Reminders = def.Reminders
+			}
 		}
 	}
 	if strings.TrimSpace(cfg.Root) == "" {
@@ -74,6 +77,9 @@ func (j *Jot) Root() string { return j.root }
 
 // DefaultJournal returns the journal used when a command names none.
 func (j *Jot) DefaultJournal() string { return j.cfg.DefaultJournal }
+
+// ReminderSetting returns the configured "reminders" setting; empty means auto.
+func (j *Jot) ReminderSetting() string { return j.cfg.Reminders }
 
 // journalName normalizes an empty or unsafe journal name.
 func (j *Jot) journalName(name string) string {

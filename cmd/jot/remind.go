@@ -136,7 +136,7 @@ func (a *app) remindClear() error {
 // hint about what is missing, instead of a bare failure.
 func (a *app) remindError(err error) error {
 	if errors.Is(err, jot.ErrRemindersUnsupported) {
-		return fmt.Errorf("%w\n  reminders need omarchy, or systemd-run and notify-send; install one of them", err)
+		return fmt.Errorf("%w\n  install one of them, or set \"reminders\" in the config file (run jot doctor to see what is found)", err)
 	}
 	return err
 }

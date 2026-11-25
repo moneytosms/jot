@@ -221,7 +221,19 @@ func TestSearchSelectionJumpsDay(t *testing.T) {
 		{Journal: "default", Day: "2025-02-03", Time: "09:30:00", Body: "first"},
 		{Journal: "default", Day: "2025-02-04", Time: "10:00:00", Body: "second"},
 	}
-	// Results put the list in focus, so j moves the selection.
+	// j still types while the input has focus, even with results on screen.
+	m = press(m, "j")
+	if m.search.cursor != 0 || m.search.input.value() != "j" {
+		t.Fatalf("j with input focus: cursor = %d, query = %q; want 0, \"j\"", m.search.cursor, m.search.input.value())
+	}
+	// Typing restarted the search; put the results back.
+	m.search.results = []jot.EntryMatch{
+		{Journal: "default", Day: "2025-02-03", Time: "09:30:00", Body: "first"},
+		{Journal: "default", Day: "2025-02-04", Time: "10:00:00", Body: "second"},
+	}
+	// down moves into the list; from there j moves the selection.
+	m = press(m, "down")
+	m = press(m, "up")
 	m = press(m, "j")
 	if m.search.cursor != 1 {
 		t.Fatalf("cursor = %d, want 1", m.search.cursor)

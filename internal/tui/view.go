@@ -9,10 +9,10 @@ import (
 	"github.com/moneytosms/jot"
 )
 
-// Layout constants. Calendar cells are 3 columns wide so clicks map from
-// geometry alone; the sidebar is a fixed width.
+// Layout constants. Calendar cells are 4 columns wide so clicks map from
+// geometry alone and land easily; the sidebar is a fixed width.
 const (
-	calCellW = 3
+	calCellW = 4
 	calW     = calCellW * 7
 	leftPad  = 1
 	sideW    = 20
@@ -28,7 +28,9 @@ type layout struct {
 	sideY    int // content y of the first journal row
 	sideRows int // number of journal rows that fit
 	calX     int // content x of the calendar grid
-	calY     int // content y of the weekday header row
+	calY     int // content y of the first week row
+	calRowH  int // rows per calendar week: 2 when there is room, else 1
+	extraY   int // content y of the legend + shortcuts block, 0 when hidden
 	paneX    int // content x of the day pane box
 	paneW    int // total width of the day pane box
 	paneH    int // total height of the day pane box
@@ -43,11 +45,14 @@ func (m model) layout() layout {
 		return l
 	}
 	l.bodyY = 1
-	l.leftW = leftPad + calW + leftPad
+	if m.sidebarPref {
+		l.leftW = leftPad + calW + leftPad
+	}
 	l.sideX = leftPad
-	l.sideY = l.bodyY + 1
+	l.sideY = l.bodyY + 1 // the JOURNALS label sits on bodyY
 	l.calX = leftPad
-	l.calY = l.bodyY + 1
+	l.calY = l.bodyY + 1 // the weekday header sits on bodyY
+	l.calRowH = 1
 	l.paneX = l.leftW
 	l.paneW = max(m.width-l.leftW, 12)
 	l.paneH = max(m.height-l.bodyY-2, 1) // header + hints + status lines
@@ -56,9 +61,25 @@ func (m model) layout() layout {
 	if m.showSidebar {
 		// Cap the journal rows so the calendar stays on screen.
 		l.sideRows = min(max(l.paneH-4, 1), len(m.journals))
-		l.calY = l.sideY + l.sideRows + 1
+		l.calY = l.sideY + l.sideRows + 2 // blank line, then the weekday header
+	}
+	if l.leftW > 0 {
+		weeks := len(m.grid())
+		bottom := l.bodyY + l.paneH // first row below the left column
+		if l.calY+weeks*2+len(sideExtras)+3 <= bottom {
+			l.calRowH = 2
+		}
+		if y := l.calY + weeks*l.calRowH + 1; y+len(sideExtras)+2 <= bottom {
+			l.extraY = y
+		}
 	}
 	return l
+}
+
+// sideExtras are the shortcuts listed under the calendar; each row is also
+// clickable.
+var sideExtras = []struct{ key, label string }{
+	{"S", "settings"}, {"/", "search"}, {"T", "todos"}, {"y", "year"}, {"?", "help"},
 }
 
 // View renders the whole screen: header, sidebar+calendar column, day pane,
@@ -75,6 +96,8 @@ func (m model) View() string {
 	var body string
 	if isOverlayMode(m.mode) {
 		body = m.overlayView(lay)
+	} else if lay.leftW == 0 {
+		body = m.paneBox(lay)
 	} else {
 		body = lipgloss.JoinHorizontal(lipgloss.Top, m.leftColumn(lay), m.paneBox(lay))
 	}
@@ -148,10 +171,29 @@ func (m model) leftColumn(lay layout) string {
 		lines = append(lines, "")
 	}
 	lines = append(lines, m.calendarLines(lay)...)
+	if lay.extraY > 0 {
+		for len(lines) < lay.extraY-lay.bodyY {
+			lines = append(lines, "")
+		}
+		lines = append(lines, m.legendLine(), "")
+		key := m.theme.accent().Bold(true)
+		for _, e := range sideExtras {
+			lines = append(lines, key.Render(padRight(e.key, 2))+m.theme.muted().Render(e.label))
+		}
+	}
+	lines = lines[:min(len(lines), lay.paneH)]
 	for i, l := range lines {
 		lines[i] = " " + padRight(l, lay.leftW-1) // one space of left padding, like calX
 	}
 	return strings.Join(lines, "\n")
+}
+
+// legendLine explains the calendar colors in the same styles cellText uses.
+func (m model) legendLine() string {
+	return m.theme.muted().Render("none ") +
+		m.theme.fg().Foreground(lipgloss.Color(m.theme.Green)).Render("1-5 ") +
+		m.theme.fg().Foreground(lipgloss.Color(m.theme.Yellow)).Render("6+") +
+		m.theme.dim().Render(" entries")
 }
 
 // journalRow renders one sidebar row: marker, name and day/entry counts.
@@ -176,13 +218,16 @@ func (m model) journalRow(j jot.JournalInfo, active bool) string {
 
 // calendarLines renders the weekday header and the month grid rows.
 func (m model) calendarLines(lay layout) []string {
-	out := []string{m.theme.dim().Render("Mo Tu We Th Fr Sa Su")}
+	out := []string{m.theme.dim().Render(" Mo  Tu  We  Th  Fr  Sa  Su")}
 	for _, week := range m.grid() {
 		var b strings.Builder
 		for _, cell := range week.Days {
 			b.WriteString(m.cellText(cell))
 		}
 		out = append(out, ansiTruncate(b.String(), calW))
+		if lay.calRowH == 2 {
+			out = append(out, "")
+		}
 	}
 	return out
 }
@@ -190,9 +235,9 @@ func (m model) calendarLines(lay layout) []string {
 // cellText renders one calendar cell, exactly calCellW columns wide.
 func (m model) cellText(cell Cell) string {
 	if cell.Day == 0 {
-		return "   "
+		return strings.Repeat(" ", calCellW)
 	}
-	text := fmt.Sprintf("%2d ", cell.Day)
+	text := fmt.Sprintf(" %2d ", cell.Day)
 	st := lipgloss.NewStyle()
 	switch {
 	case cell.IsSelected:
@@ -320,7 +365,7 @@ func (m model) hintText() string {
 			key.Render("H/L") + " month", key.Render("t") + " today",
 			key.Render("a") + " add", key.Render("e") + " edit",
 			key.Render("n") + " new", key.Render("J/K") + " journal",
-			key.Render("tab") + " sidebar", key.Render("ctrl+r") + " refresh",
+			key.Render("tab") + " hide sidebar", key.Render("ctrl+r") + " refresh",
 			key.Render("q") + " quit",
 		}, sep)
 	}

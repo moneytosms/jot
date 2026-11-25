@@ -1,8 +1,11 @@
 package jot
 
 import (
+	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"testing"
@@ -208,6 +211,109 @@ func TestRemindRejectsBadInput(t *testing.T) {
 	}
 }
 
-func TestRemindersSupported(t *testing.T) {
-	RemindersSupported() // cheap PATH probe; its value depends on the host.
+// stubPath points PATH at a fresh directory holding the named stub
+// executables plus links to the real tools the background script needs, so
+// provider selection does not depend on the host.
+func stubPath(t *testing.T, stubs map[string]string) string {
+	t.Helper()
+	if runtime.GOOS != "linux" {
+		t.Skip("provider stubs are written for Linux")
+	}
+	dir := t.TempDir()
+	for _, tool := range []string{"sh", "sleep", "cat", "rm"} {
+		real, err := exec.LookPath(tool)
+		if err != nil {
+			t.Skipf("%s not found: %v", tool, err)
+		}
+		if err := os.Symlink(real, filepath.Join(dir, tool)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for name, body := range stubs {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte("#!/bin/sh\n"+body+"\n"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	t.Setenv("PATH", dir)
+	return dir
+}
+
+func TestReminderProvider(t *testing.T) {
+	all := map[string]string{"omarchy": "", "systemd-run": "", "notify-send": ""}
+	tests := []struct {
+		name    string
+		stubs   map[string]string
+		setting string
+		in      time.Duration
+		want    string
+		wantErr error
+	}{
+		{name: "auto prefers omarchy", stubs: all, setting: "", in: 5 * time.Minute, want: RemindOmarchy},
+		{name: "auto skips omarchy under a minute", stubs: all, setting: "auto", in: 30 * time.Second, want: RemindSystemd},
+		{name: "auto falls back to background", stubs: map[string]string{"notify-send": ""}, setting: "auto", in: time.Minute, want: RemindBackground},
+		{name: "auto with nothing", stubs: nil, setting: "auto", in: time.Minute, wantErr: ErrRemindersUnsupported},
+		{name: "pinned provider", stubs: all, setting: "background", in: time.Minute, want: RemindBackground},
+		{name: "off", stubs: all, setting: "off", in: time.Minute, wantErr: ErrRemindersOff},
+	}
+	for _, tt := range tests {
+		stubPath(t, tt.stubs)
+		got, err := ReminderProvider(tt.setting, tt.in)
+		if tt.wantErr != nil {
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("%s: err = %v, want %v", tt.name, err, tt.wantErr)
+			}
+			continue
+		}
+		if err != nil || got != tt.want {
+			t.Errorf("%s: got %q, %v; want %q", tt.name, got, err, tt.want)
+		}
+	}
+
+	stubPath(t, map[string]string{"notify-send": ""})
+	for _, setting := range []string{"omarchy", "systemd", "bogus"} {
+		if p, err := ReminderProvider(setting, time.Minute); err == nil {
+			t.Errorf("ReminderProvider(%q) = %q, want an error (pinned provider missing or unknown)", setting, p)
+		}
+	}
+}
+
+func TestBackgroundReminderFiresAndClears(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "notified")
+	stubPath(t, map[string]string{"notify-send": `printf '%s|' "$@" > ` + shQuote(out)})
+	t.Setenv("XDG_RUNTIME_DIR", t.TempDir())
+	j := New(Config{Root: t.TempDir(), Reminders: RemindBackground})
+
+	// Cleared before it fires: it must never notify.
+	if _, err := j.Remind("cancel me", time.Hour); err != nil {
+		t.Fatal(err)
+	}
+	rems, err := j.Reminders()
+	if err != nil || len(rems) != 1 || rems[0].Message != "cancel me" {
+		t.Fatalf("Reminders() = %+v, %v; want the one pending reminder", rems, err)
+	}
+	if n, err := j.ClearReminders(); err != nil || n != 1 {
+		t.Fatalf("ClearReminders() = %d, %v; want 1", n, err)
+	}
+	if rems, _ := j.Reminders(); len(rems) != 0 {
+		t.Fatalf("Reminders() after clear = %+v, want none", rems)
+	}
+
+	// A message that looks like a flag still arrives as plain text.
+	if _, err := j.Remind("-u critical $(rm -rf ~)", time.Second); err != nil {
+		t.Fatal(err)
+	}
+	deadline := time.Now().Add(10 * time.Second)
+	for {
+		data, err := os.ReadFile(out)
+		if err == nil {
+			if got, want := string(data), "-a|jot|--|jot|-u critical $(rm -rf ~)|"; got != want {
+				t.Fatalf("notify-send args = %q, want %q", got, want)
+			}
+			return
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("background reminder did not fire within 10s")
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
 }

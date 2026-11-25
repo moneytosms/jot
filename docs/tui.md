@@ -99,9 +99,12 @@ punctuation and clips the calendar.
   toast can cover one briefly, but it returns until another error replaces it
   or you restart the TUI.
 
-The sidebar is hidden when the terminal is narrower than 70 columns. `Tab`
-still toggles your sidebar preference, so it comes back when you widen the
-terminal. Terminals five rows tall or shorter show only the header and hint
+`Tab` hides the whole left column (journals, calendar and shortcuts) so the
+day pane takes the full width; press it again to bring it back. The journal
+list is also hidden when the terminal is narrower than 70 columns. Below the
+calendar, when there is room, a legend explains the colours (none, 1-5 and 6+
+entries) and a list of clickable shortcuts opens settings, search, todos, the
+year view and help. Terminals five rows tall or shorter show only the header and hint
 line.
 
 ## Calendar navigation
@@ -117,7 +120,7 @@ line.
 | `g` | first day file in the current journal |
 | `G` | last day file in the current journal |
 | `t` | today |
-| `Tab` | toggle the sidebar |
+| `Tab` | hide or show the left column |
 | `ctrl+r` | reload journals, counts, and the selected day |
 
 Moving past the first or last day of a month loads the neighbouring month
@@ -257,7 +260,7 @@ entry times, not journal names or day labels.
 | --- | --- |
 | other printable keys | edit the query |
 | `Tab` | switch between all journals and this journal |
-| `j` / `k` | next / previous result while results are on screen |
+| `j` / `k` | typed into the query; next / previous result once Down/Up or `ctrl+j`/`ctrl+k` moved into the list |
 | Down / Up, `ctrl+j` / `ctrl+k` | next / previous result |
 | PageDown / PageUp, `ctrl+d` / `ctrl+u` | page down / page up |
 | Home / End | first / last result |
@@ -406,25 +409,27 @@ example `reminder set for 20m at 15:04`.
 
 ### Providers and lifetime
 
-jot tries the first available provider:
+The Reminders row in Settings (the `reminders` config key) picks the
+provider. With `auto`, jot uses the first available one:
 
 1. **Omarchy.** If `omarchy` is on `PATH`, jot runs
-   `omarchy reminder MINUTES MESSAGE`. Omarchy is minute-granular, so durations
-   under one minute are rejected and partial minutes round up.
-2. **systemd.** If both `systemd-run` and `notify-send` are on `PATH`, jot
-   creates a transient systemd user timer that shows the message with
-   `notify-send` when it fires.
-3. **Nothing.** If neither is available, the form shows
-   `reminders need systemd (user) with notify-send, or omarchy`.
+   `omarchy reminder MINUTES MESSAGE`. Omarchy is minute-granular, so partial
+   minutes round up, and `auto` skips it for reminders under a minute.
+2. **systemd.** On Linux with `systemd-run` and `notify-send`, jot creates a
+   transient systemd user timer that shows the message with `notify-send`.
+3. **Background.** A detached process waits, then shows the message with
+   `notify-send`, `osascript` on macOS, or PowerShell on Windows.
+4. **Nothing.** The form shows `no reminder provider: ...`.
 
-If Omarchy is installed but its command fails, jot reports that error; it does
-not fall back to systemd. This is the first-provider-wins rule.
+Pinning `omarchy`, `systemd` or `background` uses only that provider; `off`
+turns reminders off. If a provider's command fails, jot reports that error and
+does not retry through another provider.
 
 Reminders are transient. There is no jot daemon and no database of reminders;
 nothing is restored after a reboot, and a logout normally stops a systemd
 timer. The TUI has no list or clear command;
-the CLI's `jot remind list` and `jot remind clear` operate on systemd timers
-only, so Omarchy reminders do not appear there.
+the CLI's `jot remind list` and `jot remind clear` operate on systemd and
+background reminders, so Omarchy reminders do not appear there.
 
 Provider errors stay in the form. If you close the form before the result
 arrives, the error goes to the status line instead. Successful reminders
@@ -432,14 +437,16 @@ produce a toast.
 
 ## Settings
 
-Press `S` to open the settings panel. It has three editable rows, which Tab, Up,
-and Down cycle, and two read-only rows:
+Press `S`, or click `S settings` under the calendar, to open the settings
+panel. It has four editable rows, which Tab, Up, and Down cycle, and two
+read-only rows:
 
 | Row | Behavior |
 | --- | --- |
 | Theme | Enter or Left/Right cycles the ten themes; saves `tui.theme`. |
 | Editor command | Enter saves the `editor` key. Empty means auto-detect. |
 | Default journal | Enter saves `default_journal` and warns when that journal does not exist yet. |
+| Reminders | Enter or Left/Right cycles `auto`, `omarchy`, `systemd`, `background`, `off`; saves `reminders` and shows which provider it resolves to. |
 | Config file | Read-only path of the config file in use. |
 | Journal root | Read-only path of the journal root. |
 
@@ -447,8 +454,8 @@ and Down cycle, and two read-only rows:
 | --- | --- |
 | `Tab`, Down | next editable row |
 | `Shift+Tab`, Up | previous editable row |
-| Enter | cycle the theme, or save the editor/journal row |
-| Left, Right | cycle the theme when the Theme row is focused |
+| Enter | cycle the theme or reminders, or save the editor/journal row |
+| Left, Right | cycle the theme or reminders when that row is focused |
 | Esc | close settings |
 
 Saving the editor writes `editor`, which affects `jot edit` as well as the
@@ -461,8 +468,8 @@ file back atomically with mode `0600`, so unrelated settings are preserved. The
 config path honors `JOT_CONFIG`; when that is unset, jot uses the user config
 directory, usually `~/.config/jot/config.json` on Linux.
 
-Clicking an editable row focuses it; clicking the Theme row also cycles the
-theme. The two path rows are informational and cannot be focused. Clicking
+Clicking an editable row focuses it; clicking the Theme or Reminders row also
+cycles it. The two path rows are informational and cannot be focused. Clicking
 outside the panel closes it.
 
 ## Themes
@@ -519,13 +526,14 @@ terminal applications.
 | Area | Action |
 | --- | --- |
 | Header | jump to today |
-| Calendar day | select that day |
+| Calendar day | select that day; each day is a four-column cell, two rows tall when there is room |
+| Shortcut under the calendar | acts like its key: settings, search, todos, year, help |
 | Sidebar journal | switch to that journal |
 | Day pane | wheel scrolls three lines per notch |
 | Search | click a result to jump; wheel scrolls; click outside closes |
 | Palette | click an action to run it; wheel scrolls; click outside closes |
 | Todos | click a row to open it in the editor; wheel scrolls |
-| Settings | click an editable row to focus it; Theme also cycles; click outside closes |
+| Settings | click an editable row to focus it; Theme and Reminders also cycle; click outside closes |
 | Reminder | click a field to focus it; click outside closes |
 | Help | wheel scrolls; click outside closes |
 
@@ -549,7 +557,7 @@ These are the keys the code actually handles. Letter keys are case-sensitive.
 | `g` | first day file |
 | `G` | last day file |
 | `t` | today |
-| `Tab` | toggle sidebar |
+| `Tab` | hide or show the left column |
 | `J` / `K` | next / previous journal |
 | `n` | new journal |
 | `R` | rename the open journal |
@@ -675,12 +683,19 @@ config file are looked up, through the platform's user config directory.
 - **`--theme omarchy` looks like the default dark theme** - The Omarchy file
   is missing or invalid. Check `~/.config/omarchy/current/theme/colors.toml`
   and make sure `background` and `foreground` are valid hex colors.
-- **Reminders unavailable** - Install Omarchy, or a systemd user session with
-  `systemd-run` and `notify-send`. The form shows the exact provider error.
-- **An Omarchy reminder fails** - Omarchy is the first provider and jot does
-  not fall back. Check `omarchy reminder` and use at least one minute.
+- **Reminders unavailable** - Run `jot doctor`; it shows which provider the
+  `reminders` setting resolves to. Install a notifier, or pick another
+  provider in Settings.
+- **An Omarchy reminder fails** - jot does not retry through another
+  provider. Check that `omarchy notification send test` works (it fails with
+  `The name is not activatable` when no notification service is running), or
+  pick `systemd` in Settings.
+- **Busy days look uncoloured** - Some themes define a dim grey `yellow`. jot
+  replaces a heat colour that blends into the empty-day colour with the next
+  distinct palette colour; the legend under the calendar shows the result.
 - **The sidebar is missing** - The terminal is under 70 columns. Widen it, or
-  accept the calendar-only layout.
+  accept the calendar-only layout. If the whole left column is gone, press
+  `Tab`.
 - **`no editor found`** - Set `JOT_EDITOR` or `EDITOR`, or install `vim`,
   `vi`, or `nano`.
 - **The screen is mostly empty** - Terminals five rows tall or shorter show

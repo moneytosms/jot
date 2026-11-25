@@ -903,11 +903,14 @@ func (m model) handleClick(x, y int) (tea.Model, tea.Cmd) {
 	if y == 0 {
 		return m.jumpToday() // the header doubles as a "today" button
 	}
+	if lay.leftW == 0 {
+		return m, nil // the left column is hidden
+	}
 	weeks := m.grid()
-	if calW > 0 && len(weeks) > 0 &&
-		y >= lay.calY && y < lay.calY+len(weeks) &&
-		x >= lay.calX && x < lay.calX+calCellW*7 {
-		cell := weeks[y-lay.calY].Days[(x-lay.calX)/calCellW]
+	if len(weeks) > 0 &&
+		y >= lay.calY && y < lay.calY+len(weeks)*lay.calRowH &&
+		x >= lay.calX && x < lay.calX+calW {
+		cell := weeks[(y-lay.calY)/lay.calRowH].Days[(x-lay.calX)/calCellW]
 		if cell.Day > 0 {
 			m.selected = cell.Date
 			m.scroll = 0
@@ -920,6 +923,10 @@ func (m model) handleClick(x, y int) (tea.Model, tea.Cmd) {
 		x >= lay.sideX && x < lay.sideX+sideW &&
 		y >= lay.sideY && y < lay.sideY+len(journals) {
 		return m.switchJournal(journals[y-lay.sideY].Name)
+	}
+	// Shortcut rows under the legend act like their keys.
+	if i := y - lay.extraY - 2; lay.extraY > 0 && i >= 0 && i < len(sideExtras) && x < lay.leftW {
+		return m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(sideExtras[i].key)})
 	}
 	return m, nil
 }

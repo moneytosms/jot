@@ -3,6 +3,7 @@ package tui
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -376,22 +377,28 @@ func TestSidebarClickSwitchesJournal(t *testing.T) {
 	}
 }
 
+var ansiRE = regexp.MustCompile(`\x1b\[[0-9;]*m`)
+
 func TestCalendarClickSelectsDay(t *testing.T) {
 	_, m := newTestModel(t)
-	lay := m.layout()
-	weeks := m.grid()
-
-	// Pick day 15 of the displayed month and compute its cell position.
-	var row, col int
 	target := time.Time{}
-	for w, week := range weeks {
-		for d, cell := range week.Days {
+	for _, week := range m.grid() {
+		for _, cell := range week.Days {
 			if cell.Day == 15 {
-				row, col, target = w, d, cell.Date
+				target = cell.Date
 			}
 		}
 	}
-	x, y := lay.calX+col*calCellW+1, lay.calY+row
+	// Click where "15" is actually drawn, so layout and rendering must agree.
+	x, y := -1, -1
+	for row, line := range strings.Split(ansiRE.ReplaceAllString(m.View(), ""), "\n") {
+		if i := strings.Index(line, " 15 "); i >= 0 && i < calW+2 {
+			x, y = len([]rune(line[:i]))+2, row
+		}
+	}
+	if y < 0 {
+		t.Fatal("day 15 not found in the rendered calendar")
+	}
 	nm, cmd := m.Update(tea.MouseMsg(tea.MouseEvent{
 		X: x, Y: y, Action: tea.MouseActionPress, Button: tea.MouseButtonLeft,
 	}))
@@ -547,4 +554,43 @@ func TestJournalDeleteProtectedDefault(t *testing.T) {
 	if m.toast == "" {
 		t.Fatal("expected a protection toast")
 	}
+}
+
+func TestTabHidesWholeLeftColumn(t *testing.T) {
+	_, m := newTestModel(t)
+	m = send(m, tea.WindowSizeMsg{Width: 100, Height: 40})
+	if m.layout().leftW == 0 {
+		t.Fatal("left column hidden before tab")
+	}
+	m = send(m, keyMsg("tab"))
+	if lay := m.layout(); lay.leftW != 0 || lay.paneW != 100 {
+		t.Fatalf("after tab: leftW = %d, paneW = %d; want 0 and the full width", lay.leftW, lay.paneW)
+	}
+	if strings.Contains(m.View(), "Mo  Tu") {
+		t.Error("calendar still rendered after tab")
+	}
+	m = send(m, keyMsg("tab"))
+	if m.layout().leftW == 0 {
+		t.Error("second tab did not bring the column back")
+	}
+}
+
+func TestSideShortcutClickOpensSettings(t *testing.T) {
+	_, m := newTestModel(t)
+	m = send(m, tea.WindowSizeMsg{Width: 100, Height: 40})
+	lay := m.layout()
+	if lay.extraY == 0 {
+		t.Fatal("no room for the shortcuts at 100x40")
+	}
+	// Find the rendered "settings" row and click it.
+	for row, line := range strings.Split(ansiRE.ReplaceAllString(m.View(), ""), "\n") {
+		if i := strings.Index(line, "S settings"); i >= 0 && i < lay.leftW {
+			nm, _ := m.Update(tea.MouseMsg(tea.MouseEvent{X: i + 3, Y: row, Action: tea.MouseActionPress, Button: tea.MouseButtonLeft}))
+			if nm.(model).mode != modeSettings {
+				t.Fatalf("mode = %v after clicking settings, want settings", nm.(model).mode)
+			}
+			return
+		}
+	}
+	t.Fatal("settings shortcut not rendered under the calendar")
 }

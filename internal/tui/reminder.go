@@ -100,14 +100,15 @@ func (m model) submitReminder() (tea.Model, tea.Cmd) {
 	}
 	m.reminder.err = ""
 	m.reminder.pending = true
-	return m, remindCmd(m.jot, message, d)
+	return m, remindCmd(m.jot, m.cfg.Reminders, message, d)
 }
 
-// remindCmd calls jot.Remind off the update loop and reports the fire time.
-func remindCmd(j *jot.Jot, message string, d time.Duration) tea.Cmd {
+// remindCmd sets the reminder off the update loop, through the provider the
+// "reminders" setting picks, and reports the fire time.
+func remindCmd(j *jot.Jot, setting, message string, d time.Duration) tea.Cmd {
 	return func() tea.Msg {
 		at := time.Now().Add(d)
-		label, err := j.Remind(message, d)
+		label, err := j.RemindVia(setting, message, d)
 		return reminderDoneMsg{label: label, duration: d, at: at, err: err}
 	}
 }

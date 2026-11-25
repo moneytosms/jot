@@ -518,6 +518,7 @@ Set `JOT_CONFIG` to use another path.
   "root": "~/.jot",
   "default_journal": "daily",
   "editor": "code --wait",
+  "reminders": "auto",
   "tui": {
     "theme": "nord"
   }
@@ -525,7 +526,10 @@ Set `JOT_CONFIG` to use another path.
 ```
 
 Every key is optional. A missing file means the defaults apply. `~` is expanded
-in `root`. The `tui` block holds interface preferences: `theme` and the journal
+in `root`. `reminders` picks how reminders are delivered: `auto` (the default)
+tries Omarchy, then a systemd timer, then a background process with the
+system's notifier; `omarchy`, `systemd` or `background` pins one; `off` turns
+reminders off. See [`jot remind`](commands.md#remind). The `tui` block holds interface preferences: `theme` and the journal
 last selected with `J`/`K` in the TUI. `jot setup` writes this file from its
 answers, replacing the previous contents; it does not preserve the `tui` block.
 
@@ -591,7 +595,7 @@ Run `jot doctor` first. It checks the root, config file, journals, editor,
 | Backup is missing a journal | Only `.md` files are archived. Check that the files end in `.md`. |
 | `refusing to delete journal data without confirmation; re-run with --yes` | `jot uninstall --data` ran without a terminal. Pass `--yes` only if you mean it. |
 | `refusing to remove anything without an explicit component` | `jot uninstall` had no terminal to show its menu. Pass `--data`, `--binary`, `--config` or `--all`; `--yes` alone means data only. |
-| `reminders need systemd (user) with notify-send, or omarchy` | Install omarchy, or use a systemd user session with `notify-send`. |
+| `no reminder provider: ...` | Run `jot doctor` to see what was found. Install a notifier (`notify-send` on Linux), or set `reminders` in the config file. |
 | `jot tui needs an interactive terminal` | Run `jot tui`, or bare `jot`, in a real terminal rather than through a pipe. |
 | `jot update` cannot reach the release API | Check the network, or point `JOT_RELEASES_API` at a mirror. |
 | Empty day files (`0 entries`) | `jot edit` was quit without writing. Delete them with `find ~/.jot -name '*.md' -size 0 -delete`. |
