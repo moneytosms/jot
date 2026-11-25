@@ -14,7 +14,14 @@ export default {
   site: `https://${owner}.github.io`,
   base: `/${repoName}`,
   footnote:
-    "jot 0.1.0, MIT licensed. The journal, counts and terminal frames on this site come from a synthetic sample generated with the real binary; no personal notes were used.",
+    "jot 0.7.0, MIT licensed. The journal, counts and terminal frames on this site come from a synthetic sample generated with the real binary; no personal notes were used.",
   guide: ["docs/**/*.md", "README.md", "CONTRIBUTING.md"],
   guideRoot: "README.md",
+  // Sidebar groups and reading order (guide ids; pages not listed land in "More").
+  nav: [
+    ["Start here", ["index", "getting-started", "readme"]],
+    ["Using jot", ["writing", "finding", "tui", "your-data", "configuration"]],
+    ["Reference", ["commands", "troubleshooting"]],
+    ["Contributing", ["development", "contributing"]],
+  ],
 };
