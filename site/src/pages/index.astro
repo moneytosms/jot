@@ -66,11 +66,11 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
       <a class="mark" href={base + "/"} aria-label="jot, top of page">jot</a>
       <p class="masthead__tag">a plaintext journal</p>
       <nav class="masthead__nav" aria-label="Page and project">
-        <a class="masthead__sec" href="#year"><i>01</i>Year</a>
-        <a class="masthead__sec" href="#day"><i>02</i>The day</a>
-        <a class="masthead__sec" href="#tool"><i>03</i>Interface</a>
-        <a class="masthead__sec" href="#features"><i>04</i>Features</a>
-        <a class="masthead__sec" href="#tour"><i>05</i>Tour</a>
+        <a class="masthead__sec" href="#tour"><i>01</i>Tour</a>
+        <a class="masthead__sec" href="#year"><i>02</i>Year</a>
+        <a class="masthead__sec" href="#day"><i>03</i>The day</a>
+        <a class="masthead__sec" href="#tool"><i>04</i>Interface</a>
+        <a class="masthead__sec" href="#features"><i>05</i>Features</a>
         <a href={withBase("guide/")}>Guide</a>
         <a href={cfg.repoUrl}>Source</a>
       </nav>
@@ -78,300 +78,320 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
   </header>
 
   <main>
-    <section class="hero wrap" aria-labelledby="hero-title" data-play>
-      <h1 id="hero-title" aria-label="Your daybook, in plain text.">
-        Your <s class="strike">notes app<span class="pen pen--above pop" style="--i:2">(it wanted a workspace)</span></s><br />
-        <mark class="hl">daybook</mark>, in <em>plain text.</em>
-      </h1>
-      <div class="hero__text">
-        <p class="lede">
-          One Markdown file per day. No account, no sync service, no AI summary of your grocery list.
-          <code>jot</code> appends a timestamped entry to today's file and gets out of the way. Read it
-          with <code>cat</code>, search it with <code>grep</code>, browse it in the calendar.
-        </p>
-        <p class="pen pen--note pop" style="--i:3">↑ we checked. it's just files.</p>
-        <div class="install">
-          <div class="install__line">
-            <span class="install__ps" aria-hidden="true">$</span>
-            <code>{install}</code>
+    <div class="snap" data-snap="jot">
+      <section class="hero wrap" aria-labelledby="hero-title" data-play>
+        <h1 id="hero-title" aria-label="Your daybook, in plain text.">
+          Your <s class="strike">notes app<span class="pen pen--above pop" style="--i:2">(it wanted a workspace)</span></s><br />
+          <mark class="hl">daybook</mark>, in <em>plain text.</em>
+        </h1>
+        <div class="hero__text">
+          <p class="lede">
+            One Markdown file per day. No account, no sync service, no AI summary of your grocery list.
+            <code>jot</code> appends a timestamped entry to today's file and gets out of the way. Read it
+            with <code>cat</code>, search it with <code>grep</code>, browse it in the calendar.
+          </p>
+          <p class="pen pen--note pop" style="--i:3">↑ we checked. it's just files.</p>
+          <div class="install">
+            <div class="install__line">
+              <span class="install__ps" aria-hidden="true">$</span>
+              <code>{install}</code>
+            </div>
+            <button class="install__copy" type="button" data-copy={install} aria-label="Copy the install command">Copy</button>
           </div>
-          <button class="install__copy" type="button" data-copy={install} aria-label="Copy the install command">Copy</button>
+          <p class="install__note">
+            One small program, verified before it installs. No setup wizard, no "what brings you
+            here today?". <a href={`${cfg.repoUrl}#install`}>Other ways to install</a>.
+          </p>
         </div>
-        <p class="install__note">
-          One small program, verified before it installs. No setup wizard, no "what brings you
-          here today?". <a href={`${cfg.repoUrl}#install`}>Other ways to install</a>.
-        </p>
-      </div>
 
-      <figure class="leaf">
-        <p class="leaf__date">{todayLabel}</p>
-        <pre class="leaf__body" aria-label="Contents of today's journal file" set:html={specimen} />
-        <figcaption class="leaf__cap">
-          <code>~/.jot/default/{demo.today}.md</code>
-          <span>{today?.entries.length ?? 0} entries · {today?.bytes ?? 0} bytes</span>
-        </figcaption>
-        <p class="pen pen--leaf pop" style="--i:4" aria-hidden="true">← the entire database</p>
-      </figure>
-    </section>
+        <figure class="leaf">
+          <p class="leaf__date">{todayLabel}</p>
+          <pre class="leaf__body" aria-label="Contents of today's journal file" set:html={specimen} />
+          <figcaption class="leaf__cap">
+            <code>~/.jot/default/{demo.today}.md</code>
+            <span>{today?.entries.length ?? 0} entries · {today?.bytes ?? 0} bytes</span>
+          </figcaption>
+          <p class="pen pen--leaf pop" style="--i:4" aria-hidden="true">← the entire database</p>
+        </figure>
+      </section>
+    </div>
 
-    <section class="roast wrap" aria-labelledby="roast-title" data-play>
-      <div class="roast__text">
-        <p class="kicker"><span class="kicker__sq" aria-hidden="true"></span>A short tragedy</p>
-        <h2 id="roast-title">You wanted to write down <em>one thought.</em></h2>
-        <p class="roast__note">The notes app had other plans.</p>
-      </div>
+    <div class="snap" data-snap="a short tragedy">
+      <section class="roast wrap" aria-labelledby="roast-title" data-play>
+        <div class="roast__text">
+          <p class="kicker"><span class="kicker__sq" aria-hidden="true"></span>A short tragedy</p>
+          <h2 id="roast-title">You wanted to write down <em>one thought.</em></h2>
+          <p class="roast__note">The notes app had other plans.</p>
+        </div>
 
-      <div class="stage" role="img" aria-label="A parody notes app, NOTESPACE PRO MAX, burying one thought under seven onboarding dialogs">
-        <p class="stage__logo" aria-hidden="true">NOTESPACE PRO MAX</p>
-        {modals.map((m, i) => (
-          <div class="modal pop" aria-hidden="true" style={`--i:${i};--r:${m.r}deg;left:${m.x}%;top:${m.y}%;width:${m.w}%`}>
-            <p class="modal__h">{m.h}</p>
-            <p class="modal__p">{m.p}</p>
-            {m.b.length > 0 && <p class="modal__b">{m.b.map((b) => <span>{b}</span>)}</p>}
+        <div class="stage" role="img" aria-label="A parody notes app, NOTESPACE PRO MAX, burying one thought under seven onboarding dialogs">
+          <p class="stage__logo" aria-hidden="true">NOTESPACE PRO MAX</p>
+          {modals.map((m, i) => (
+            <div class="modal pop" aria-hidden="true" style={`--i:${i};--r:${m.r}deg;left:${m.x}%;top:${m.y}%;width:${m.w}%`}>
+              <p class="modal__h">{m.h}</p>
+              <p class="modal__p">{m.p}</p>
+              {m.b.length > 0 && <p class="modal__b">{m.b.map((b) => <span>{b}</span>)}</p>}
+            </div>
+          ))}
+          <p class="stage__no pen pop" aria-hidden="true" style="--i:7.6">no.</p>
+        </div>
+
+        <div class="roast__answer pop" style="--i:8.6">
+          <p class="roast__claim">real developers use the terminal. <span class="pen">(allegedly)</span></p>
+          <div class="term term--small">
+            <p><span class="term__ps">❯</span> jot add "rename the variable back to what it was"</p>
+            <p class="term__out">added to <span>default/{demo.today}.md</span></p>
           </div>
-        ))}
-        <p class="stage__no pen pop" aria-hidden="true" style="--i:7.6">no.</p>
-      </div>
+          <ul class="nots" aria-label="What it skipped">
+            <li><s>account</s></li><li><s>sync</s></li><li><s>onboarding</s></li><li><s>AI</s></li>
+          </ul>
+          <p class="pen pen--that">that's it. that's the app.</p>
+        </div>
+      </section>
 
-      <div class="roast__answer pop" style="--i:8.6">
-        <p class="roast__claim">real developers use the terminal. <span class="pen">(allegedly)</span></p>
-        <div class="term term--small">
-          <p><span class="term__ps">❯</span> jot add "rename the variable back to what it was"</p>
-          <p class="term__out">added to <span>default/{demo.today}.md</span></p>
-        </div>
-        <ul class="nots" aria-label="What it skipped">
-          <li><s>account</s></li><li><s>sync</s></li><li><s>onboarding</s></li><li><s>AI</s></li>
-        </ul>
-        <p class="pen pen--that">that's it. that's the app.</p>
-      </div>
-    </section>
-
-    <div class="wrap">
-      <div class="claims">
-        <div class="claim">
-          <p class="claim__n">01</p>
-          <p class="claim__t">Append-only</p>
-          <p class="claim__p">Every entry gets a timestamp. Nothing you wrote is ever rewritten, even the embarrassing ones.</p>
-        </div>
-        <div class="claim">
-          <p class="claim__n">02</p>
-          <p class="claim__t">Private by default</p>
-          <p class="claim__p">Your journal is readable by you and nobody else. No account, no sync, no "we've updated our privacy policy".</p>
-        </div>
-        <div class="claim">
-          <p class="claim__n">03</p>
-          <p class="claim__t">Nothing to run</p>
-          <p class="claim__p">Back up a directory, delete the binary, keep the journal. It opens without jot. We'd be hurt, but it opens.</p>
+      <div class="wrap">
+        <div class="claims">
+          <div class="claim">
+            <p class="claim__n">01</p>
+            <p class="claim__t">Append-only</p>
+            <p class="claim__p">Every entry gets a timestamp. Nothing you wrote is ever rewritten, even the embarrassing ones.</p>
+          </div>
+          <div class="claim">
+            <p class="claim__n">02</p>
+            <p class="claim__t">Private by default</p>
+            <p class="claim__p">Your journal is readable by you and nobody else. No account, no sync, no "we've updated our privacy policy".</p>
+          </div>
+          <div class="claim">
+            <p class="claim__n">03</p>
+            <p class="claim__t">Nothing to run</p>
+            <p class="claim__p">Back up a directory, delete the binary, keep the journal. It opens without jot. We'd be hurt, but it opens.</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <section class="band" id="year">
-      <div class="wrap">
-        <header class="sec">
-          <p class="sec__no">01</p>
-          <div>
-            <h2>A year, one square at a time.</h2>
-            <p class="sec__note">
-              The calendar in the terminal is a grid of files, so the same grid works here.
-              Shade is the number of entries written that day; empty days stay visible,
-              because a gap is part of the record too.
-            </p>
-            <p class="pen pen--sec">no streaks. no guilt. no push notifications.</p>
-          </div>
-        </header>
-        <YearChart />
-      </div>
-    </section>
-
-    <section class="band" id="day">
-      <div class="wrap">
-        <header class="sec">
-          <p class="sec__no">02</p>
-          <div>
-            <h2>The day, set to read.</h2>
-            <p class="sec__note">
-              Ten days from the sample journal. Switch between the typeset entries and the
-              raw file they came from; the timestamps are the file's own.
-            </p>
-          </div>
-        </header>
-        <DayDesk />
-      </div>
-    </section>
-
-    <section class="band band--sauce" id="sauce" aria-labelledby="sauce-title" data-play>
-      <div class="wrap">
-        <header class="sec">
-          <p class="sec__no">02½</p>
-          <div>
-            <p class="sec__kick">Six months later</p>
-            <h2 id="sauce-title">You are <em class="sauce-em">lost in the sauce.</em></h2>
-            <p class="sec__note">
-              Adding is one command. That is the problem. Below is the real
-              <code>jot search parser</code> on the sample journal.
-            </p>
-          </div>
-        </header>
-        <div class="term term--sauce">
-          <div class="term__bar"><span>~/journals</span><span>zsh</span></div>
-          <div class="term__body">
-            {adds.map(([cmd, j]) => (
-              <>
-                <p><span class="term__ps">❯</span> {cmd}</p>
-                <p class="term__out">added to <span>{j}/{demo.today}.md</span></p>
-              </>
-            ))}
-            <p><span class="term__ps">❯</span> jot search parser</p>
-            <div class="pit">
-              <div class="term__scroll">
-                <pre class="term__fall">{matches.join("\n")}</pre>
-              </div>
-              <div class="drips" aria-hidden="true">
-                {drips.map(([x, w, h], i) => <i style={`--x:${x}%;--w:${w}%;--h:${h}%;--d:${i % 4}`} />)}
-              </div>
+    <div class="snap" data-snap="tour">
+      <section class="band" id="tour">
+        <div class="wrap">
+          <header class="sec">
+            <p class="sec__no">01</p>
+            <div>
+              <h2>Fifty-five seconds of jot.</h2>
+              <p class="sec__note">
+                One notes app, roasted. Quick adds, the calendar, fuzzy search and the year heatmap,
+                then NOTESPACE's whole price list in fourteen seconds. Every line of terminal output
+                is the real binary on the sample journal.
+              </p>
             </div>
-            <p class="term__sum pop" style="--i:9.5">{total}</p>
-            {[":q", ":wq", ":q!"].map((c, i) => (
-              <div class="pop" style={`--i:${11 + i * 1.2}`}>
-                <p><span class="term__ps">❯</span> {c}</p>
-                <p class="term__err">zsh: command not found: {c}</p>
+          </header>
+          <figure class="film">
+            <video controls preload="none" poster={`${withBase("clips/launch.jpg")}`} aria-label="A fifty-five second tour of jot: quick adds from the CLI, the TUI calendar, fuzzy search and year heatmap, then todos, tags, reminders, encryption, PDF export, backups and git sync">
+              <source src={`${withBase("clips/launch.mp4")}`} type="video/mp4" />
+              Your browser cannot play this video. <a href={`${withBase("clips/launch.mp4")}`}>Download it</a>.
+            </video>
+            <figcaption class="film__cap">
+              <span>55s · real output on the sample journal</span>
+              <span class="film__tag">demo</span>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+    </div>
+
+    <div class="snap" data-snap="year">
+      <section class="band" id="year">
+        <div class="wrap">
+          <header class="sec">
+            <p class="sec__no">02</p>
+            <div>
+              <h2>A year, one square at a time.</h2>
+              <p class="sec__note">
+                The calendar in the terminal is a grid of files, so the same grid works here.
+                Shade is the number of entries written that day; empty days stay visible,
+                because a gap is part of the record too.
+              </p>
+              <p class="pen pen--sec">no streaks. no guilt. no push notifications.</p>
+            </div>
+          </header>
+          <YearChart />
+        </div>
+      </section>
+    </div>
+
+    <div class="snap" data-snap="the day">
+      <section class="band" id="day">
+        <div class="wrap">
+          <header class="sec">
+            <p class="sec__no">03</p>
+            <div>
+              <h2>The day, set to read.</h2>
+              <p class="sec__note">
+                Ten days from the sample journal. Switch between the typeset entries and the
+                raw file they came from; the timestamps are the file's own.
+              </p>
+            </div>
+          </header>
+          <DayDesk />
+        </div>
+      </section>
+    </div>
+
+    <div class="snap" data-snap="the sauce">
+      <section class="band band--sauce" id="sauce" aria-labelledby="sauce-title" data-play>
+        <div class="wrap">
+          <header class="sec">
+            <p class="sec__no">03½</p>
+            <div>
+              <p class="sec__kick">Six months later</p>
+              <h2 id="sauce-title">You are <em class="sauce-em">lost in the sauce.</em></h2>
+              <p class="sec__note">
+                Adding is one command. That is the problem. Below is the real
+                <code>jot search parser</code> on the sample journal.
+              </p>
+            </div>
+          </header>
+          <div class="term term--sauce">
+            <div class="term__bar"><span>~/journals</span><span>zsh</span></div>
+            <div class="term__body">
+              {adds.map(([cmd, j]) => (
+                <>
+                  <p><span class="term__ps">❯</span> {cmd}</p>
+                  <p class="term__out">added to <span>{j}/{demo.today}.md</span></p>
+                </>
+              ))}
+              <p><span class="term__ps">❯</span> jot search parser</p>
+              <div class="pit">
+                <div class="term__scroll">
+                  <pre class="term__fall">{matches.join("\n")}</pre>
+                </div>
+                <div class="drips" aria-hidden="true">
+                  {drips.map(([x, w, h], i) => <i style={`--x:${x}%;--w:${w}%;--h:${h}%;--d:${i % 4}`} />)}
+                </div>
               </div>
+              <p class="term__sum pop" style="--i:9.5">{total}</p>
+              {[":q", ":wq", ":q!"].map((c, i) => (
+                <div class="pop" style={`--i:${11 + i * 1.2}`}>
+                  <p><span class="term__ps">❯</span> {c}</p>
+                  <p class="term__err">zsh: command not found: {c}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="snap" data-snap="interface">
+      <section class="band" id="tool">
+        <div class="wrap">
+          <header class="sec">
+            <p class="sec__no">04</p>
+            <div>
+              <h2>Okay. <em>One more command.</em></h2>
+              <p class="sec__note">
+                <code>jot tui</code>: a month of days with entry heat, the journals, and the selected
+                day rendered as Markdown. Fuzzy search (typos welcome), todos and the key reference
+                open over the same frame.
+              </p>
+              <p class="pen pen--sec">it quits with q. no vim required.</p>
+            </div>
+          </header>
+          <FrameViewer />
+        </div>
+      </section>
+    </div>
+
+    <div class="snap" data-snap="features">
+      <section class="band" id="features" aria-labelledby="features-title" data-play>
+        <div class="wrap">
+          <header class="sec">
+            <p class="sec__no">05</p>
+            <div>
+              <h2 id="features-title">"But NOTESPACE has <em>features.</em>"</h2>
+              <p class="sec__note">
+                So does jot. Here is their price list, marked up. Every feature below is a flag or a
+                file, works offline, and costs the same as the rest of jot.
+              </p>
+            </div>
+          </header>
+          <ul class="prices">
+            {prices.map((p, i) => (
+              <li class="price">
+                <div class="price__tag" aria-hidden="true">
+                  <p class="price__brand">NOTESPACE PRO MAX</p>
+                  <p class="price__name">{p.name}</p>
+                  <p class="price__cost">{p.price}</p>
+                  <i class="price__x pop" style={`--i:${i * 0.5 + 1}`}></i>
+                </div>
+                <p class="pen price__pen pop" style={`--i:${i * 0.5 + 1.4}`}><span class="sr">{p.name}: </span>{p.pen}</p>
+                <div class="term term--small">
+                  <p><span class="term__ps">❯</span> {p.cmd}</p>
+                  <pre class="term__out">{p.out}</pre>
+                </div>
+              </li>
             ))}
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <div class="snap" data-snap="scope">
+      <section class="band" id="record">
+        <div class="wrap">
+          <header class="sec">
+            <p class="sec__no">06</p>
+            <div>
+              <h2>What it does not do.</h2>
+              <p class="sec__note">
+                The scope is the feature. jot is for one person's days on one machine, in files
+                that outlive the program.
+              </p>
+            </div>
+          </header>
+          <div class="record">
+            <div class="record__col">
+              <h3>One directory</h3>
+              <pre>~/.jot/
+  ├── config.json
+  ├── default/
+  │   ├── 2026-11-25.md
+  │   └── 2026-11-24.md
+  └── work/
+      └── 2026-11-19.md</pre>
+              <p>Journals are sibling directories. There is no index to rebuild.</p>
+            </div>
+            <div class="record__col">
+              <h3>No server, no account</h3>
+              <p>
+                Nothing is uploaded and nothing is fetched to read your journal. Turn on git sync
+                and jot commits for you; otherwise sync with whatever you already use, or don't.
+              </p>
+              <p>Nothing runs in the background, except a reminder you asked for. When you close it, it's closed.</p>
+            </div>
+            <div class="record__col">
+              <h3>Read-mostly by design</h3>
+              <p>
+                The TUI can add a quick line, but edits, deletions and checkbox changes happen in
+                your editor. Yes, even that editor. One writer, no merge rules, no surprises.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
-    <section class="band" id="tool">
-      <div class="wrap">
-        <header class="sec">
-          <p class="sec__no">03</p>
-          <div>
-            <h2>Okay. <em>One more command.</em></h2>
-            <p class="sec__note">
-              <code>jot tui</code>: a month of days with entry heat, the journals, and the selected
-              day rendered as Markdown. Fuzzy search (typos welcome), todos and the key reference
-              open over the same frame.
-            </p>
-            <p class="pen pen--sec">it quits with q. no vim required.</p>
-          </div>
-        </header>
-        <FrameViewer />
-      </div>
-    </section>
-
-    <section class="band" id="features" aria-labelledby="features-title" data-play>
-      <div class="wrap">
-        <header class="sec">
-          <p class="sec__no">04</p>
-          <div>
-            <h2 id="features-title">"But NOTESPACE has <em>features.</em>"</h2>
-            <p class="sec__note">
-              So does jot. Here is their price list, marked up. Every feature below is a flag or a
-              file, works offline, and costs the same as the rest of jot.
-            </p>
-          </div>
-        </header>
-        <ul class="prices">
-          {prices.map((p, i) => (
-            <li class="price">
-              <div class="price__tag" aria-hidden="true">
-                <p class="price__brand">NOTESPACE PRO MAX</p>
-                <p class="price__name">{p.name}</p>
-                <p class="price__cost">{p.price}</p>
-                <i class="price__x pop" style={`--i:${i * 0.5 + 1}`}></i>
-              </div>
-              <p class="pen price__pen pop" style={`--i:${i * 0.5 + 1.4}`}><span class="sr">{p.name}: </span>{p.pen}</p>
-              <div class="term term--small">
-                <p><span class="term__ps">❯</span> {p.cmd}</p>
-                <pre class="term__out">{p.out}</pre>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-
-    <section class="band" id="tour">
-      <div class="wrap">
-        <header class="sec">
-          <p class="sec__no">05</p>
-          <div>
-            <h2>Fifty-five seconds of jot.</h2>
-            <p class="sec__note">
-              One notes app, roasted. Quick adds, the calendar, fuzzy search and the year heatmap,
-              then NOTESPACE's whole price list in fourteen seconds. Every line of terminal output
-              is the real binary on the sample journal.
-            </p>
-          </div>
-        </header>
-        <figure class="film">
-          <video controls preload="none" poster={`${withBase("clips/launch.jpg")}`} aria-label="A fifty-five second tour of jot: quick adds from the CLI, the TUI calendar, fuzzy search and year heatmap, then todos, tags, reminders, encryption, PDF export, backups and git sync">
-            <source src={`${withBase("clips/launch.mp4")}`} type="video/mp4" />
-            Your browser cannot play this video. <a href={`${withBase("clips/launch.mp4")}`}>Download it</a>.
-          </video>
-          <figcaption class="film__cap">
-            <span>55s · real output on the sample journal</span>
-            <span class="film__tag">demo</span>
-          </figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <section class="band" id="record">
-      <div class="wrap">
-        <header class="sec">
-          <p class="sec__no">06</p>
-          <div>
-            <h2>What it does not do.</h2>
-            <p class="sec__note">
-              The scope is the feature. jot is for one person's days on one machine, in files
-              that outlive the program.
-            </p>
-          </div>
-        </header>
-        <div class="record">
-          <div class="record__col">
-            <h3>One directory</h3>
-            <pre>~/.jot/
-├── config.json
-├── default/
-│   ├── 2026-11-25.md
-│   └── 2026-11-24.md
-└── work/
-    └── 2026-11-19.md</pre>
-            <p>Journals are sibling directories. There is no index to rebuild.</p>
-          </div>
-          <div class="record__col">
-            <h3>No server, no account</h3>
-            <p>
-              Nothing is uploaded and nothing is fetched to read your journal. Turn on git sync
-              and jot commits for you; otherwise sync with whatever you already use, or don't.
-            </p>
-            <p>Nothing runs in the background, except a reminder you asked for. When you close it, it's closed.</p>
-          </div>
-          <div class="record__col">
-            <h3>Read-mostly by design</h3>
-            <p>
-              The TUI can add a quick line, but edits, deletions and checkbox changes happen in
-              your editor. Yes, even that editor. One writer, no merge rules, no surprises.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="closing wrap" aria-labelledby="closing-title">
-      <p class="closing__kicker">Documentation</p>
-      <a class="closing__link" href={withBase("guide/")} id="closing-title">
-        Read the guide<span aria-hidden="true">→</span>
-      </a>
-      <p class="closing__note">
-        Commands, configuration, themes, the storage format and the TUI keys, rendered from the
-        repository's own Markdown and searchable in the browser. A manual. Remember those?
-      </p>
-    </section>
+    <div class="snap" data-snap="guide">
+      <section class="closing wrap" aria-labelledby="closing-title">
+        <p class="closing__kicker">Documentation</p>
+        <a class="closing__link" href={withBase("guide/")} id="closing-title">
+          Read the guide<span aria-hidden="true">→</span>
+        </a>
+        <p class="closing__note">
+          Commands, configuration, themes, the storage format and the TUI keys, rendered from the
+          repository's own Markdown and searchable in the browser. A manual. Remember those?
+        </p>
+      </section>
+    </div>
   </main>
 
   <footer class="foot">
@@ -416,11 +436,137 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
       }
     }, { threshold: 0.2 });
     document.querySelectorAll("[data-play]").forEach((el) => io.observe(el));
+
+    // Page-by-page reading: each .snap fills the viewport (CSS snaps to it).
+    // Sections taller than the window are scaled down with zoom so a whole
+    // block is readable at once at any window size or browser zoom level.
+    const snaps = [...document.querySelectorAll<HTMLElement>(".snap")];
+    const masthead = document.querySelector<HTMLElement>(".masthead")!;
+    const wide = matchMedia("(min-width: 760px) and (min-height: 480px)");
+    const fit = () => {
+      const mh = masthead.offsetHeight;
+      document.documentElement.style.setProperty("--mh", `${mh}px`);
+      for (const s of snaps) {
+        const kids = [...s.children] as HTMLElement[];
+        kids.forEach((k) => (k.style.zoom = ""));
+        if (!wide.matches) continue;
+        const h = kids.reduce((n, k) => n + k.getBoundingClientRect().height, 0);
+        const room = innerHeight - mh - 16;
+        // Shrink to fit; on big windows grow too, up to the width the page was set for.
+        const grow = Math.max(1, Math.min(1.5, innerWidth / 1440));
+        const z = Math.max(0.6, Math.min(room / h, grow));
+        if (Math.abs(z - 1) > 0.02) kids.forEach((k) => (k.style.zoom = String(z)));
+      }
+    };
+    fit();
+    document.fonts.ready.then(fit);
+    addEventListener("resize", fit);
+
+    // The rail: one calendar cell per section. Read sections fill in like days
+    // with entries; the current one is jot's cursor block.
+    const rail = document.createElement("nav");
+    rail.className = "rail";
+    rail.setAttribute("aria-label", "Sections");
+    rail.innerHTML = snaps.map((s, i) =>
+      `<a href="#snap-${i}" class="rail__cell"><span class="rail__lab">## ${s.dataset.snap}</span><i></i></a>`).join("") +
+      `<p class="rail__count" aria-hidden="true"></p>`;
+    document.body.append(rail);
+    const cells = [...rail.querySelectorAll<HTMLAnchorElement>(".rail__cell")];
+    const count = rail.querySelector(".rail__count")!;
+    const bar = document.createElement("div");
+    bar.className = "progress";
+    bar.setAttribute("aria-hidden", "true");
+    masthead.append(bar);
+    snaps.forEach((s, i) => (s.id = `snap-${i}`));
+    const spy = new IntersectionObserver((seen) => {
+      for (const e of seen) {
+        if (!e.isIntersecting) continue;
+        const i = snaps.indexOf(e.target as HTMLElement);
+        cells.forEach((c, j) => {
+          c.classList.toggle("is-read", j < i);
+          if (j === i) c.setAttribute("aria-current", "true"); else c.removeAttribute("aria-current");
+        });
+        count.textContent = `${i + 1}/${snaps.length}`;
+        bar.style.setProperty("--p", String((i + 1) / snaps.length));
+      }
+    }, { rootMargin: "-50% 0px -50% 0px" });
+    snaps.forEach((s) => spy.observe(s));
   </script>
 </Landing>
 
 <style is:global>
-  html { scroll-padding-top: 84px; }
+  html { scroll-padding-top: var(--mh, 48px); }
+  /* Page-by-page: every block fills the window and the page snaps to it. */
+  @media (min-width: 760px) and (min-height: 480px) {
+    html { scroll-snap-type: y mandatory; }
+    .snap {
+      min-height: calc(100svh - var(--mh, 48px));
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      scroll-snap-align: start;
+    }
+    html .snap > .band, html .snap > .roast, html .snap > .closing { border-top: 0; }
+    .foot { scroll-snap-align: end; }
+  }
+  .rail { display: none; }
+  @media (min-width: 1100px) and (min-height: 480px) {
+    .rail {
+      position: fixed;
+      right: 18px;
+      top: 50%;
+      translate: 0 -50%;
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+      font-family: var(--mono);
+    }
+  }
+  .rail__cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 3px 0 3px 8px;
+    color: var(--ink-3);
+    text-decoration: none;
+  }
+  .rail__cell i {
+    display: block;
+    width: 11px;
+    height: 11px;
+    border-radius: 2px;
+    background: var(--heat-0);
+    box-shadow: inset 0 0 0 1px var(--rule-strong);
+    transition: height 0.35s var(--ease), background-color 0.25s;
+  }
+  .rail__cell.is-read i { background: var(--heat-2); box-shadow: none; }
+  .rail__cell[aria-current] i { height: 24px; background: var(--heat-4); box-shadow: none; }
+  .rail__lab {
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    padding: 2px 6px;
+    background: var(--paper);
+    opacity: 0;
+    translate: 6px 0;
+    transition: opacity 0.2s, translate 0.25s var(--ease);
+  }
+  .rail__cell:hover .rail__lab,
+  .rail__cell:focus-visible .rail__lab { opacity: 1; translate: 0 0; }
+  .rail__cell[aria-current] .rail__lab { opacity: 1; translate: 0 0; color: var(--forest); }
+  .rail:hover .rail__cell[aria-current]:not(:hover) .rail__lab { opacity: 0; }
+  .rail__count { margin: 8px 0 0; font-size: 0.6rem; color: var(--ink-4); }
+  .progress {
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    height: 2px;
+    width: calc(var(--p, 0) * 100%);
+    background: var(--forest);
+    transition: width 0.45s var(--ease);
+  }
   main { display: block; }
 </style>
 
