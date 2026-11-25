@@ -39,8 +39,8 @@ type TUI struct {
 	// Journal is the journal the TUI last had open. It is a convenience only:
 	// commands still default to DefaultJournal.
 	Journal string `json:"journal,omitempty"`
-	// Hide lists the below-calendar widgets turned off: "streak",
-	// "onthisday", "todos" and "reminders". All are on by default.
+	// Hide lists the below-calendar widgets turned off: "onthisday",
+	// "todos" and "reminders". All are on by default.
 	Hide []string `json:"hide,omitempty"`
 	// Colors maps journal names to a theme color name (green, yellow, cyan,
 	// magenta, red, accent) used in the sidebar.

@@ -377,8 +377,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.applyPrefsSaved(msg)
 
 	case backupDoneMsg:
+		m.settings.warn = ""
 		if msg.err != nil {
 			m.lastErr = msg.err
+			m.settings.err = msg.err.Error()
 			return m, nil
 		}
 		return m, m.setToast(backupLabel(msg.path))

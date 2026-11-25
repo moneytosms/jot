@@ -51,7 +51,8 @@ func (m model) paletteActions() []paletteAction {
 		paletteAction{id: "settings", label: "Settings"},
 		paletteAction{id: "theme", label: "Toggle theme"},
 		paletteAction{id: "editor", label: "Open day in editor"},
-		paletteAction{id: "backup", label: "Backup journals"},
+		paletteAction{id: "backup", label: "Backup everything (.tar.gz)"},
+		paletteAction{id: "backup-zip", label: "Backup everything (.zip)"},
 		paletteAction{id: "export", label: "Export journals"},
 		paletteAction{id: "export-html", label: "Export this journal as HTML"},
 		paletteAction{id: "export-pdf", label: "Export this journal as PDF"},
@@ -342,9 +343,9 @@ func (m model) runPaletteAction(a paletteAction) (tea.Model, tea.Cmd) {
 	case a.id == "editor":
 		m.closeOverlay()
 		return m, m.editDay()
-	case a.id == "backup":
+	case a.id == "backup" || a.id == "backup-zip":
 		m.closeOverlay()
-		return m, backupCmd(m.jot)
+		return m, backupWithCmd(m.jot, jot.BackupOptions{Zip: a.id == "backup-zip"})
 	case a.id == "export-html" || a.id == "export-pdf":
 		m.closeOverlay()
 		j, name, format := m.jot, m.journal, strings.TrimPrefix(a.id, "export-")
@@ -466,10 +467,10 @@ type exportDoneMsg struct {
 	err   error
 }
 
-// backupCmd archives every journal in the background.
-func backupCmd(j *jot.Jot) tea.Cmd {
+// backupWithCmd writes a full backup in the background.
+func backupWithCmd(j *jot.Jot, opt jot.BackupOptions) tea.Cmd {
 	return func() tea.Msg {
-		path, err := j.Backup("")
+		path, err := j.BackupWith(opt)
 		return backupDoneMsg{path: path, err: err}
 	}
 }

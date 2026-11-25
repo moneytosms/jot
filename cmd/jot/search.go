@@ -179,6 +179,8 @@ func (a *app) backupCmd(args []string) error {
 	fs := a.flags("backup")
 	dir := fs.String("out", "", "destination directory")
 	fs.StringVar(dir, "o", "", "shorthand for -out")
+	asZip := fs.Bool("zip", false, "write a .zip instead of a .tar.gz")
+	withKey := fs.Bool("with-key", false, "also bundle the age key (anyone with the archive can then read encrypted journals)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -190,7 +192,7 @@ func (a *app) backupCmd(args []string) error {
 	if err != nil {
 		return err
 	}
-	path, err := j.Backup(*dir)
+	path, err := j.BackupWith(jot.BackupOptions{Dir: *dir, Zip: *asZip, Key: *withKey})
 	if err != nil {
 		return err
 	}

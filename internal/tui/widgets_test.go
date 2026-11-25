@@ -4,22 +4,10 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/moneytosms/jot"
 )
-
-func TestStreaks(t *testing.T) {
-	today := time.Date(2026, 11, 25, 9, 0, 0, 0, time.Local)
-	days := []string{"2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04", "2026-11-23", "2026-11-24"}
-	if cur, best := streaks(days, today); cur != 2 || best != 4 {
-		t.Fatalf("streaks = %d, %d; want 2, 4 (yesterday keeps the run alive)", cur, best)
-	}
-	if cur, _ := streaks(days[:4], today); cur != 0 {
-		t.Fatalf("broken streak = %d, want 0", cur)
-	}
-}
 
 func TestWidgetsShowAndToggle(t *testing.T) {
 	j, m := newTestModel(t)
@@ -29,7 +17,7 @@ func TestWidgetsShowAndToggle(t *testing.T) {
 	m = send(m, tea.WindowSizeMsg{Width: 100, Height: 50})
 	m = drain(m, m.fullLoad())
 	plain := ansiRE.ReplaceAllString(m.View(), "")
-	if !strings.Contains(plain, "OPEN TODOS 1") || !strings.Contains(plain, "water plants") || !strings.Contains(plain, "streak 1d") {
+	if !strings.Contains(plain, "OPEN TODOS 1") || !strings.Contains(plain, "water plants") {
 		t.Fatalf("widgets missing:\n%s", plain)
 	}
 	if strings.Contains(plain, "ON THIS DAY") {
@@ -52,7 +40,7 @@ func TestWidgetsShowAndToggle(t *testing.T) {
 
 	// Settings toggle hides the todos widget and persists it.
 	m = press(m, "S")
-	for i := 0; i < 7; i++ { // row 7 = Open todos
+	for i := 0; i < 6; i++ { // row 6 = Open todos
 		m = press(m, "down")
 	}
 	m = pressRun(m, "enter")

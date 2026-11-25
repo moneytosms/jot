@@ -1,6 +1,7 @@
 package jot
 
 import (
+	"archive/zip"
 	"errors"
 	"os"
 	"os/exec"
@@ -123,5 +124,66 @@ func TestGitSyncCommits(t *testing.T) {
 	}
 	if n := strings.Count(strings.TrimSpace(string(out)), "\n") + 1; n != 2 {
 		t.Fatalf("commits = %d:\n%s", n, out)
+	}
+}
+
+func TestBackupWithZipConfigAndKey(t *testing.T) {
+	j := cryptTestJot(t)
+	t.Setenv(EnvConfig, filepath.Join(t.TempDir(), "config.json"))
+	if _, err := SaveConfig(Config{Editor: "vim"}); err != nil {
+		t.Fatal(err)
+	}
+	addEntry(t, j, "work", "zip me")
+	if _, err := j.SetEncrypted("work", true); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(j.Root(), templateName), []byte("t"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	names := func(path string) []string {
+		zr, err := zip.OpenReader(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer zr.Close()
+		var out []string
+		for _, f := range zr.File {
+			out = append(out, f.Name)
+		}
+		return out
+	}
+	dir := t.TempDir()
+	plain, err := j.BackupWith(BackupOptions{Dir: dir, Zip: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := strings.Join(names(plain), " ")
+	for _, want := range []string{".jot/config.json", "work/.encrypted", ".template", "work/" + today() + ".md"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("zip missing %s: %s", want, got)
+		}
+	}
+	if strings.Contains(got, "age-key") {
+		t.Errorf("key bundled without asking: %s", got)
+	}
+	keyed, err := j.BackupWith(BackupOptions{Dir: t.TempDir(), Zip: true, Key: true})
+	if err != nil || !strings.Contains(strings.Join(names(keyed), " "), ".jot/age-key.txt") {
+		t.Fatalf("with key: %v %v", names(keyed), err)
+	}
+	tgz, err := j.BackupWith(BackupOptions{Dir: t.TempDir()})
+	if err != nil || !strings.HasSuffix(tgz, ".tar.gz") {
+		t.Fatalf("tar backup = %q, %v", tgz, err)
+	}
+
+	// The zip restores the journal (still encrypted) and skips .jot/ extras.
+	if err := j.DeleteJournal("work"); err != nil {
+		t.Fatal(err)
+	}
+	restored, err := j.RestoreArchive(plain)
+	if err != nil || len(restored) != 1 || !j.IsEncrypted("work") {
+		t.Fatalf("restore zip = %v, %v", restored, err)
+	}
+	if got, _ := j.Show("work", ""); len(got) != 1 || !strings.Contains(got[0], "zip me") {
+		t.Fatalf("restored content = %q", got)
 	}
 }

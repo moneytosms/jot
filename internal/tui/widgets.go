@@ -12,7 +12,6 @@ import (
 
 // Below-calendar widgets, each one hideable from Settings (tui.hide).
 const (
-	widgetStreak    = "streak"
 	widgetOnThisDay = "onthisday"
 	widgetTodos     = "todos"
 	widgetReminders = "reminders"
@@ -20,7 +19,6 @@ const (
 
 // widgetNames lists the widgets in display order with their settings labels.
 var widgetNames = []struct{ id, label string }{
-	{widgetStreak, "Streak"},
 	{widgetOnThisDay, "On this day"},
 	{widgetTodos, "Open todos"},
 	{widgetReminders, "Reminders"},
@@ -84,37 +82,6 @@ func loadWidgets(j *jot.Jot, journal string, days []string, today time.Time) wid
 	return w
 }
 
-// streaks returns the current run of consecutive days with a file, ending
-// today or yesterday (so the run survives until you write today), and the
-// longest run ever. days must be sorted "YYYY-MM-DD" labels.
-func streaks(days []string, today time.Time) (cur, best int) {
-	run := 0
-	var prev time.Time
-	for _, d := range days {
-		t, err := time.ParseInLocation("2006-01-02", d, time.Local)
-		if err != nil {
-			continue
-		}
-		if !prev.IsZero() && t.Equal(prev.AddDate(0, 0, 1)) {
-			run++
-		} else {
-			run = 1
-		}
-		best = max(best, run)
-		prev = t
-	}
-	has := func(t time.Time) bool { _, ok := slices.BinarySearch(days, dayKey(t)); return ok }
-	t := startOfDay(today)
-	if !has(t) {
-		t = t.AddDate(0, 0, -1)
-	}
-	for has(t) {
-		cur++
-		t = t.AddDate(0, 0, -1)
-	}
-	return cur, best
-}
-
 // widgetOn reports whether a widget is enabled.
 func (m model) widgetOn(id string) bool { return !slices.Contains(m.cfg.TUI.Hide, id) }
 
@@ -144,13 +111,6 @@ func (m model) sideBlock(room int) []sideLine {
 		}
 	}
 	head := func(s string) sideLine { return sideLine{text: m.theme.dim().Bold(true).Render(s)} }
-	if m.widgetOn(widgetStreak) {
-		if cur, best := streaks(m.days, m.today); best > 0 {
-			text := m.theme.dim().Render("streak ") + m.theme.muted().Render(fmt.Sprintf("%dd", cur)) +
-				m.theme.dim().Render(fmt.Sprintf(" · best %dd", best))
-			add([]sideLine{{text: text}})
-		}
-	}
 	if m.widgetOn(widgetOnThisDay) && len(m.widgets.memories) > 0 {
 		block := []sideLine{{}, head("ON THIS DAY")}
 		for _, mem := range m.widgets.memories {

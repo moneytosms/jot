@@ -2,6 +2,7 @@ package jot
 
 import (
 	"archive/tar"
+	"archive/zip"
 	"bytes"
 	"compress/gzip"
 	"context"
@@ -131,74 +132,147 @@ func (j *Jot) Watch(ctx context.Context, name string, w io.Writer, poll time.Dur
 	}
 }
 
-// Backup writes a compressed archive of every journal to dir and returns the
-// archive path. An empty dir means <root>/backups.
-func (j *Jot) Backup(dir string) (string, error) {
+// BackupOptions controls a full backup.
+type BackupOptions struct {
+	// Dir is the output directory; empty means <root>/backups.
+	Dir string
+	// Zip writes a .zip instead of a .tar.gz.
+	Zip bool
+	// Key also bundles the age key, which lets anyone holding the archive
+	// read encrypted journals. Off unless asked for.
+	Key bool
+}
+
+// Backup writes a .tar.gz of everything to dir; see BackupWith.
+func (j *Jot) Backup(dir string) (string, error) { return j.BackupWith(BackupOptions{Dir: dir}) }
+
+// BackupWith writes one archive of everything jot keeps: every journal's day
+// files, encryption markers and templates as <journal>/<file>, a root
+// template as .template, the config file as .jot/config.json and, with Key,
+// the age key as .jot/age-key.txt. <root>/backups and .git are left out. It
+// returns the archive path.
+func (j *Jot) BackupWith(opt BackupOptions) (string, error) {
+	dir := opt.Dir
 	if strings.TrimSpace(dir) == "" {
 		dir = filepath.Join(j.root, backupDirName)
 	}
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", err
 	}
-	archive := filepath.Join(dir, "jot-backup-"+time.Now().Format("20060102-150405")+".tar.gz")
-	f, err := os.Create(archive)
+	type item struct{ name, src string }
+	var items []item
+	skip := filepath.Clean(filepath.Join(j.root, backupDirName))
+	if _, err := os.Stat(j.root); err == nil {
+		err := filepath.Walk(j.root, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if info.IsDir() {
+				if filepath.Clean(path) == skip || info.Name() == ".git" {
+					return filepath.SkipDir
+				}
+				return nil
+			}
+			if n := info.Name(); !strings.HasSuffix(n, ".md") && n != encryptedMarker && n != templateName {
+				return nil
+			}
+			rel, err := filepath.Rel(j.root, path)
+			if err != nil {
+				return err
+			}
+			items = append(items, item{filepath.ToSlash(rel), path})
+			return nil
+		})
+		if err != nil {
+			return "", err
+		}
+	}
+	if p := ConfigPath(); p != "" {
+		if _, err := os.Stat(p); err == nil {
+			items = append(items, item{".jot/config.json", p})
+		}
+	}
+	if opt.Key {
+		if _, err := os.Stat(KeyPath()); err != nil {
+			return "", fmt.Errorf("--with-key: %w: %s", ErrNoKey, KeyPath())
+		}
+		items = append(items, item{".jot/age-key.txt", KeyPath()})
+	}
+
+	ext := ".tar.gz"
+	if opt.Zip {
+		ext = ".zip"
+	}
+	archive := filepath.Join(dir, "jot-backup-"+time.Now().Format("20060102-150405")+ext)
+	f, err := os.OpenFile(archive, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
 	if err != nil {
 		return "", err
 	}
-	gz := gzip.NewWriter(f)
-	tw := tar.NewWriter(gz)
-	skip := filepath.Clean(filepath.Join(j.root, backupDirName))
-
-	walkErr := filepath.Walk(j.root, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			if filepath.Clean(path) == skip {
-				return filepath.SkipDir
+	var (
+		add   func(name string, info os.FileInfo, r io.Reader) error
+		close func() error
+	)
+	if opt.Zip {
+		zw := zip.NewWriter(f)
+		add = func(name string, info os.FileInfo, r io.Reader) error {
+			hdr, err := zip.FileInfoHeader(info)
+			if err != nil {
+				return err
 			}
-			return nil
-		}
-		if n := info.Name(); !strings.HasSuffix(n, ".md") && n != encryptedMarker && n != templateName {
-			return nil
-		}
-		rel, err := filepath.Rel(j.root, path)
-		if err != nil {
+			hdr.Name, hdr.Method = name, zip.Deflate
+			w, err := zw.CreateHeader(hdr)
+			if err != nil {
+				return err
+			}
+			_, err = io.Copy(w, r)
 			return err
 		}
-		hdr, err := tar.FileInfoHeader(info, "")
-		if err != nil {
+		close = zw.Close
+	} else {
+		gz := gzip.NewWriter(f)
+		tw := tar.NewWriter(gz)
+		add = func(name string, info os.FileInfo, r io.Reader) error {
+			hdr, err := tar.FileInfoHeader(info, "")
+			if err != nil {
+				return err
+			}
+			hdr.Name = name
+			if err := tw.WriteHeader(hdr); err != nil {
+				return err
+			}
+			_, err = io.Copy(tw, r)
 			return err
 		}
-		hdr.Name = filepath.ToSlash(rel)
-		if err := tw.WriteHeader(hdr); err != nil {
-			return err
+		close = func() error {
+			if err := tw.Close(); err != nil {
+				return err
+			}
+			return gz.Close()
 		}
-		src, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		_, copyErr := io.Copy(tw, src)
-		closeErr := src.Close()
-		if copyErr != nil {
-			return copyErr
-		}
-		return closeErr
-	})
-
-	closeErr := tw.Close()
-	if err := gz.Close(); closeErr == nil {
-		closeErr = err
 	}
-	if err := f.Close(); closeErr == nil {
-		closeErr = err
+	writeErr := func() error {
+		for _, it := range items {
+			src, err := os.Open(it.src)
+			if err != nil {
+				return err
+			}
+			info, err := src.Stat()
+			if err == nil {
+				err = add(it.name, info, src)
+			}
+			src.Close()
+			if err != nil {
+				return err
+			}
+		}
+		return close()
+	}()
+	if err := f.Close(); writeErr == nil {
+		writeErr = err
 	}
-	if walkErr != nil || closeErr != nil {
+	if writeErr != nil {
 		os.Remove(archive)
-		if walkErr != nil {
-			return "", walkErr
-		}
-		return "", closeErr
+		return "", writeErr
 	}
 	return archive, nil
 }

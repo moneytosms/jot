@@ -110,8 +110,6 @@ calendar, when there is room, a legend explains the colours (none, 1-5 and 6+
 entries), then small widgets that appear only when they have something to show
 and fit whole:
 
-- **Streak:** consecutive days written (still alive until you skip today) and
-  the best run, one dim line.
 - **On this day:** the first line of entries written on today's date in
   earlier years; click one to open that day.
 - **Open todos:** the count plus the first three unchecked items; click one to
@@ -474,7 +472,7 @@ switch between them, Up and Down move between rows, Esc closes.
 | Default journal | Enter saves `default_journal` and warns when that journal does not exist yet. |
 | Reminders | Enter or Left/Right cycles `auto`, `omarchy`, `systemd`, `background`, `off`; saves `reminders` and shows which provider it resolves to. |
 | Git sync | Enter or Left/Right cycles `off`, `commit`, `push`; saves `git`. |
-| Streak, On this day, Open todos, Reminders | Enter shows or hides that widget under the calendar; saves `tui.hide`. |
+| On this day, Open todos, Reminders | Enter shows or hides that widget under the calendar; saves `tui.hide`. |
 | Config file | Read-only path of the config file in use. |
 
 **Journals** lists every journal with its days, notes, last write and
@@ -501,6 +499,7 @@ expanded), then pick a row and press Enter:
 | --- | --- |
 | Move journals | Press Enter twice. Moves the whole root (journals and backups) to the new path, which must be missing or empty and not inside the current root, then saves `root`. Across filesystems it copies, keeping file modes, and removes the old root only after the copy succeeds. |
 | Use path only | Saves `root` without moving anything, for pointing jot at an existing journal folder. |
+| Back up .tar.gz / .zip | Writes a full backup (journals, templates, config; never the key) into `<root>/backups`, the same as `jot backup [--zip]`. The command palette has both too. |
 
 Both refuse while `JOT_ROOT` is set, since the variable overrides the config.
 

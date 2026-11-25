@@ -580,25 +580,40 @@ shipped the parser rewrite
 jot backup [flags] [dir]
 ```
 
-Writes a gzip-compressed tar archive, `jot-backup-YYYYMMDD-HHMMSS.tar.gz`
-(local time, to the second), containing every `.md` file under the root. The
-default `backups` directory is skipped. Entries are stored relative to the
-root, for example `work/2026-11-05.md`.
+Writes one archive of everything jot keeps, `jot-backup-YYYYMMDD-HHMMSS.tar.gz`
+(or `.zip` with `--zip`; local time, to the second), with mode `0600`:
 
-The default destination is `<root>/backups`. That directory is never archived
-or listed as a journal. The journal name `backups` is reserved and is rejected
-with an error, so every journal is archived. A positional `dir` overrides
-`--out`; the directory is created if missing. Two backups in the same second
-overwrite each other.
+| Entry | Contents |
+| --- | --- |
+| `<journal>/YYYY-MM-DD.md` | every day file (encrypted ones stay encrypted) |
+| `<journal>/.encrypted`, `<journal>/.template` | encryption markers and daily templates |
+| `.template` | the root-wide template, if any |
+| `.jot/config.json` | the config file, if any |
+| `.jot/age-key.txt` | the encryption key, only with `--with-key` |
 
-Restore with `tar -xzf <archive> -C <root>`.
+The default destination is `<root>/backups`. That directory and `.git` are
+never archived, and `backups` is never listed as a journal. A positional `dir`
+overrides `--out`; the directory is created if missing. A second backup in
+the same second fails instead of overwriting the first.
+
+Leave `--with-key` off for backups that go anywhere untrusted: the key in the
+archive lets anyone read your encrypted journals. Keep the key backed up
+separately instead.
+
+Restore journals with [`jot journal restore`](#journal) (tar.gz or zip; it
+skips `.jot/` and refuses journals that exist), or unpack by hand with
+`tar -xzf <archive> -C <root>` / `unzip`, then copy `.jot/config.json` and the
+key to `~/.config/jot/` yourself.
 
 | Flag | Default | Meaning |
 | --- | --- | --- |
 | `-o`, `--out <dir>` | `<root>/backups` | Destination directory |
+| `--zip` | off | Write a `.zip` instead of a `.tar.gz` |
+| `--with-key` | off | Also bundle the age key |
 
 ```bash
 jot backup ~/Dropbox/jot-backups
+jot backup --zip --with-key /media/usb
 ```
 
 ```

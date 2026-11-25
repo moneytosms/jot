@@ -2,6 +2,7 @@ package jot
 
 import (
 	"archive/tar"
+	"archive/zip"
 	"compress/gzip"
 	"errors"
 	"fmt"
@@ -258,7 +259,7 @@ type Archive struct {
 	Modified time.Time
 }
 
-// Archives lists the .tar.gz files in <root>/backups, newest first.
+// Archives lists the .tar.gz and .zip files in <root>/backups, newest first.
 func (j *Jot) Archives() ([]Archive, error) {
 	dir := filepath.Join(j.root, backupDirName)
 	entries, err := os.ReadDir(dir)
@@ -270,7 +271,7 @@ func (j *Jot) Archives() ([]Archive, error) {
 	}
 	var out []Archive
 	for _, e := range entries {
-		if e.IsDir() || !strings.HasSuffix(e.Name(), ".tar.gz") {
+		if e.IsDir() || !(strings.HasSuffix(e.Name(), ".tar.gz") || strings.HasSuffix(e.Name(), ".zip")) {
 			continue
 		}
 		info, err := e.Info()
@@ -293,40 +294,76 @@ func (j *Jot) RestoreArchive(path string) ([]string, error) {
 		mode os.FileMode
 		data []byte
 	}
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	gz, err := gzip.NewReader(f)
-	if err != nil {
-		return nil, err
-	}
-	tr := tar.NewReader(gz)
 	var files []file
 	journals := map[string]bool{}
-	for {
-		hdr, err := tr.Next()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-		if hdr.Typeflag != tar.TypeReg {
-			continue
-		}
-		name := filepath.Clean(filepath.FromSlash(hdr.Name))
+	// add checks one archive entry. Bundled extras (".jot/config.json", the
+	// key, a root ".template") are skipped: restore only brings journals back.
+	add := func(entry string, mode os.FileMode, r io.Reader) error {
+		name := filepath.Clean(filepath.FromSlash(entry))
 		parts := strings.Split(name, string(filepath.Separator))
-		if filepath.IsAbs(name) || len(parts) != 2 || parts[0] == ".." || SanitizeName(parts[0]) != parts[0] || parts[0] == backupDirName {
-			return nil, fmt.Errorf("archive entry %q is not a journal file", hdr.Name)
+		if filepath.IsAbs(name) || parts[0] == ".." {
+			return fmt.Errorf("archive entry %q is outside the root", entry)
 		}
-		data, err := io.ReadAll(io.LimitReader(tr, 64<<20))
+		if len(parts) == 1 || strings.HasPrefix(parts[0], ".") {
+			return nil
+		}
+		if len(parts) != 2 || SanitizeName(parts[0]) != parts[0] || parts[0] == backupDirName {
+			return fmt.Errorf("archive entry %q is not a journal file", entry)
+		}
+		data, err := io.ReadAll(io.LimitReader(r, 64<<20))
 		if err != nil {
-			return nil, err
+			return err
 		}
 		journals[parts[0]] = true
-		files = append(files, file{name: name, mode: hdr.FileInfo().Mode().Perm() | 0o600, data: data})
+		files = append(files, file{name: name, mode: mode.Perm() | 0o600, data: data})
+		return nil
+	}
+	if strings.HasSuffix(strings.ToLower(path), ".zip") {
+		zr, err := zip.OpenReader(path)
+		if err != nil {
+			return nil, err
+		}
+		defer zr.Close()
+		for _, zf := range zr.File {
+			if !zf.Mode().IsRegular() {
+				continue
+			}
+			rc, err := zf.Open()
+			if err != nil {
+				return nil, err
+			}
+			err = add(zf.Name, zf.Mode(), rc)
+			rc.Close()
+			if err != nil {
+				return nil, err
+			}
+		}
+	} else {
+		f, err := os.Open(path)
+		if err != nil {
+			return nil, err
+		}
+		defer f.Close()
+		gz, err := gzip.NewReader(f)
+		if err != nil {
+			return nil, err
+		}
+		tr := tar.NewReader(gz)
+		for {
+			hdr, err := tr.Next()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				return nil, err
+			}
+			if hdr.Typeflag != tar.TypeReg {
+				continue
+			}
+			if err := add(hdr.Name, hdr.FileInfo().Mode(), tr); err != nil {
+				return nil, err
+			}
+		}
 	}
 	if len(journals) == 0 {
 		return nil, errors.New("archive holds no journal files")

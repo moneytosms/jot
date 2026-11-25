@@ -285,18 +285,24 @@ Examples:
   jot watch -j work`,
 	"backup": `jot backup [flags] [dir]
 
-Write a .tar.gz of every journal into dir. Defaults to <root>/backups,
-which is excluded from archives and from journal listings.
+Write one archive of everything jot keeps into dir (default <root>/backups,
+which is itself left out): every journal with its templates and encryption
+markers, a root template, and the config file as .jot/config.json.
 
 Flags:
       --out, -o <dir>  destination directory
+      --zip            write a .zip instead of a .tar.gz
+      --with-key       also bundle the age key as .jot/age-key.txt; anyone
+                       holding the archive can then read encrypted journals
 
 Examples:
   jot backup
-  jot backup ~/Dropbox/jot-backups
+  jot backup --zip ~/Dropbox/jot-backups
+  jot backup --with-key /media/usb
 
-Restore with:
-  tar -xzf jot-backup-*.tar.gz -C ~/.jot`,
+Restore journals with jot journal restore ARCHIVE (refuses journals that
+exist), or unpack by hand: tar -xzf jot-backup-*.tar.gz -C ~/.jot
+(.jot/ holds the config and key; copy them to ~/.config/jot yourself).`,
 	"export": `jot export [flags] [dir]
 
 Write one file per journal into dir (default ./jot-export). The default

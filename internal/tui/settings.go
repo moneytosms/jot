@@ -107,7 +107,7 @@ func (m model) settingsRows() int {
 	case tabJournals:
 		return len(m.journals)
 	case tabStorage:
-		return 3
+		return 5
 	case tabArchives:
 		return len(m.settings.archives)
 	}
@@ -399,6 +399,10 @@ func (m model) keySettingsStorage(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	if m.settings.cursor == 0 {
 		m.moveSettingsCursor(1)
 		return m, nil
+	}
+	if m.settings.cursor >= 3 { // backup rows: .tar.gz, .zip
+		m.settings.err, m.settings.warn = "", "backing up…"
+		return m, backupWithCmd(m.jot, jot.BackupOptions{Zip: m.settings.cursor == 4})
 	}
 	m.settings.err, m.settings.warn = "", ""
 	if os.Getenv(jot.EnvRoot) != "" {
@@ -821,6 +825,8 @@ func (m model) settingsStorageBody() ([]string, string) {
 		m.settingsRow("New root", m.settings.root.view(), cur == 0),
 		m.settingsRow("Move journals", m.theme.fg().Render(moveLabel), cur == 1),
 		m.settingsRow("Use path only", m.theme.fg().Render("point jot there, leave files where they are"), cur == 2),
+		m.settingsRow("Back up .tar.gz", m.theme.fg().Render("journals, templates and config into Backups"), cur == 3),
+		m.settingsRow("Back up .zip", m.theme.fg().Render("the same, as a zip"), cur == 4),
 		"",
 		m.settingsRow("Journal root", m.theme.fg().Render(m.jot.Root()), false),
 		m.settingsRow("Backups", m.theme.fg().Render(filepath.Join(m.jot.Root(), "backups")), false),
@@ -914,7 +920,7 @@ func (m model) handleSettingsMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 	case tabStorage:
-		if row >= 0 && row < 3 {
+		if row >= 0 && row < 5 {
 			m.settings.cursor = row
 			m.applySettingsFocus()
 		}
