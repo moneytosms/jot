@@ -29,9 +29,9 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 
 // Sidebar groups and reading order come from cfg.nav; unlisted pages go to "More".
 const byId = new Map(all.map((e) => [e.id, e]));
-const listed = new Set(cfg.nav.flatMap(([, ids]) => ids));
+const listed = new Set((cfg.nav as [string, string[]][]).flatMap(([, ids]) => ids));
 const more = all.map((e) => e.id).filter((id) => !listed.has(id)).sort();
-const groups = [...cfg.nav, ["More", more]]
+const groups = ([...cfg.nav, ["More", more]] as [string, string[]][])
   .map(([name, ids]) => ({ name, ids: ids.filter((id) => byId.has(id)) }))
   .filter((g) => g.ids.length);
 const order = groups.flatMap((g) => g.ids);
