@@ -21,8 +21,7 @@ year heatmap in the TUI. Every line of terminal output comes from the real binar
 Your notes are ordinary Markdown files in a directory you own. Read them with
 `cat`, edit them with any editor, search them with `grep`, back them up with
 `tar`, and sync them with whatever you already use. There is no database, no
-jot daemon, and no lock-in. The core Go library uses only the standard
-library; the TUI is built with Bubble Tea.
+background process, and no lock-in.
 
 A day, as written on disk:
 
@@ -59,12 +58,11 @@ rewritten.
   the search to the current journal with Tab.
 - **Read-only todos.** Collect every `- [ ]` and `- [x]` item in one overlay.
   jot never toggles boxes; you do that in your editor.
-- **Countdown reminders.** Set a transient reminder through Omarchy when it is
-  available, or through a systemd user timer plus `notify-send`.
+- **Countdown reminders.** Set a quick reminder that pops up as a desktop
+  notification.
 - **Ten themes.** `auto`, `default`, `light`, `dark`, `gruvbox`, `nord`,
   `dracula`, `catppuccin`, `tokyo-night`, and `omarchy`. `dark` is the
-  fixed dark palette; `default` follows the terminal background. The Omarchy
-  theme is read from the current Omarchy theme file.
+  fixed dark palette; `default` follows the terminal background.
 - **Backups and exports.** `jot backup` writes a compressed archive of every
   journal; `jot export` writes one Markdown file per journal.
 - **Checked self-update.** `jot update` downloads the release asset and
@@ -85,8 +83,8 @@ rewritten.
 curl -fsSL https://raw.githubusercontent.com/moneytosms/jot/main/install-release.sh | sh
 ```
 
-The script downloads the Linux or macOS release for x86-64 or ARM64,
-verifies it against `SHA256SUMS`, and installs it to `~/.local/bin`. Set
+The script downloads the right release for your machine, verifies it, and
+installs it to `~/.local/bin`. Set
 `JOT_INSTALL_DIR` to choose another directory, or `JOT_VERSION` to pin a
 release.
 
@@ -284,8 +282,7 @@ then the running binary.
 - Journals are flat: no nested journals, tags, or database.
 - There is no sync and no server. Your files are yours to move, copy, or
   version however you like.
-- Go 1.24 or newer. Linux and macOS are the release targets; Windows is
-  not a release target.
+- Building from source needs Go 1.24 or newer.
 
 ## Documentation
 

@@ -68,9 +68,9 @@ const labels = [["Mo", 0], ["We", 2], ["Fr", 4]] as const;
     </p>
   </div>
   <figcaption class="chart__cap">
-    Each square is one file in <code>~/.jot/default/</code>, ${year}. The sample journal behind this
-    page: {journal.days.length} days, {journal.days.reduce((n, d) => n + d.entries.length, 0)} entries.
-    Gaps are days with nothing written, kept and visible.
+    Each square is one day of the sample journal: {journal.days.length} days,
+    {journal.days.reduce((n, d) => n + d.entries.length, 0)} entries. Gaps are days with nothing
+    written, kept and visible.
   </figcaption>
 </figure>
 

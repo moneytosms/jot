@@ -86,10 +86,8 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
           <button class="install__copy" type="button" data-copy={install} aria-label="Copy the install command">Copy</button>
         </div>
         <p class="install__note">
-          A single binary in <code>~/.local/bin</code>, checked against <code>SHA256SUMS</code> first.
-          No setup wizard, no "what brings you here today?".
-          <a href={`${cfg.repoUrl}#install`}>Source install</a> and
-          <a href={`${cfg.repoUrl}#upgrade`}>upgrades</a> are documented too.
+          One small program, verified before it installs. No setup wizard, no "what brings you
+          here today?". <a href={`${cfg.repoUrl}#install`}>Other ways to install</a>.
         </p>
       </div>
 
@@ -98,7 +96,7 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
         <pre class="leaf__body" aria-label="Contents of today's journal file" set:html={specimen} />
         <figcaption class="leaf__cap">
           <code>~/.jot/default/{demo.today}.md</code>
-          <span>{today?.entries.length ?? 0} entries · {today?.bytes ?? 0} bytes · 0600</span>
+          <span>{today?.entries.length ?? 0} entries · {today?.bytes ?? 0} bytes</span>
         </figcaption>
         <p class="pen pen--leaf pop" style="--i:4" aria-hidden="true">← the entire database</p>
       </figure>
@@ -141,12 +139,12 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
         <div class="claim">
           <p class="claim__n">01</p>
           <p class="claim__t">Append-only</p>
-          <p class="claim__p">A new entry goes under <code>## HH:MM:SS</code>. Earlier bytes are never rewritten, even the embarrassing ones.</p>
+          <p class="claim__p">Every entry gets a timestamp. Nothing you wrote is ever rewritten, even the embarrassing ones.</p>
         </div>
         <div class="claim">
           <p class="claim__n">02</p>
           <p class="claim__t">Private by default</p>
-          <p class="claim__p">The root is <code>0700</code>, every day file <code>0600</code>. No account, no sync, no "we've updated our privacy policy".</p>
+          <p class="claim__p">Your journal is readable by you and nobody else. No account, no sync, no "we've updated our privacy policy".</p>
         </div>
         <div class="claim">
           <p class="claim__n">03</p>
@@ -259,8 +257,8 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
             <h2>Forty seconds of jot.</h2>
             <p class="sec__note">
               One notes app, roasted. Then quick adds from the CLI, the calendar, fuzzy search and
-              the year heatmap in the TUI. The terminal output is the real binary on the sample
-              journal. The video has sound; the files stay quiet.
+              the year heatmap in the TUI. Every line of terminal output is the real binary on the
+              sample journal.
             </p>
           </div>
         </header>
@@ -293,9 +291,9 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
           <div class="record__col">
             <h3>One directory</h3>
             <pre>~/.jot/
-├── config.json         0600
+├── config.json
 ├── default/
-│   ├── 2026-11-25.md   0600
+│   ├── 2026-11-25.md
 │   └── 2026-11-24.md
 └── work/
     └── 2026-11-19.md</pre>
@@ -307,20 +305,13 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
               Nothing is uploaded and nothing is fetched to read your journal. Sync it with
               whatever you already use, or don't; jot will not notice either way.
             </p>
-            <p>
-              The core library uses only the Go standard library. The terminal interface adds
-              Bubble Tea, and nothing else runs in the background.
-            </p>
+            <p>Nothing runs in the background. When you close it, it's closed.</p>
           </div>
           <div class="record__col">
             <h3>Read-mostly by design</h3>
             <p>
               The TUI can add a quick line, but edits, deletions and checkbox changes happen in
               your editor. Yes, even that editor. One writer, no merge rules, no surprises.
-            </p>
-            <p>
-              Linux and macOS are the targets. Windows is not tested, and the reminder integration
-              is Omarchy-specific.
             </p>
           </div>
         </div>
@@ -343,7 +334,7 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
     <div class="wrap foot__grid">
       <div>
         <p class="foot__mark">jot</p>
-        <p>0.5.0 · MIT · Linux &amp; macOS</p>
+        <p>0.5.0 · free and open source</p>
       </div>
       <nav class="foot__links" aria-label="Project">
         <a href={withBase("guide/")}>Guide</a>
@@ -352,8 +343,7 @@ const drips = [[4, 3, 46], [13, 2, 78], [21, 4, 34], [33, 2, 92], [46, 3, 58], [
         <a href={`${cfg.repoUrl}/issues`}>Issues</a>
       </nav>
       <p class="foot__note">
-        The journal on this page is synthetic, generated for the captures from the real binary.
-        No personal data. {year}.
+        Everything on this page is a sample journal, shown with the real jot. {year}.
       </p>
     </div>
     <p class="wrap foot__wq" aria-hidden="true">:wq</p>

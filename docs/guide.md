@@ -181,14 +181,9 @@ jot remind clear
 ```
 
 Durations accept `90s`, `20m`, `2h` and `1h30m`; a bare number means minutes.
-jot hands the reminder to omarchy when it is installed, otherwise to a
-transient systemd user timer that calls `notify-send`. Nothing is daemonised
-and the reminder does not survive a reboot.
-
-Omarchy is minute-granular: durations under a minute are rejected, and partial
-minutes round up (the status line still shows the delay you asked for).
-`jot remind list` and `clear` only see jot's systemd timers; omarchy owns its
-own.
+The reminder shows up as a desktop notification. Nothing runs in the
+background, and reminders do not survive a reboot. How reminders are delivered
+on each system is in the [command reference](commands.md#remind).
 
 ## Searching and reviewing
 
