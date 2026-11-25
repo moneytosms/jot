@@ -299,14 +299,21 @@ Restore with:
   tar -xzf jot-backup-*.tar.gz -C ~/.jot`,
 	"export": `jot export [flags] [dir]
 
-Write one markdown file per journal into dir (default ./jot-export), with
-a heading per day: a flat snapshot for publishing or importing elsewhere.
+Write one file per journal into dir (default ./jot-export). The default
+markdown format is a flat snapshot with a heading per day. html and pdf
+write a styled document: a cover page with the date range and counts, a
+month-by-month contents page, then every day with its entries rendered.
+PDF is printed by a headless Chrome, Chromium, Edge or Brave.
 
 Flags:
-      --out, -o <dir>  destination directory
+      --out, -o <dir>    destination directory
+      --format <fmt>     md (default), html or pdf
+  -j, --journal <name>   html/pdf: one journal (default: every journal)
+      --from, --to <day> html/pdf: limit the days (YYYY-MM-DD, today, yesterday)
 
 Examples:
   jot export
+  jot export --format pdf -j work --from 2026-01-01
   jot export --out ~/notes-export`,
 	"init": `jot init [flags]
 

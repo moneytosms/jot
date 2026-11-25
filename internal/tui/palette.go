@@ -53,6 +53,8 @@ func (m model) paletteActions() []paletteAction {
 		paletteAction{id: "editor", label: "Open day in editor"},
 		paletteAction{id: "backup", label: "Backup journals"},
 		paletteAction{id: "export", label: "Export journals"},
+		paletteAction{id: "export-html", label: "Export this journal as HTML"},
+		paletteAction{id: "export-pdf", label: "Export this journal as PDF"},
 		paletteAction{id: "help", label: "Help"},
 		paletteAction{id: "quit", label: "Quit"},
 	)
@@ -343,6 +345,16 @@ func (m model) runPaletteAction(a paletteAction) (tea.Model, tea.Cmd) {
 	case a.id == "backup":
 		m.closeOverlay()
 		return m, backupCmd(m.jot)
+	case a.id == "export-html" || a.id == "export-pdf":
+		m.closeOverlay()
+		j, name, format := m.jot, m.journal, strings.TrimPrefix(a.id, "export-")
+		return m, func() tea.Msg {
+			path, err := j.ExportDocument(name, jot.ExportOptions{Format: format})
+			if err != nil {
+				return errMsg{err}
+			}
+			return toastMsg("exported " + path)
+		}
 	case a.id == "export":
 		m.closeOverlay()
 		return m, exportCmd(m.jot)

@@ -210,6 +210,10 @@ func (a *app) exportCmd(args []string) error {
 	fs := a.flags("export")
 	dir := fs.String("out", "", "destination directory")
 	fs.StringVar(dir, "o", "", "shorthand for -out")
+	format := fs.String("format", "md", "md, html or pdf")
+	journal := journalFlag(fs)
+	from := fs.String("from", "", "first day (YYYY-MM-DD, today, yesterday)")
+	to := fs.String("to", "", "last day")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -220,6 +224,43 @@ func (a *app) exportCmd(args []string) error {
 	j, err := a.loadJot()
 	if err != nil {
 		return err
+	}
+	if *format == "html" || *format == "pdf" {
+		opt := jot.ExportOptions{Format: *format, Dir: *dir}
+		for _, d := range []struct{ in, out *string }{{from, &opt.From}, {to, &opt.To}} {
+			if *d.in != "" {
+				if *d.out, err = jot.ParseDay(*d.in); err != nil {
+					return err
+				}
+			}
+		}
+		names := []string{*journal}
+		if *journal == "" {
+			infos, err := j.List()
+			if err != nil {
+				return err
+			}
+			names = names[:0]
+			for _, info := range infos {
+				if info.Entries > 0 {
+					names = append(names, info.Name)
+				}
+			}
+		}
+		if len(names) == 0 {
+			fmt.Fprintf(a.out, "nothing to export yet\n")
+		}
+		for _, n := range names {
+			path, err := j.ExportDocument(n, opt)
+			if err != nil {
+				return err
+			}
+			fmt.Fprintf(a.out, "wrote %s\n", path)
+		}
+		return nil
+	}
+	if *format != "md" {
+		return fmt.Errorf("unknown --format %q; use md, html or pdf", *format)
 	}
 	written, err := j.Export(*dir)
 	if err != nil {
