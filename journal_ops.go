@@ -150,3 +150,90 @@ func (j *Jot) RenameJournal(from, to string) error {
 	}
 	return os.Rename(src, dst)
 }
+
+// ResolveRoot expands "~" and makes a root path absolute and clean.
+func ResolveRoot(path string) (string, error) {
+	path = strings.TrimSpace(path)
+	if path == "" {
+		return "", errors.New("root path is empty")
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Abs(expandHome(path, home))
+}
+
+// MoveRoot moves the whole journal root to dst, which must not exist or be an
+// empty directory outside the current root. It renames when it can and
+// otherwise copies everything, preserving modes, and removes the old root
+// only after the copy succeeded. A missing root just leaves dst to be created
+// on first write. The caller saves the new root to the config.
+func (j *Jot) MoveRoot(dst string) error {
+	dst, err := ResolveRoot(dst)
+	if err != nil {
+		return err
+	}
+	if rel, err := filepath.Rel(j.root, dst); err == nil && (rel == "." || !strings.HasPrefix(rel, "..")) {
+		return fmt.Errorf("new root %s is inside the current root %s", dst, j.root)
+	}
+	if entries, err := os.ReadDir(dst); err == nil {
+		if len(entries) > 0 {
+			return fmt.Errorf("new root %s is not empty", dst)
+		}
+		if err := os.Remove(dst); err != nil {
+			return err
+		}
+	} else if !os.IsNotExist(err) {
+		return err
+	}
+	if _, err := os.Stat(j.root); os.IsNotExist(err) {
+		return nil
+	}
+	if err := os.MkdirAll(filepath.Dir(dst), 0o700); err != nil {
+		return err
+	}
+	if os.Rename(j.root, dst) == nil {
+		return nil
+	}
+	// Different filesystem (or volume): copy, then drop the original.
+	if err := copyTree(j.root, dst); err != nil {
+		os.RemoveAll(dst) // dst was empty or missing, so only the partial copy goes
+		return err
+	}
+	return os.RemoveAll(j.root)
+}
+
+// copyTree copies the directory src to dst, keeping file and directory modes.
+func copyTree(src, dst string) error {
+	return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, err := filepath.Rel(src, path)
+		if err != nil {
+			return err
+		}
+		target := filepath.Join(dst, rel)
+		if info.IsDir() {
+			return os.MkdirAll(target, info.Mode().Perm())
+		}
+		if !info.Mode().IsRegular() {
+			return nil // journals hold plain files only
+		}
+		in, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer in.Close()
+		out, err := os.OpenFile(target, os.O_CREATE|os.O_EXCL|os.O_WRONLY, info.Mode().Perm())
+		if err != nil {
+			return err
+		}
+		if _, err := io.Copy(out, in); err != nil {
+			out.Close()
+			return err
+		}
+		return out.Close()
+	})
+}

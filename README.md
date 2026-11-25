@@ -136,8 +136,8 @@ jot  default  November 2026  7d 23e
  JOURNALS              +--------------------------------------+
  > default   12d 84e   | Wednesday, 25 November 2026          |
    work       4d 19e   |                                      |
-                       | ## 09:41:07                          |
-                       | shipped the parser rewrite           |
+                       | 09:41  shipped the parser rewrite    |
+ <   November 2026  >  |                                      |
  Mo Tu We Th Fr Sa Su  |                                      |
                     1  |                                      |
   2  3  4  5  6  7  8  |                                      |

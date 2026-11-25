@@ -28,6 +28,7 @@ func (m *model) closeOverlay() {
 	m.reminder.duration.blur()
 	m.settings.editor.blur()
 	m.settings.journal.blur()
+	m.settings.root.blur()
 }
 
 // boxRect is the geometry of an overlay panel in body coordinates: x and y

@@ -315,10 +315,10 @@ func (m model) runPaletteAction(a paletteAction) (tea.Model, tea.Cmd) {
 		return m, nil
 	case a.id == "rename-journal":
 		m.closeOverlay()
-		return m.startRenameJournal()
+		return m.startRenameJournal(m.journal)
 	case a.id == "delete-journal":
 		m.closeOverlay()
-		return m.startDeleteJournal()
+		return m.startDeleteJournal(m.journal)
 	case a.id == "search":
 		m.closeOverlay()
 		return m.openSearch()

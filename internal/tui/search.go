@@ -294,17 +294,19 @@ func (m *model) applyScrollTarget() {
 	if m.scrollToTime == "" && m.scrollToBody == "" {
 		return
 	}
-	width := max(m.layout().innerW, 1)
-	rendered := strings.Split(jot.RenderStyled(m.dayContent, width, m.theme.mdStyles()), "\n")
+	rendered, starts := m.dayLines(max(m.layout().innerW, 1))
 	idx := -1
-	if m.scrollToTime != "" {
-		idx = findRenderedLine(rendered, m.scrollToTime)
+	for i, e := range m.dayEntries {
+		if m.scrollToTime != "" && e.Time == m.scrollToTime && i < len(starts) {
+			idx = starts[i]
+			break
+		}
 	}
 	if idx < 0 && m.scrollToBody != "" {
 		idx = findRenderedLine(rendered, m.scrollToBody)
 	}
 	if idx >= 0 {
-		m.scroll = max(idx-1, 0)
+		m.scroll = idx // lands the entry just under the date and rule
 	}
 	m.scrollToTime = ""
 	m.scrollToBody = ""

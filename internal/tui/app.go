@@ -50,6 +50,7 @@ type model struct {
 	selected time.Time // selected day
 	today    time.Time
 	scroll   int // entry-pane line offset
+	sideTop  int // first visible row of the journal list
 	width    int
 	height   int
 
@@ -58,6 +59,7 @@ type model struct {
 	sidebarPref bool // what the user asked for; showSidebar also honors width
 	mode        mode
 	input       lineInput
+	target      string // journal the rename/delete prompt acts on
 
 	// Status.
 	toast    string
@@ -146,7 +148,7 @@ type (
 	}
 	// journalOpMsg reports the result of renaming or deleting a journal.
 	journalOpMsg struct {
-		kind    string // "rename" or "delete"
+		kind    string // "rename", "delete" or "archive"
 		from    string
 		to      string
 		archive string
@@ -356,6 +358,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case settingsSavedMsg:
 		return m.applySettingsSaved(msg)
 
+	case rootSavedMsg:
+		return m.applyRootSaved(msg)
+
 	case prefsSavedMsg:
 		return m.applyPrefsSaved(msg)
 
@@ -458,9 +463,9 @@ func (m model) keyBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "n":
 		return m.startNewJournal()
 	case "R":
-		return m.startRenameJournal()
+		return m.startRenameJournal(m.journal)
 	case "D":
-		return m.startDeleteJournal()
+		return m.startDeleteJournal(m.journal)
 	case "a":
 		return m.startQuickAdd()
 	case "e":
@@ -502,11 +507,11 @@ func (m model) keyRenameJournal(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if to == "" {
 			return m, m.setToast("type a journal name")
 		}
-		if to == m.journal {
+		if to == m.target {
 			return m, m.setToast("that is already the journal name")
 		}
 		m.input.blur()
-		return m, renameJournalCmd(m.jot, m.journal, to)
+		return m, renameJournalCmd(m.jot, m.target, to)
 	}
 	m.input.update(msg)
 	return m, nil
@@ -524,11 +529,11 @@ func (m model) keyDeleteJournal(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.input.reset()
 		return m, nil
 	case "enter":
-		if strings.TrimSpace(m.input.value()) != m.journal {
-			return m, m.setToast("type " + m.journal + " exactly to confirm")
+		if strings.TrimSpace(m.input.value()) != m.target {
+			return m, m.setToast("type " + m.target + " exactly to confirm")
 		}
 		m.input.blur()
-		return m, deleteJournalCmd(m.jot, m.journal)
+		return m, deleteJournalCmd(m.jot, m.target)
 	}
 	m.input.update(msg)
 	return m, nil
@@ -692,6 +697,13 @@ func (m model) applyJournalCreated(msg journalCreatedMsg) (tea.Model, tea.Cmd) {
 // applyJournalOp handles the result of renaming or deleting a journal. The
 // view falls back to the default journal when the open one disappears.
 func (m model) applyJournalOp(msg journalOpMsg) (tea.Model, tea.Cmd) {
+	if msg.kind == "archive" { // runs from settings, which stays open
+		if msg.err != nil {
+			m.settings.err = msg.err.Error()
+			return m, nil
+		}
+		return m, m.setToast("archived " + msg.from + " to " + msg.archive)
+	}
 	m.mode = modeBrowse
 	m.input.blur()
 	m.input.reset()
@@ -753,26 +765,30 @@ func (m model) applyPrefsSaved(msg prefsSavedMsg) (tea.Model, tea.Cmd) {
 
 // Mode transitions.
 
-// startRenameJournal opens the rename prompt for the open journal.
-func (m model) startRenameJournal() (tea.Model, tea.Cmd) {
-	if m.journal == m.cfg.DefaultJournal {
+// startRenameJournal opens the rename prompt for a journal.
+func (m model) startRenameJournal(name string) (tea.Model, tea.Cmd) {
+	if name == m.cfg.DefaultJournal {
 		return m, m.setToast("the default journal is protected; change default_journal first")
 	}
+	m.closeOverlay()
+	m.target = name
 	m.mode = modeRenameJournal
-	m.input.placeholder = "new name for " + m.journal
+	m.input.placeholder = "new name for " + name
 	m.input.setValue("")
 	m.input.focus()
 	return m, nil
 }
 
-// startDeleteJournal opens the delete confirmation for the open journal. The
-// name has to be typed in full, mirroring the CLI confirmation.
-func (m model) startDeleteJournal() (tea.Model, tea.Cmd) {
-	if m.journal == m.cfg.DefaultJournal {
+// startDeleteJournal opens the delete confirmation for a journal. The name
+// has to be typed in full, mirroring the CLI confirmation.
+func (m model) startDeleteJournal(name string) (tea.Model, tea.Cmd) {
+	if name == m.cfg.DefaultJournal {
 		return m, m.setToast("the default journal is protected; change default_journal first")
 	}
+	m.closeOverlay()
+	m.target = name
 	m.mode = modeDeleteJournal
-	m.input.placeholder = m.journal
+	m.input.placeholder = name
 	m.input.setValue("")
 	m.input.focus()
 	return m, nil
@@ -824,6 +840,7 @@ func (m model) applyRefresh(msg refreshMsg) (tea.Model, tea.Cmd) {
 		m.scrollToBody = ""
 	}
 	m.journals = msg.journals
+	m.revealJournal()
 	m.days = msg.days
 	if msg.counts == nil {
 		msg.counts = map[string]jot.DayCount{}
@@ -864,11 +881,21 @@ func (m model) handleMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 	if isOverlayMode(m.mode) {
 		return m.handleOverlayMouse(msg)
 	}
+	lay := m.layout()
+	overList := m.showSidebar && msg.X < lay.leftW && msg.Y >= lay.sideY && msg.Y < lay.sideY+lay.sideRows
 	switch msg.Button {
 	case tea.MouseButtonWheelUp:
+		if overList {
+			m.sideTop = clamp(m.sideTop-1, 0, max(len(m.journals)-lay.sideRows, 0))
+			return m, nil
+		}
 		m.scroll = clamp(m.scroll-3, 0, 1<<20)
 		return m, nil
 	case tea.MouseButtonWheelDown:
+		if overList {
+			m.sideTop = clamp(m.sideTop+1, 0, max(len(m.journals)-lay.sideRows, 0))
+			return m, nil
+		}
 		m.scroll = clamp(m.scroll+3, 0, 1<<20)
 		return m, nil
 	case tea.MouseButtonLeft:
@@ -906,6 +933,15 @@ func (m model) handleClick(x, y int) (tea.Model, tea.Cmd) {
 	if lay.leftW == 0 {
 		return m, nil // the left column is hidden
 	}
+	if y == lay.monthY && x >= lay.calX && x < lay.calX+calW {
+		switch {
+		case x <= lay.calX+3:
+			return m.shiftMonth(-1)
+		case x >= lay.calX+calW-4:
+			return m.shiftMonth(1)
+		}
+		return m, nil
+	}
 	weeks := m.grid()
 	if len(weeks) > 0 &&
 		y >= lay.calY && y < lay.calY+len(weeks)*lay.calRowH &&
@@ -918,7 +954,7 @@ func (m model) handleClick(x, y int) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 	}
-	journals := m.visibleJournals(lay)
+	_, journals := m.visibleJournals(lay)
 	if m.showSidebar && len(journals) > 0 &&
 		x >= lay.sideX && x < lay.sideX+sideW &&
 		y >= lay.sideY && y < lay.sideY+len(journals) {
@@ -968,12 +1004,30 @@ func (m model) monthStats() (days, entries int) {
 	return days, entries
 }
 
-// visibleJournals caps the sidebar rows to what fits on screen.
-func (m model) visibleJournals(lay layout) []jot.JournalInfo {
-	if lay.sideRows >= len(m.journals) {
-		return m.journals
+// visibleJournals returns the scroll offset and the journal rows that fit in
+// the fixed-height sidebar list.
+func (m model) visibleJournals(lay layout) (int, []jot.JournalInfo) {
+	rows := max(lay.sideRows, 1)
+	if rows >= len(m.journals) {
+		return 0, m.journals
 	}
-	return m.journals[:max(lay.sideRows, 1)]
+	start := clamp(m.sideTop, 0, len(m.journals)-rows)
+	return start, m.journals[start : start+rows]
+}
+
+// revealJournal scrolls the sidebar list so the open journal is visible.
+func (m *model) revealJournal() {
+	rows := max(m.layout().sideRows, 1)
+	for i, j := range m.journals {
+		if j.Name != m.journal {
+			continue
+		}
+		if i < m.sideTop {
+			m.sideTop = i
+		} else if i >= m.sideTop+rows {
+			m.sideTop = i - rows + 1
+		}
+	}
 }
 
 // clamp constrains v to [lo, hi]; hi < lo collapses to lo.

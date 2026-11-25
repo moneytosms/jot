@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -574,5 +575,86 @@ func TestPaletteJournalRenameAndDeleteActions(t *testing.T) {
 	nm, _ = m.runPaletteAction(paletteAction{id: "delete-journal", label: "Delete journal"})
 	if nm.(model).mode != modeDeleteJournal {
 		t.Fatalf("delete action mode = %v, want modeDeleteJournal", nm.(model).mode)
+	}
+}
+
+func TestSettingsJournalsTabActions(t *testing.T) {
+	j, m := newTestModel(t)
+	for _, n := range []string{"alpha", "work"} {
+		if err := j.Add(jot.Entry{Name: n, Body: "note"}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	m = drain(m, m.fullLoad())
+	m = press(m, "S")
+	m = press(m, "tab")
+	if m.settings.tab != tabJournals {
+		t.Fatalf("tab = %d, want journals", m.settings.tab)
+	}
+	if !strings.Contains(ansiRE.ReplaceAllString(m.View(), ""), "last write") {
+		t.Fatal("journals tab not rendered")
+	}
+	m.settings.jcur = 0 // alpha
+	m = pressRun(m, "a")
+	if m.mode != modeSettings || !strings.Contains(m.toast, "archived alpha") {
+		t.Fatalf("archive: mode %v toast %q err %q", m.mode, m.toast, m.settings.err)
+	}
+	m = press(m, "r")
+	if m.mode != modeRenameJournal || m.target != "alpha" {
+		t.Fatalf("rename: mode %v target %q", m.mode, m.target)
+	}
+	m.input.setValue("beta")
+	m = pressRun(m, "enter")
+	if !j.JournalExists("beta") || j.JournalExists("alpha") || m.journal != "default" {
+		t.Fatalf("rename from settings failed; open journal %q", m.journal)
+	}
+}
+
+func TestSettingsStorageMovesRoot(t *testing.T) {
+	j, m := newTestModel(t)
+	if err := j.Add(jot.Entry{Name: "work", Body: "keep me"}); err != nil {
+		t.Fatal(err)
+	}
+	dst := filepath.Join(t.TempDir(), "moved")
+	m = press(m, "S")
+	m = press(m, "tab")
+	m = press(m, "tab")
+	m.settings.root.setValue(dst)
+	m = press(m, "down") // move row
+	m = pressRun(m, "enter")
+	if !m.settings.confirm {
+		t.Fatal("move ran without confirmation")
+	}
+	m = pressRun(m, "enter")
+	if m.jot.Root() != dst || !m.jot.JournalExists("work") {
+		t.Fatalf("root = %q, err %q", m.jot.Root(), m.settings.err)
+	}
+	cfg, err := jot.LoadConfigFile()
+	if err != nil || cfg.Root != dst {
+		t.Fatalf("config root = %q, %v", cfg.Root, err)
+	}
+}
+
+func TestJournalListScrollsInFixedRegion(t *testing.T) {
+	_, m := newTestModel(t)
+	for i := 0; i < 20; i++ {
+		m.journals = append(m.journals, jot.JournalInfo{Name: fmt.Sprintf("j%02d", i)})
+	}
+	m.journal = "j15"
+	m.revealJournal()
+	m = send(m, tea.WindowSizeMsg{Width: 100, Height: 40})
+	lay := m.layout()
+	if lay.sideRows != maxSideRows {
+		t.Fatalf("sideRows = %d, want %d", lay.sideRows, maxSideRows)
+	}
+	start, vis := m.visibleJournals(lay)
+	if start > 15 || start+len(vis) <= 15 {
+		t.Fatalf("open journal j15 not visible: start %d len %d", start, len(vis))
+	}
+	if n := strings.Count(m.View(), "\n") + 1; n != 40 {
+		t.Fatalf("view is %d lines, want 40", n)
+	}
+	if lines := strings.Split(ansiRE.ReplaceAllString(m.View(), ""), "\n"); !strings.Contains(lines[lay.monthY], m.month.Format("January 2006")) {
+		t.Fatal("calendar month label missing")
 	}
 }

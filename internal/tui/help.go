@@ -78,8 +78,10 @@ var helpSections = []helpSection{
 	{
 		title: "settings",
 		entries: []helpEntry{
-			{keys: "tab / up down", desc: "move between rows"},
-			{keys: "enter", desc: "cycle theme or save the row"},
+			{keys: "tab / shift+tab", desc: "General, Journals, Storage tabs"},
+			{keys: "up down", desc: "move between rows"},
+			{keys: "enter", desc: "cycle theme, save the row, or run it"},
+			{keys: "r a d s n", desc: "journals tab: rename, archive, delete, set default, new"},
 			{keys: "esc", desc: "close; the current theme stays applied"},
 		},
 	},

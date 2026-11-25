@@ -63,8 +63,8 @@ jot  default  November 2026  7d 23e
  JOURNALS              +--------------------------------------+
  > default   12d 84e   | Wednesday, 25 November 2026          |
    work       4d 19e   |                                      |
-                       | ## 09:41:07                          |
-                       | shipped the parser rewrite           |
+                       | 09:41  shipped the parser rewrite    |
+ <   November 2026  >  |                                      |
  Mo Tu We Th Fr Sa Su  |                                      |
                     1  |                                      |
   2  3  4  5  6  7  8  |                                      |
@@ -84,14 +84,18 @@ punctuation and clips the calendar.
   jumps to today.
 - **Sidebar.** The `JOURNALS` list, with the active journal marked by a
   pointer (the sketch uses `>`). Each row shows the journal name plus its day
-  and entry counts. Names longer than ten characters are shortened. Only as
-  many rows as fit are drawn; `J` and `K` still cycle every journal.
-- **Calendar.** A Monday-first month grid. Only days in the displayed month
+  and entry counts. Names longer than ten characters are shortened. The list
+  is a fixed region of at most eight rows: with more journals it scrolls
+  (mouse wheel over the list, or `J`/`K`, which keep the open journal in
+  view) and the header shows the visible range, e.g. `▼ 1-8/14`.
+- **Calendar.** A month label (`‹ November 2026 ›`; click the arrows to change
+  month) over a Monday-first month grid. Only days in the displayed month
   are drawn; leading and trailing cells are blank. The selected day is shown
   in reverse video. Today is underlined in the accent color unless it is also
   selected.
-- **Day pane.** A bordered pane titled with the selected date, containing the
-  day's rendered Markdown. If the day is empty, it says
+- **Day pane.** A bordered pane titled with the selected date and the day's
+  entry and word counts, then a rule and the entries as a timeline: each
+  entry's `HH:MM` in a left gutter with its rendered Markdown beside it. If the day is empty, it says
   `No entries on this day.` and `Press a to add a note, e to open the editor.`
 - **Footer.** A context-sensitive hint line, then a status line. The status
   line holds the quick-add input, the new-journal prompt, a toast, or an
@@ -438,8 +442,10 @@ produce a toast.
 ## Settings
 
 Press `S`, or click `S settings` under the calendar, to open the settings
-panel. It has four editable rows, which Tab, Up, and Down cycle, and two
-read-only rows:
+panel. It has three tabs; `Tab` and `Shift+Tab` (or a click on a tab name)
+switch between them, Up and Down move between rows, Esc closes.
+
+**General**
 
 | Row | Behavior |
 | --- | --- |
@@ -448,15 +454,30 @@ read-only rows:
 | Default journal | Enter saves `default_journal` and warns when that journal does not exist yet. |
 | Reminders | Enter or Left/Right cycles `auto`, `omarchy`, `systemd`, `background`, `off`; saves `reminders` and shows which provider it resolves to. |
 | Config file | Read-only path of the config file in use. |
-| Journal root | Read-only path of the journal root. |
 
-| Key | Action |
+**Journals** lists every journal with its days, notes, last write and
+`open`/`default` tags; the list scrolls with Up/Down, `j`/`k` or the wheel.
+
+| Key | Action on the highlighted journal |
 | --- | --- |
-| `Tab`, Down | next editable row |
-| `Shift+Tab`, Up | previous editable row |
-| Enter | cycle the theme or reminders, or save the editor/journal row |
-| Left, Right | cycle the theme or reminders when that row is focused |
-| Esc | close settings |
+| Enter, `o` | open it and close settings |
+| `r` | rename (prompt in the status line) |
+| `a` | archive to `<root>/backups/jot-<name>-<stamp>.tar.gz`, journal untouched |
+| `d` | delete: type the name to confirm; it is archived first |
+| `s` | make it the default journal |
+| `n` | create a new journal |
+
+The default journal cannot be renamed or deleted.
+
+**Storage** changes where journals live. Type a path in `New root` (`~` is
+expanded), then pick a row and press Enter:
+
+| Row | Behavior |
+| --- | --- |
+| Move journals | Press Enter twice. Moves the whole root (journals and backups) to the new path, which must be missing or empty and not inside the current root, then saves `root`. Across filesystems it copies, keeping file modes, and removes the old root only after the copy succeeds. |
+| Use path only | Saves `root` without moving anything, for pointing jot at an existing journal folder. |
+
+Both refuse while `JOT_ROOT` is set, since the variable overrides the config.
 
 Saving the editor writes `editor`, which affects `jot edit` as well as the
 TUI's `e` handoff. Setting the default journal does not switch the journal

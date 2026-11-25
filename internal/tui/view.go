@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/charmbracelet/lipgloss"
@@ -16,6 +17,8 @@ const (
 	calW     = calCellW * 7
 	leftPad  = 1
 	sideW    = 20
+	// maxSideRows caps the journal list; more journals scroll inside it.
+	maxSideRows = 8
 )
 
 // layout records where everything sits in content coordinates (0-based
@@ -28,6 +31,7 @@ type layout struct {
 	sideY    int // content y of the first journal row
 	sideRows int // number of journal rows that fit
 	calX     int // content x of the calendar grid
+	monthY   int // content y of the month label above the weekday header
 	calY     int // content y of the first week row
 	calRowH  int // rows per calendar week: 2 when there is room, else 1
 	extraY   int // content y of the legend + shortcuts block, 0 when hidden
@@ -51,7 +55,7 @@ func (m model) layout() layout {
 	l.sideX = leftPad
 	l.sideY = l.bodyY + 1 // the JOURNALS label sits on bodyY
 	l.calX = leftPad
-	l.calY = l.bodyY + 1 // the weekday header sits on bodyY
+	l.calY = l.bodyY + 2 // month label, then the weekday header
 	l.calRowH = 1
 	l.paneX = l.leftW
 	l.paneW = max(m.width-l.leftW, 12)
@@ -59,10 +63,11 @@ func (m model) layout() layout {
 	l.innerH = max(l.paneH-2, 1)
 	l.innerW = max(l.paneW-4, 1)
 	if m.showSidebar {
-		// Cap the journal rows so the calendar stays on screen.
-		l.sideRows = min(max(l.paneH-4, 1), len(m.journals))
-		l.calY = l.sideY + l.sideRows + 2 // blank line, then the weekday header
+		// Fixed-height list so the calendar (label, header, 6 weeks) stays on screen.
+		l.sideRows = min(len(m.journals), maxSideRows, max(l.paneH-11, 1))
+		l.calY = l.sideY + l.sideRows + 3 // blank line, month label, weekday header
 	}
+	l.monthY = l.calY - 2
 	if l.leftW > 0 {
 		weeks := len(m.grid())
 		bottom := l.bodyY + l.paneH // first row below the left column
@@ -164,8 +169,20 @@ func (m model) headerText() string {
 func (m model) leftColumn(lay layout) string {
 	var lines []string
 	if m.showSidebar {
-		lines = append(lines, m.theme.muted().Bold(true).Render(" JOURNALS"))
-		for _, j := range m.visibleJournals(lay) {
+		head := m.theme.muted().Bold(true).Render(" JOURNALS")
+		start, vis := m.visibleJournals(lay)
+		if len(vis) < len(m.journals) {
+			up, down := " ", " "
+			if start > 0 {
+				up = "▲"
+			}
+			if start+len(vis) < len(m.journals) {
+				down = "▼"
+			}
+			head += m.theme.dim().Render(fmt.Sprintf(" %s%s %d-%d/%d", up, down, start+1, start+len(vis), len(m.journals)))
+		}
+		lines = append(lines, head)
+		for _, j := range vis {
 			lines = append(lines, m.journalRow(j, j.Name == m.journal))
 		}
 		lines = append(lines, "")
@@ -218,7 +235,12 @@ func (m model) journalRow(j jot.JournalInfo, active bool) string {
 
 // calendarLines renders the weekday header and the month grid rows.
 func (m model) calendarLines(lay layout) []string {
-	out := []string{m.theme.dim().Render(" Mo  Tu  We  Th  Fr  Sa  Su")}
+	label := m.month.Format("January 2006")
+	gap := max(calW-3-len(label), 2) // " ‹" + gap + label + "›" fills calW
+	arrow := m.theme.muted()
+	month := " " + arrow.Render("‹") + strings.Repeat(" ", gap/2) +
+		m.theme.accent().Bold(true).Render(label) + strings.Repeat(" ", gap-gap/2) + arrow.Render("›")
+	out := []string{month, m.theme.dim().Render(" Mo  Tu  We  Th  Fr  Sa  Su")}
 	for _, week := range m.grid() {
 		var b strings.Builder
 		for _, cell := range week.Days {
@@ -270,8 +292,8 @@ func (m model) paneBox(lay layout) string {
 		Render(m.paneContent(lay))
 }
 
-// paneContent builds the pane text: a date heading plus the day's entries,
-// sliced to the visible scroll window.
+// paneContent builds the pane text: a date heading with day stats, a rule,
+// then the day's entries, sliced to the visible scroll window.
 func (m model) paneContent(lay layout) string {
 	title := m.theme.accent().Bold(true).Render(m.selected.Format("Monday · 2 January 2006"))
 	var body []string
@@ -282,9 +304,18 @@ func (m model) paneContent(lay layout) string {
 			m.theme.muted().Render("Press a to add a note, e to open the editor."),
 		}
 	} else {
-		body = strings.Split(jot.RenderStyled(m.dayContent, lay.innerW, m.theme.mdStyles()), "\n")
+		body, _ = m.dayLines(lay.innerW)
+		words := 0
+		for _, e := range m.dayEntries {
+			words += len(strings.Fields(e.Body))
+		}
+		stats := m.theme.dim().Render(fmt.Sprintf("%d %s · %d words", len(m.dayEntries), plural(len(m.dayEntries), "entry", "entries"), words))
+		if gap := lay.innerW - ansiWidth(title) - ansiWidth(stats); gap >= 2 {
+			title += strings.Repeat(" ", gap) + stats
+		}
 	}
-	all := append([]string{title, ""}, body...)
+	rule := m.theme.dim().Render(strings.Repeat("─", lay.innerW))
+	all := append([]string{title, rule}, body...)
 	h := lay.innerH
 	maxStart := max(len(all)-h, 0)
 	start := clamp(m.scroll, 0, maxStart)
@@ -293,6 +324,39 @@ func (m model) paneContent(lay layout) string {
 		vis = append(vis, "")
 	}
 	return strings.Join(vis, "\n")
+}
+
+// gutterW is the width of the entry time column in the day pane.
+const gutterW = 7
+
+// dayLines renders the selected day as a timeline: each entry's HH:MM in a
+// left gutter, its markdown body indented beside it, a blank line between
+// entries. starts holds each entry's first line index.
+func (m model) dayLines(width int) (lines []string, starts []int) {
+	pad := strings.Repeat(" ", gutterW)
+	bodyW := max(width-gutterW, 1)
+	for i, e := range m.dayEntries {
+		if i > 0 {
+			lines = append(lines, "")
+		}
+		starts = append(starts, len(lines))
+		label := pad
+		if t, err := time.Parse("15:04:05", e.Time); err == nil {
+			label = m.theme.accent().Bold(true).Render(t.Format("15:04")) + "  "
+		} else if e.Time != "" {
+			// A hand-written heading: keep it as its own line.
+			lines = append(lines, m.theme.accent().Bold(true).Render(ansiTruncate(e.Time, width)))
+		}
+		body := strings.Split(jot.RenderStyled(e.Body, bodyW, m.theme.mdStyles()), "\n")
+		for k, l := range body {
+			if k == 0 {
+				lines = append(lines, label+l)
+			} else {
+				lines = append(lines, pad+l)
+			}
+		}
+	}
+	return lines, starts
 }
 
 // Footer.
@@ -343,7 +407,7 @@ func (m model) hintText() string {
 		}, sep)
 	case modeSettings:
 		return strings.Join([]string{
-			key.Render("tab/up/down") + " row", key.Render("enter") + " save or cycle",
+			key.Render("tab") + " next tab", key.Render("up/down") + " row", key.Render("enter") + " save or run",
 			key.Render("esc") + " close",
 		}, sep)
 	case modeHelp:
@@ -380,9 +444,9 @@ func (m model) statusText(lay layout) string {
 	case modeNewJournal:
 		return m.theme.accent().Render("new journal ") + m.input.view()
 	case modeRenameJournal:
-		return m.theme.accent().Render("rename "+m.journal+" to ") + m.input.view()
+		return m.theme.accent().Render("rename "+m.target+" to ") + m.input.view()
 	case modeDeleteJournal:
-		return m.theme.bad().Render("delete "+m.journal+" · type the name: ") + m.input.view()
+		return m.theme.bad().Render("delete "+m.target+" · type the name: ") + m.input.view()
 	case modeSearch:
 		if m.search.err != nil {
 			return m.theme.bad().Render("✗ " + m.search.err.Error())

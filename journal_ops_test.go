@@ -270,3 +270,39 @@ func TestRenameJournal_SameName(t *testing.T) {
 		t.Fatalf("expected no-op success, got %v", err)
 	}
 }
+
+func TestMoveRoot(t *testing.T) {
+	j := opsTestJot(t)
+	addEntry(t, j, "work", "moved note")
+	dst := filepath.Join(t.TempDir(), "new")
+	if err := j.MoveRoot(filepath.Join(j.Root(), "inside")); err == nil {
+		t.Fatal("moving into the current root should fail")
+	}
+	if err := j.MoveRoot(dst); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(j.Root()); !os.IsNotExist(err) {
+		t.Fatalf("old root still there: %v", err)
+	}
+	moved := New(Config{Root: dst, DefaultJournal: "default"})
+	if !moved.JournalExists("work") {
+		t.Fatal("journal missing at the new root")
+	}
+
+	// copyTree is the cross-device path; check it directly.
+	cp := filepath.Join(t.TempDir(), "copy")
+	if err := copyTree(dst, cp); err != nil {
+		t.Fatal(err)
+	}
+	if st, err := os.Stat(filepath.Join(cp, "work")); err != nil || st.Mode().Perm() != 0o700 {
+		t.Fatalf("copied journal dir: %v %v", st, err)
+	}
+
+	full := filepath.Join(t.TempDir(), "full")
+	if err := os.MkdirAll(filepath.Join(full, "x"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := moved.MoveRoot(full); err == nil {
+		t.Fatal("moving onto a non-empty dir should fail")
+	}
+}
