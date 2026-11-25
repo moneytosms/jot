@@ -21,11 +21,19 @@ type ExportOptions struct {
 	From, To string
 	// Dir is the output directory; empty means ./jot-export.
 	Dir string
+	// Entries keeps only the entries whose time starts with one of these
+	// ("09:41" or "09:41:07"). It needs a single day (From == To).
+	Entries []string
 }
+
+// ErrNothingToExport means the journal has no entries in the chosen days.
+var ErrNothingToExport = errors.New("no entries to export")
 
 // ExportDocument writes one journal as a styled, self-contained document: a
 // cover page with the date range and counts, a month-by-month contents list,
-// then every day with its entries rendered from markdown. PDF output prints
+// then every day with its entries rendered from markdown. A single day
+// (From == To) skips the cover and contents: just the date and its entries,
+// optionally only some of them (Entries). PDF output prints
 // that HTML with a headless Chromium-family browser. It returns the path
 // written. Encrypted journals are exported decrypted.
 func (j *Jot) ExportDocument(name string, opt ExportOptions) (string, error) {
@@ -41,8 +49,30 @@ func (j *Jot) ExportDocument(name string, opt ExportOptions) (string, error) {
 		}
 		days = append(days, f)
 	}
+	single := opt.From != "" && opt.From == opt.To
+	if len(opt.Entries) > 0 && !single {
+		return "", errors.New("picking entries needs a single day")
+	}
 	if len(days) == 0 {
-		return "", fmt.Errorf("journal %s has no entries in that range", name)
+		return "", fmt.Errorf("%w: journal %s has nothing in that range", ErrNothingToExport, name)
+	}
+	base, page := name, ""
+	switch {
+	case single:
+		entries := pickEntries(ParseEntries(days[0].Content), opt.Entries)
+		if len(entries) == 0 {
+			return "", fmt.Errorf("%w: no entry at %s on %s in %s", ErrNothingToExport, strings.Join(opt.Entries, ", "), opt.From, name)
+		}
+		base += "-" + opt.From
+		if len(opt.Entries) > 0 {
+			base += "-" + strings.NewReplacer(":", "", ",", "-").Replace(strings.Join(opt.Entries, ","))
+		}
+		page = dayHTML(name, opt.From, entries)
+	default:
+		if opt.From != "" || opt.To != "" {
+			base += "-" + or(opt.From, "start") + "_" + or(opt.To, "end")
+		}
+		page = journalHTML(name, days, time.Now())
 	}
 	dir := opt.Dir
 	if strings.TrimSpace(dir) == "" {
@@ -51,11 +81,10 @@ func (j *Jot) ExportDocument(name string, opt ExportOptions) (string, error) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return "", err
 	}
-	page := []byte(journalHTML(name, days, time.Now()))
-	htmlPath := filepath.Join(dir, name+".html")
+	htmlPath := filepath.Join(dir, base+".html")
 	switch opt.Format {
 	case "", "html":
-		return htmlPath, os.WriteFile(htmlPath, page, 0o644)
+		return htmlPath, os.WriteFile(htmlPath, []byte(page), 0o644)
 	case "pdf":
 	default:
 		return "", fmt.Errorf("unknown export format %q; use html or pdf", opt.Format)
@@ -69,11 +98,11 @@ func (j *Jot) ExportDocument(name string, opt ExportOptions) (string, error) {
 		return "", err
 	}
 	defer os.RemoveAll(tmp)
-	src := filepath.Join(tmp, name+".html")
-	if err := os.WriteFile(src, page, 0o600); err != nil {
+	src := filepath.Join(tmp, base+".html")
+	if err := os.WriteFile(src, []byte(page), 0o600); err != nil {
 		return "", err
 	}
-	pdfPath, err := filepath.Abs(filepath.Join(dir, name+".pdf"))
+	pdfPath, err := filepath.Abs(filepath.Join(dir, base+".pdf"))
 	if err != nil {
 		return "", err
 	}
@@ -169,13 +198,7 @@ func journalHTML(name string, days []DayFile, now time.Time) string {
 			fmt.Fprintf(&b, `<article class="day" id="d-%s"><header><h3>%s</h3><time datetime="%s">%s</time></header>`+"\n",
 				d.Day, t.Format("Monday"), d.Day, t.Format("2 January 2006"))
 			for _, e := range ParseEntries(d.Content) {
-				at := ""
-				if tm, err := time.Parse("15:04:05", e.Time); err == nil {
-					at = tm.Format("15:04")
-				} else if e.Time != "" {
-					at = e.Time
-				}
-				fmt.Fprintf(&b, "<div class=\"entry\"><span class=\"at\">%s</span><div class=\"body\">%s</div></div>\n", esc(at), MarkdownHTML(e.Body))
+				b.WriteString(entryHTML(e))
 			}
 			b.WriteString("</article>\n")
 		}
@@ -183,6 +206,56 @@ func journalHTML(name string, days []DayFile, now time.Time) string {
 	}
 	b.WriteString("</main></body></html>\n")
 	return b.String()
+}
+
+// entryHTML renders one entry with its HH:MM time.
+func entryHTML(e ParsedEntry) string {
+	at := e.Time
+	if tm, err := time.Parse("15:04:05", e.Time); err == nil {
+		at = tm.Format("15:04")
+	}
+	return fmt.Sprintf("<div class=\"entry\"><span class=\"at\">%s</span><div class=\"body\">%s</div></div>\n", html.EscapeString(at), MarkdownHTML(e.Body))
+}
+
+// pickEntries keeps the entries whose time starts with one of want; an
+// empty want keeps them all.
+func pickEntries(all []ParsedEntry, want []string) []ParsedEntry {
+	if len(want) == 0 {
+		return all
+	}
+	var out []ParsedEntry
+	for _, e := range all {
+		for _, w := range want {
+			if w != "" && strings.HasPrefix(e.Time, w) {
+				out = append(out, e)
+				break
+			}
+		}
+	}
+	return out
+}
+
+// dayHTML is the export for one day: no cover, just the date and entries.
+func dayHTML(name, day string, entries []ParsedEntry) string {
+	t, _ := time.Parse("2006-01-02", day)
+	esc := html.EscapeString
+	var b strings.Builder
+	fmt.Fprintf(&b, "<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>%s · %s · jot</title>\n<style>%s</style></head><body>\n", esc(name), day, exportCSS)
+	fmt.Fprintf(&b, `<article class="day single"><header><div><p class="eyebrow">jot · %s</p><h1>%s</h1></div><time datetime="%s">%s</time></header>`+"\n",
+		esc(name), t.Format("Monday, 2 January 2006"), day, day)
+	for _, e := range entries {
+		b.WriteString(entryHTML(e))
+	}
+	b.WriteString("</article></body></html>\n")
+	return b.String()
+}
+
+// or returns s, or def when s is empty.
+func or(s, def string) string {
+	if s == "" {
+		return def
+	}
+	return s
 }
 
 // plural picks the singular or plural word for n.
@@ -218,6 +291,7 @@ a{color:var(--forest)}
 .day{margin:0 0 2rem}
 .day header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rule);margin-bottom:.8rem;break-after:avoid}
 .day h3{font-size:1.15rem;margin:0;font-weight:600}
+.single h1{font-size:2rem;line-height:1.1;margin:.2rem 0 0;font-weight:600}.single header{align-items:flex-end;padding-bottom:.6rem;margin-bottom:1.2rem}
 .entry{display:grid;grid-template-columns:3.6rem 1fr;gap:.6rem;margin:0 0 .9rem;break-inside:avoid}
 .at{padding-top:.28rem;color:var(--forest)}
 .body>:first-child{margin-top:0}.body>:last-child{margin-bottom:0}

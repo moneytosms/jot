@@ -309,17 +309,23 @@ Write one file per journal into dir (default ./jot-export). The default
 markdown format is a flat snapshot with a heading per day. html and pdf
 write a styled document: a cover page with the date range and counts, a
 month-by-month contents page, then every day with its entries rendered.
-PDF is printed by a headless Chrome, Chromium, Edge or Brave.
+One day (-d) skips the cover: just the date and its entries, or only the
+entries picked with --entry. PDF is printed by a headless Chrome,
+Chromium, Edge or Brave.
 
 Flags:
       --out, -o <dir>    destination directory
       --format <fmt>     md (default), html or pdf
   -j, --journal <name>   html/pdf: one journal (default: every journal)
       --from, --to <day> html/pdf: limit the days (YYYY-MM-DD, today, yesterday)
+  -d, --date <day>       html/pdf: one day, no cover page
+      --entry <times>    with -d: only these entries, e.g. 09:41 or 09:41,14:30
 
 Examples:
   jot export
-  jot export --format pdf -j work --from 2026-01-01
+  jot export --format pdf -j work --from 2026-01-01 --to 2026-03-31
+  jot export --format pdf -j work -d yesterday
+  jot export --format html -d 2026-11-25 --entry 09:41
   jot export --out ~/notes-export`,
 	"init": `jot init [flags]
 

@@ -523,3 +523,22 @@ func TestCLISearchRejectsFlagsAfterQuery(t *testing.T) {
 		t.Fatalf("search --fuzzy --limit 10 gym failed: %s%s", out, errOut)
 	}
 }
+
+func TestCLIExportDay(t *testing.T) {
+	dir := testEnv(t)
+	mustRun(t, "", "add", "-j", "work", "-d", "2026-01-05", "standup notes")
+	mustRun(t, "", "add", "-j", "home", "-d", "2026-01-06", "groceries")
+	out := mustRun(t, "", "export", "--format", "html", "-d", "2026-01-05", "-o", dir)
+	if !strings.Contains(out, "work-2026-01-05.html") || strings.Contains(out, "home") {
+		t.Errorf("day export over every journal: %q", out)
+	}
+	for _, args := range [][]string{
+		{"export", "-d", "2026-01-05"},
+		{"export", "--format", "pdf", "--entry", "09:00"},
+		{"export", "--format", "pdf", "-d", "2026-01-05", "--from", "2026-01-01"},
+	} {
+		if code, _, _ := runCLI(t, "", args...); code == 0 {
+			t.Errorf("%v should fail", args)
+		}
+	}
+}

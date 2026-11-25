@@ -1,6 +1,7 @@
 package jot
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"strings"
@@ -61,5 +62,47 @@ func TestExportDocument(t *testing.T) {
 	}
 	if head, _ := os.ReadFile(pdf); !strings.HasPrefix(string(head), "%PDF") {
 		t.Fatal("not a PDF")
+	}
+}
+
+func TestExportDocumentDay(t *testing.T) {
+	j := opsTestJot(t)
+	addEntry(t, j, "work", "first note")
+	addEntry(t, j, "work", "second note")
+	files, err := j.ShowDays("work")
+	if err != nil || len(files) != 1 {
+		t.Fatalf("days: %v %v", files, err)
+	}
+	day, es := files[0].Day, ParseEntries(files[0].Content)
+	dir := t.TempDir()
+	path, err := j.ExportDocument("work", ExportOptions{Format: "html", Dir: dir, From: day, To: day})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasSuffix(path, "work-"+day+".html") {
+		t.Errorf("path %s", path)
+	}
+	data, _ := os.ReadFile(path)
+	if strings.Contains(string(data), `class="cover"`) || !strings.Contains(string(data), "second note") {
+		t.Errorf("day export should have no cover and every entry:\n%s", data)
+	}
+	// Pick one entry by its full time; the other one must be left out.
+	path, err = j.ExportDocument("work", ExportOptions{Format: "html", Dir: dir, From: day, To: day, Entries: []string{es[0].Time}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, _ = os.ReadFile(path)
+	if es[0].Time != es[1].Time && strings.Contains(string(data), "second note") {
+		t.Error("entry filter kept the other entry")
+	}
+	if _, err := j.ExportDocument("work", ExportOptions{Format: "html", Dir: dir, Entries: []string{"09"}}); err == nil {
+		t.Error("entries without a single day should fail")
+	}
+	if _, err := j.ExportDocument("work", ExportOptions{Format: "html", Dir: dir, From: day, To: day, Entries: []string{"99:99"}}); !errors.Is(err, ErrNothingToExport) {
+		t.Errorf("missing entry: %v", err)
+	}
+	path, _ = j.ExportDocument("work", ExportOptions{Format: "html", Dir: dir, From: day})
+	if !strings.HasSuffix(path, "work-"+day+"_end.html") {
+		t.Errorf("range path %s", path)
 	}
 }

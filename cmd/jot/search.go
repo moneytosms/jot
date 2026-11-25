@@ -216,6 +216,8 @@ func (a *app) exportCmd(args []string) error {
 	journal := journalFlag(fs)
 	from := fs.String("from", "", "first day (YYYY-MM-DD, today, yesterday)")
 	to := fs.String("to", "", "last day")
+	date := dateFlag(fs)
+	entry := fs.String("entry", "", "with -d: only these entries, comma-separated times (09:41 or 09:41:07)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -227,8 +229,25 @@ func (a *app) exportCmd(args []string) error {
 	if err != nil {
 		return err
 	}
+	if (*date != "" || *entry != "") && *format != "html" && *format != "pdf" {
+		return errors.New("-d and --entry export a document: add --format html or pdf")
+	}
+	if *entry != "" && *date == "" {
+		return errors.New("--entry picks entries of one day: add -d DAY")
+	}
+	if *date != "" && (*from != "" || *to != "") {
+		return errors.New("use -d for one day, or --from/--to for a range, not both")
+	}
+	if *date != "" {
+		*from, *to = *date, *date
+	}
 	if *format == "html" || *format == "pdf" {
 		opt := jot.ExportOptions{Format: *format, Dir: *dir}
+		for _, e := range strings.Split(*entry, ",") {
+			if e = strings.TrimSpace(e); e != "" {
+				opt.Entries = append(opt.Entries, e)
+			}
+		}
 		for _, d := range []struct{ in, out *string }{{from, &opt.From}, {to, &opt.To}} {
 			if *d.in != "" {
 				if *d.out, err = jot.ParseDay(*d.in); err != nil {
@@ -249,15 +268,20 @@ func (a *app) exportCmd(args []string) error {
 				}
 			}
 		}
-		if len(names) == 0 {
-			fmt.Fprintf(a.out, "nothing to export yet\n")
-		}
+		wrote := 0
 		for _, n := range names {
 			path, err := j.ExportDocument(n, opt)
+			if errors.Is(err, jot.ErrNothingToExport) && *journal == "" {
+				continue // every journal was asked for; skip the ones with nothing in range
+			}
 			if err != nil {
 				return err
 			}
 			fmt.Fprintf(a.out, "wrote %s\n", path)
+			wrote++
+		}
+		if wrote == 0 {
+			fmt.Fprintf(a.out, "nothing to export\n")
 		}
 		return nil
 	}
