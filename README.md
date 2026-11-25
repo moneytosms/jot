@@ -69,7 +69,7 @@ rewritten.
 - **Plain storage and tight permissions.** Journal directories are `0700`;
   day files and the config file are `0600`.
 - **Scriptable CLI.** `add`, `show`, `edit`, `ls`, `search`, `watch`, `todo`,
-  `remind`, `backup`, `export`, `journal`, `init`, `setup`, `install`,
+  `heatmap`, `remind`, `backup`, `export`, `journal`, `init`, `setup`, `install`,
   `update`, `uninstall`, `doctor`, `version`, and `help`.
 
 ## Install

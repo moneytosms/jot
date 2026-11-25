@@ -325,6 +325,7 @@ The actions are:
 - Delete journal
 - Search entries
 - Browse todos
+- Year heatmap
 - Set a reminder
 - Settings
 - Toggle theme (cycles the theme list)
@@ -560,6 +561,7 @@ These are the keys the code actually handles. Letter keys are case-sensitive.
 | `/` | search |
 | `ctrl+p` | command palette |
 | `T` | todos |
+| `y` | year heatmap of the open journal |
 | `S` | settings |
 | `?` | help |
 | `q` | quit |

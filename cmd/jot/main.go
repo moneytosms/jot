@@ -74,6 +74,8 @@ func run(args []string, in io.Reader, out, errw io.Writer) int {
 		err = a.searchCmd(args[1:])
 	case "todo":
 		err = a.todoCmd(args[1:])
+	case "heatmap":
+		err = a.heatmapCmd(args[1:])
 	case "watch":
 		err = a.watchCmd(args[1:])
 	case "remind":

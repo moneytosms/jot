@@ -26,6 +26,7 @@ const (
 	modeSearch                    // fuzzy entry search overlay
 	modePalette                   // command palette overlay
 	modeTodos                     // aggregated checkbox overlay
+	modeHeatmap                   // year heatmap overlay
 	modeReminder                  // reminder form
 	modeSettings                  // settings panel
 	modeHelp                      // keybinding cheatsheet
@@ -77,6 +78,7 @@ type model struct {
 	search   searchState
 	palette  paletteState
 	todos    todoState
+	heat     heatState
 	reminder reminderState
 	settings settingsState
 	help     helpState
@@ -345,6 +347,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case todosResultMsg:
 		return m.applyTodosResult(msg)
+	case heatResultMsg:
+		return m.applyHeatResult(msg)
 
 	case reminderDoneMsg:
 		return m.applyReminderDone(msg)
@@ -405,6 +409,8 @@ func (m model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.keyPalette(msg)
 	case modeTodos:
 		return m.keyTodos(msg)
+	case modeHeatmap:
+		return m.keyHeat(msg)
 	case modeReminder:
 		return m.keyReminder(msg)
 	case modeSettings:
@@ -465,6 +471,8 @@ func (m model) keyBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.openPalette()
 	case "T":
 		return m.openTodos()
+	case "y":
+		return m.openHeatmap()
 	case "r":
 		return m.openReminder(m.lastEntryPreview())
 	case "ctrl+r":

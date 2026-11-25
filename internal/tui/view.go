@@ -91,6 +91,8 @@ func (m model) overlayView(lay layout) string {
 		return m.paletteView(lay)
 	case modeTodos:
 		return m.todosView(lay)
+	case modeHeatmap:
+		return m.heatView(lay)
 	case modeReminder:
 		return m.reminderView(lay)
 	case modeSettings:
@@ -303,10 +305,16 @@ func (m model) hintText() string {
 		return strings.Join([]string{
 			key.Render("j/k") + " scroll", key.Render("esc") + " close",
 		}, sep)
+	case modeHeatmap:
+		return strings.Join([]string{
+			key.Render("h/l") + " year", key.Render("t") + " today",
+			key.Render("j/k") + " scroll", key.Render("esc") + " close",
+		}, sep)
 	default:
 		return strings.Join([]string{
 			key.Render("/") + " search", key.Render("ctrl+p") + " palette",
-			key.Render("T") + " todos", key.Render("S") + " settings",
+			key.Render("T") + " todos", key.Render("y") + " year",
+			key.Render("S") + " settings",
 			key.Render("r") + " remind", key.Render("?") + " help",
 			key.Render("h/l") + " day", key.Render("j/k") + " week",
 			key.Render("H/L") + " month", key.Render("t") + " today",

@@ -46,6 +46,7 @@ func (m model) paletteActions() []paletteAction {
 		paletteAction{id: "delete-journal", label: "Delete journal"},
 		paletteAction{id: "search", label: "Search entries"},
 		paletteAction{id: "todos", label: "Browse todos"},
+		paletteAction{id: "heatmap", label: "Year heatmap"},
 		paletteAction{id: "reminder", label: "Set a reminder"},
 		paletteAction{id: "settings", label: "Settings"},
 		paletteAction{id: "theme", label: "Toggle theme"},
@@ -324,6 +325,9 @@ func (m model) runPaletteAction(a paletteAction) (tea.Model, tea.Cmd) {
 	case a.id == "todos":
 		m.closeOverlay()
 		return m.openTodos()
+	case a.id == "heatmap":
+		m.closeOverlay()
+		return m.openHeatmap()
 	case a.id == "reminder":
 		m.closeOverlay()
 		return m.openReminder(m.lastEntryPreview())

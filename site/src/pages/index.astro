@@ -3,7 +3,6 @@ import Landing from "../layouts/Landing.astro";
 import YearChart from "../components/YearChart.astro";
 import DayDesk from "../components/DayDesk.astro";
 import FrameViewer from "../components/FrameViewer.astro";
-import CommandLedger from "../components/CommandLedger.astro";
 import { cfg, withBase } from "../lib/source";
 import { demo, byDate, rawOf } from "../lib/journal";
 import "../styles/fonts.css";
@@ -34,7 +33,6 @@ const year = demo.today.slice(0, 4);
         <a class="masthead__sec" href="#year"><i>01</i>Year</a>
         <a class="masthead__sec" href="#day"><i>02</i>The day</a>
         <a class="masthead__sec" href="#tool"><i>03</i>Interface</a>
-        <a class="masthead__sec" href="#commands"><i>04</i>Commands</a>
         <a href={withBase("guide/")}>Guide</a>
         <a href={cfg.repoUrl}>Source</a>
       </nav>
@@ -147,30 +145,10 @@ const year = demo.today.slice(0, 4);
       </div>
     </section>
 
-    <section class="band" id="commands">
-      <div class="wrap">
-        <header class="sec">
-          <p class="sec__no">04</p>
-          <div>
-            <h2>Scriptable by being ordinary.</h2>
-            <p class="sec__note">
-              Every command reads and writes the same files, so the CLI composes with the shell.
-              These are the real outputs of <code>jot 0.1.0</code> on the sample journal.
-            </p>
-          </div>
-        </header>
-        <CommandLedger />
-        <p class="band__more">
-          <a href={withBase("guide/commands/")}>Every command and flag</a>
-          <span aria-hidden="true">→</span>
-        </p>
-      </div>
-    </section>
-
     <section class="band" id="record">
       <div class="wrap">
         <header class="sec">
-          <p class="sec__no">05</p>
+          <p class="sec__no">04</p>
           <div>
             <h2>What it does not do.</h2>
             <p class="sec__note">
@@ -241,12 +219,6 @@ const year = demo.today.slice(0, 4);
         <a href={`${cfg.repoUrl}/releases`}>Releases</a>
         <a href={`${cfg.repoUrl}/issues`}>Issues</a>
       </nav>
-      <div class="foot__type">
-        <p>Set in Newsreader &amp; IBM Plex Mono.</p>
-        <p class="foot__swatches" aria-hidden="true">
-          <i style="background:#f3efe4"></i><i style="background:#1b1a15"></i><i style="background:#2f5f38"></i>
-        </p>
-      </div>
       <p class="foot__note">
         The journal on this page is synthetic, generated for the captures from the real binary.
         No personal data. {year}.
@@ -532,19 +504,6 @@ const year = demo.today.slice(0, 4);
     color: var(--ink-3);
   }
   .sec__note code { font-size: 0.85em; color: var(--ink-2); }
-  .band__more {
-    margin: 22px 0 0;
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-  .band__more a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink); padding-bottom: 2px; }
-  .band__more a:hover { color: var(--forest); border-color: var(--forest); }
-
   /* Scope */
   .record {
     display: grid;
@@ -594,7 +553,7 @@ const year = demo.today.slice(0, 4);
   .foot { border-top: 1px solid var(--ink); padding-block: 26px 34px; }
   .foot__grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 22px 28px;
     font-family: var(--mono);
     font-size: 0.62rem;
@@ -607,8 +566,6 @@ const year = demo.today.slice(0, 4);
   .foot__links { display: flex; flex-wrap: wrap; gap: 6px 16px; align-content: start; }
   .foot__links a { color: var(--ink-2); text-decoration: none; }
   .foot__links a:hover { color: var(--forest); text-decoration: underline; text-underline-offset: 3px; }
-  .foot__swatches { display: flex; gap: 4px; margin-top: 8px !important; }
-  .foot__swatches i { width: 12px; height: 12px; border: 1px solid var(--rule-strong); display: inline-block; }
   .foot__note { max-width: 34ch; }
 
   @media (max-width: 960px) {

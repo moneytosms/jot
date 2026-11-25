@@ -37,6 +37,7 @@ var helpSections = []helpSection{
 		title: "calendar",
 		entries: []helpEntry{
 			{keys: "H L / < >", desc: "previous / next month"},
+			{keys: "y", desc: "year heatmap of the open journal"},
 			{keys: "click a day", desc: "select that day"},
 			{keys: "click the header", desc: "go to today"},
 		},

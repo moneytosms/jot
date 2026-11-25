@@ -408,6 +408,46 @@ Change a box by editing the day file:
 jot edit -d 2026-11-20 -j work
 ```
 
+## heatmap
+
+```
+jot heatmap [flags]
+```
+
+Prints one year of a journal as a terminal heatmap: two half-year grids,
+weeks as rows, Monday-first weekdays as columns, and a month label on each
+row where a month begins. Every day with a file is a two-character cell
+shaded by its entry count:
+
+| Glyph | Entries |
+| --- | --- |
+| `··` | 0 |
+| `▄▄` | 1-2 |
+| `▓▓` | 3-5 |
+| `██` | 6+ |
+
+| Flag | Default | Meaning |
+| --- | --- | --- |
+| `-j`, `--journal <name>` | configured journal | Journal to chart |
+| `--year <yyyy>` | current year | Year to chart |
+
+Output is plain glyphs for pipes and `NO_COLOR`; in a terminal the cells are
+colored (truecolor), with a lighter ramp when `JOT_THEME` names a light
+theme.
+
+```
+jot heatmap -j work --year 2025
+```
+
+```
+2025 · work · 96d 120e
+    Mo Tu We Th Fr Sa Su       Mo Tu We Th Fr Sa Su
+Jan          ▄▄ ▄▄ ·· ··   Jul       ▄▄ ·· ▄▄ ·· ▄▄
+    ·· ·· ·· ▄▄ ·· ·· ··       ·· ·· ▄▄ ▄▄ ▄▄ ·· ▄▄
+…
+legend: ·· 0 · ▄▄ 1-2 · ▓▓ 3-5 · ██ 6+ entries
+```
+
 ---
 
 ## remind

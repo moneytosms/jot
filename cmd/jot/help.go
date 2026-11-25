@@ -20,6 +20,7 @@ Commands:
   ls         List journals, or the days inside one journal
   search     Search across journals
   todo       List checkbox todos inside entries
+  heatmap    Print a year heatmap of entry density
   watch      Follow today's entries live
   remind     Set and manage countdown reminders
   backup     Write a compressed archive of every journal
@@ -191,6 +192,27 @@ Examples:
   jot todo
   jot todo --open -j work
   jot todo --limit 10`,
+	"heatmap": `jot heatmap [flags]
+
+Print one year of a journal as a heatmap: two half-year grids, weeks as
+rows, Monday-first weekdays as columns, and a month label on each row
+where a month begins. Every day with a file is a cell shaded by how many
+entries it holds:
+
+  .. none   .. 1-2   .. 3-5   .. 6+ entries   (a block-glyph ramp)
+
+Color follows the terminal: truecolor shades when out is a terminal,
+plain glyphs for pipes and NO_COLOR, and a lighter ramp under
+JOT_THEME=light.
+
+Flags:
+  -j, --journal <name>  journal to chart (default: the configured journal)
+      --year <yyyy>     year to chart (default: the current year)
+
+Examples:
+  jot heatmap
+  jot heatmap -j work
+  jot heatmap --year 2025`,
 	"remind": `jot remind <MESSAGE DURATION | list | clear>
 
 Set a countdown reminder, or manage existing ones. Durations take Go-style
