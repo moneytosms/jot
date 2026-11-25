@@ -1,0 +1,59 @@
+---
+import Base from "../layouts/Base.astro";
+import { withBase } from "../lib/source";
+---
+
+<Base title="Not found, jot" description="This page is not in the journal.">
+  <div class="miss">
+    <p class="miss__no" aria-hidden="true">404</p>
+    <h1>No entry for this address.</h1>
+    <p class="miss__p">
+      The page you asked for is not in this journal. The guide has every command and every
+      setting, and the front page has the short version.
+    </p>
+    <p class="miss__links">
+      <a href={withBase("guide/")}>Read the guide</a>
+      <a href={withBase("")}>Back to the journal</a>
+    </p>
+  </div>
+</Base>
+
+<style>
+  .miss {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: clamp(48px, 9vw, 120px) var(--gutter);
+  }
+  .miss__no {
+    margin: 0 0 18px;
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.18em;
+    color: var(--forest);
+  }
+  h1 {
+    font-size: clamp(2.1rem, 4.6vw, 3.4rem);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    max-width: 18ch;
+  }
+  .miss__p {
+    margin: 18px 0 0;
+    max-width: 52ch;
+    font-size: 1.04rem;
+    line-height: 1.6;
+    color: var(--ink-3);
+  }
+  .miss__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 26px;
+    margin: 28px 0 0;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .miss__links a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink); padding-bottom: 3px; }
+  .miss__links a:hover { color: var(--forest); border-color: var(--forest); }
+</style>

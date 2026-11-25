@@ -13,3 +13,6 @@ Thumbs.db
 .idea/
 .vscode/
 .remember/
+
+# Peer agent scratch output
+brag-output/

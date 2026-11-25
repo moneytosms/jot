@@ -1,0 +1,638 @@
+---
+import Landing from "../layouts/Landing.astro";
+import YearChart from "../components/YearChart.astro";
+import DayDesk from "../components/DayDesk.astro";
+import FrameViewer from "../components/FrameViewer.astro";
+import CommandLedger from "../components/CommandLedger.astro";
+import { cfg, withBase } from "../lib/source";
+import { demo, byDate, rawOf } from "../lib/journal";
+import "../styles/fonts.css";
+import "../styles/theme.css";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const today = byDate.get(demo.today);
+const raw = today ? rawOf(today.entries) : "";
+const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const specimen = raw.split("\n").map((line) =>
+  line.startsWith("## ")
+    ? `<span class="stamp">${escape(line)}</span>`
+    : escape(line),
+).join("\n");
+const install = "curl -fsSL https://raw.githubusercontent.com/moneytosms/jot/main/install-release.sh | sh";
+const year = demo.today.slice(0, 4);
+---
+
+<Landing
+  title={`${cfg.name}: a plaintext journal you can read with cat`}
+  description={cfg.description}
+>
+  <header class="masthead">
+    <div class="wrap masthead__in">
+      <a class="mark" href={base + "/"} aria-label="jot, top of page">jot</a>
+      <p class="masthead__tag">a plaintext journal</p>
+      <nav class="masthead__nav" aria-label="Page and project">
+        <a class="masthead__sec" href="#year"><i>01</i>Year</a>
+        <a class="masthead__sec" href="#day"><i>02</i>The day</a>
+        <a class="masthead__sec" href="#tool"><i>03</i>Interface</a>
+        <a class="masthead__sec" href="#commands"><i>04</i>Commands</a>
+        <a href={withBase("guide/")}>Guide</a>
+        <a href={cfg.repoUrl}>Source</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div class="hero__text">
+        <p class="kicker"><span class="kicker__sq" aria-hidden="true"></span>Plain text · Go · Linux &amp; macOS</p>
+        <h1 id="hero-title">A journal is<br /><em>a folder of days.</em></h1>
+        <p class="lede">
+          jot appends a timestamped entry to today's Markdown file, then gets out of the way.
+          Read it with <code>cat</code>, search it with <code>grep</code>, or open the calendar
+          when you want to browse. There is no database and no daemon: the files are the journal.
+        </p>
+        <div class="install">
+          <div class="install__line">
+            <span class="install__ps" aria-hidden="true">$</span>
+            <code>{install}</code>
+          </div>
+          <button class="install__copy" type="button" data-copy={install} aria-label="Copy the install command">Copy</button>
+        </div>
+        <p class="install__note">
+          A single binary in <code>~/.local/bin</code>, checked against <code>SHA256SUMS</code> first.
+          <a href={`${cfg.repoUrl}#install`}>Source install</a> and
+          <a href={`${cfg.repoUrl}#upgrade`}>upgrades</a> are documented too.
+        </p>
+      </div>
+
+      <figure class="specimen">
+        <div class="specimen__head">
+          <span>~/.jot/default/{demo.today}.md</span>
+          <span>0600</span>
+        </div>
+        <pre class="specimen__body" aria-label={`Contents of today's journal file`} set:html={specimen} />
+        <figcaption class="specimen__cap">
+          <span>The file itself. {today?.entries.length ?? 0} entries, {today?.bytes ?? 0} bytes.</span>
+          <span class="specimen__tag">sample</span>
+        </figcaption>
+      </figure>
+    </section>
+
+    <div class="wrap">
+      <div class="claims">
+        <div class="claim">
+          <p class="claim__n">01</p>
+          <p class="claim__t">Append-only</p>
+          <p class="claim__p">A new entry is appended under <code>## HH:MM:SS</code>. Earlier bytes are never rewritten.</p>
+        </div>
+        <div class="claim">
+          <p class="claim__n">02</p>
+          <p class="claim__t">Private by default</p>
+          <p class="claim__p">The root is created <code>0700</code>; every day file <code>0600</code>. No account, no sync, no server.</p>
+        </div>
+        <div class="claim">
+          <p class="claim__n">03</p>
+          <p class="claim__t">Nothing to run</p>
+          <p class="claim__p">Back up a directory, remove the binary, keep the journal. It opens without jot.</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="band" id="year">
+      <div class="wrap">
+        <header class="sec">
+          <p class="sec__no">01</p>
+          <div>
+            <h2>A year, one square at a time.</h2>
+            <p class="sec__note">
+              The calendar in the terminal is a grid of files, so the same grid works here.
+              Shade is the number of entries written that day; empty days stay visible,
+              because a gap is part of the record too.
+            </p>
+          </div>
+        </header>
+        <YearChart />
+      </div>
+    </section>
+
+    <section class="band" id="day">
+      <div class="wrap">
+        <header class="sec">
+          <p class="sec__no">02</p>
+          <div>
+            <h2>The day, set to read.</h2>
+            <p class="sec__note">
+              Ten days from the sample journal. Switch between the typeset entries and the
+              raw file they came from; the timestamps are the file's own.
+            </p>
+          </div>
+        </header>
+        <DayDesk />
+      </div>
+    </section>
+
+    <section class="band" id="tool">
+      <div class="wrap">
+        <header class="sec">
+          <p class="sec__no">03</p>
+          <div>
+            <h2>The whole interface, one screen.</h2>
+            <p class="sec__note">
+              A month of days with entry heat, the journals, and the selected day rendered as
+              Markdown. Search, todos and the key reference open over the same frame.
+            </p>
+          </div>
+        </header>
+        <FrameViewer />
+      </div>
+    </section>
+
+    <section class="band" id="commands">
+      <div class="wrap">
+        <header class="sec">
+          <p class="sec__no">04</p>
+          <div>
+            <h2>Scriptable by being ordinary.</h2>
+            <p class="sec__note">
+              Every command reads and writes the same files, so the CLI composes with the shell.
+              These are the real outputs of <code>jot 0.1.0</code> on the sample journal.
+            </p>
+          </div>
+        </header>
+        <CommandLedger />
+        <p class="band__more">
+          <a href={withBase("guide/commands/")}>Every command and flag</a>
+          <span aria-hidden="true">→</span>
+        </p>
+      </div>
+    </section>
+
+    <section class="band" id="record">
+      <div class="wrap">
+        <header class="sec">
+          <p class="sec__no">05</p>
+          <div>
+            <h2>What it does not do.</h2>
+            <p class="sec__note">
+              The scope is the feature. jot is for one person's days on one machine, in files
+              that outlive the program.
+            </p>
+          </div>
+        </header>
+        <div class="record">
+          <div class="record__col">
+            <h3>One directory</h3>
+            <pre>~/.jot/
+├── config.json         0600
+├── default/
+│   ├── 2026-11-25.md   0600
+│   └── 2026-11-24.md
+└── work/
+    └── 2026-11-19.md</pre>
+            <p>Journals are sibling directories. There is no index to rebuild.</p>
+          </div>
+          <div class="record__col">
+            <h3>No server, no account</h3>
+            <p>
+              Nothing is uploaded and nothing is fetched to read your journal. Sync it with
+              whatever you already use, or don't; jot will not notice either way.
+            </p>
+            <p>
+              The core library uses only the Go standard library. The terminal interface adds
+              Bubble Tea, and nothing else runs in the background.
+            </p>
+          </div>
+          <div class="record__col">
+            <h3>Read-mostly by design</h3>
+            <p>
+              The TUI can add a quick line, but edits, deletions and checkbox changes happen in
+              your editor. One writer, no merge rules, no surprises.
+            </p>
+            <p>
+              Linux and macOS are the targets. Windows is not tested, and the reminder integration
+              is Omarchy-specific.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing wrap" aria-labelledby="closing-title">
+      <p class="closing__kicker">Documentation</p>
+      <a class="closing__link" href={withBase("guide/")} id="closing-title">
+        Read the guide<span aria-hidden="true">→</span>
+      </a>
+      <p class="closing__note">
+        Commands, configuration, themes, the storage format and the TUI keys, rendered from the
+        repository's own Markdown and searchable in the browser.
+      </p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot__grid">
+      <div>
+        <p class="foot__mark">jot</p>
+        <p>0.1.0 · MIT · Linux &amp; macOS</p>
+      </div>
+      <nav class="foot__links" aria-label="Project">
+        <a href={withBase("guide/")}>Guide</a>
+        <a href={cfg.repoUrl}>Source</a>
+        <a href={`${cfg.repoUrl}/releases`}>Releases</a>
+        <a href={`${cfg.repoUrl}/issues`}>Issues</a>
+      </nav>
+      <div class="foot__type">
+        <p>Set in Newsreader &amp; IBM Plex Mono.</p>
+        <p class="foot__swatches" aria-hidden="true">
+          <i style="background:#f3efe4"></i><i style="background:#1b1a15"></i><i style="background:#2f5f38"></i>
+        </p>
+      </div>
+      <p class="foot__note">
+        The journal on this page is synthetic, generated for the captures from the real binary.
+        No personal data. {year}.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const copy = document.querySelector<HTMLButtonElement>("[data-copy]");
+    copy?.addEventListener("click", async () => {
+      const text = copy.dataset.copy ?? "";
+      const label = copy.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        copy.textContent = "Copied";
+      } catch {
+        copy.textContent = "Select and copy";
+      }
+      window.setTimeout(() => { copy.textContent = label; }, 1800);
+    });
+  </script>
+</Landing>
+
+<style is:global>
+  html { scroll-padding-top: 84px; }
+  main { display: block; }
+</style>
+
+<style>
+  .wrap {
+    width: 100%;
+    max-width: calc(var(--wide) + var(--gutter) * 2);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* Running head */
+  .masthead {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--paper);
+    border-bottom: 1px solid var(--ink);
+  }
+  .masthead__in {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding-block: 11px 10px;
+  }
+  .mark {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .mark:hover { color: var(--forest); }
+  .masthead__tag {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+  }
+  .masthead__nav {
+    margin-left: auto;
+    display: flex;
+    align-items: baseline;
+    gap: clamp(10px, 1.7vw, 24px);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .masthead__nav a {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .masthead__nav a:hover { color: var(--forest); text-decoration: underline; text-underline-offset: 4px; }
+  .masthead__nav i { font-style: normal; color: var(--ink-4); margin-right: 0.5em; }
+
+  /* Opening */
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    gap: clamp(32px, 6vw, 86px);
+    align-items: start;
+    padding-block: clamp(40px, 5.5vw, 72px) clamp(36px, 4.5vw, 54px);
+  }
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 clamp(20px, 3.6vw, 38px);
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .kicker__sq { width: 7px; height: 7px; background: var(--forest); flex: none; }
+  .hero h1 {
+    font-size: clamp(2.7rem, 6.2vw, 5rem);
+    line-height: 0.97;
+    letter-spacing: -0.03em;
+    font-weight: 300;
+  }
+  .hero h1 em { font-style: italic; font-weight: 300; }
+  .lede {
+    margin: clamp(20px, 3vw, 30px) 0 0;
+    max-width: 47ch;
+    font-size: clamp(1.02rem, 1.4vw, 1.12rem);
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
+  .lede code,
+  .install__note code,
+  .claim__p code {
+    font-size: 0.84em;
+    color: var(--ink);
+    background: var(--paper-deep);
+    padding: 0.05em 0.28em;
+    border-radius: 1px;
+  }
+
+  .install {
+    display: flex;
+    align-items: stretch;
+    margin-top: clamp(24px, 3.4vw, 34px);
+    border: 1px solid var(--ink);
+    background: var(--paper-raised);
+  }
+  .install__line {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 11px 13px;
+  }
+  .install__ps { font-family: var(--mono); font-size: 0.78rem; line-height: 1.65; color: var(--forest); }
+  .install code {
+    font-family: var(--mono);
+    font-size: clamp(0.62rem, 1.1vw, 0.74rem);
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+    color: var(--ink);
+  }
+  .install__copy {
+    flex: none;
+    appearance: none;
+    border: 0;
+    border-left: 1px solid var(--ink);
+    background: transparent;
+    padding: 0 15px;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .install__copy:hover { background: var(--ink); color: var(--paper); }
+  .install__note {
+    margin-top: 9px;
+    font-size: 0.83rem;
+    line-height: 1.5;
+    color: var(--ink-3);
+    max-width: 55ch;
+  }
+  .install__note a { color: var(--ink-2); }
+
+  .specimen {
+    margin: 4px 0 0;
+    border: 1px solid var(--ink);
+    background: var(--paper-raised);
+    align-self: start;
+  }
+  .specimen__head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 12px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.04em;
+  }
+  .specimen__head span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .specimen__head span:last-child { color: var(--heat-1); flex: none; }
+  .specimen__body {
+    margin: 0;
+    padding: 15px 14px;
+    font-size: clamp(0.65rem, 1.05vw, 0.74rem);
+    line-height: 1.8;
+    color: var(--ink-2);
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .specimen__body :global(.stamp) { color: var(--forest); }
+  .specimen__cap {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    border-top: 1px solid var(--rule);
+    padding: 9px 12px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--ink-3);
+  }
+  .specimen__tag {
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--forest);
+    flex: none;
+  }
+
+  /* The three constants */
+  .claims {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .claim { padding: 22px 26px 26px 0; }
+  .claim + .claim { border-left: 1px solid var(--rule); padding-left: 26px; }
+  .claim__n {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    color: var(--forest);
+  }
+  .claim__t {
+    margin: 9px 0 5px;
+    font-family: var(--serif);
+    font-size: 1.22rem;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .claim__p { margin: 0; font-size: 0.92rem; line-height: 1.5; color: var(--ink-3); max-width: 34ch; }
+
+  /* Sections */
+  .band {
+    border-top: 1px solid var(--ink);
+    padding-block: clamp(46px, 6vw, 84px);
+  }
+  .sec {
+    display: grid;
+    grid-template-columns: 70px minmax(0, 1fr);
+    gap: 0 22px;
+    align-items: start;
+    margin-bottom: clamp(26px, 3.6vw, 42px);
+  }
+  .sec__no {
+    margin: 0;
+    padding-top: 0.5em;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    color: var(--forest);
+  }
+  .sec h2 {
+    font-size: clamp(1.95rem, 4vw, 2.95rem);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    max-width: 24ch;
+  }
+  .sec__note {
+    margin-top: 13px;
+    max-width: 58ch;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-3);
+  }
+  .sec__note code { font-size: 0.85em; color: var(--ink-2); }
+  .band__more {
+    margin: 22px 0 0;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .band__more a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink); padding-bottom: 2px; }
+  .band__more a:hover { color: var(--forest); border-color: var(--forest); }
+
+  /* Scope */
+  .record {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr 1fr;
+    gap: clamp(24px, 4vw, 56px);
+  }
+  .record h3 { font-size: 1.24rem; letter-spacing: -0.015em; margin-bottom: 10px; }
+  .record p { margin: 0 0 10px; font-size: 0.93rem; line-height: 1.55; color: var(--ink-3); max-width: 38ch; }
+  .record pre {
+    margin: 0 0 12px;
+    font-size: 0.7rem;
+    line-height: 1.75;
+    color: var(--ink-2);
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  /* Closing */
+  .closing {
+    border-top: 1px solid var(--rule);
+    padding-block: clamp(52px, 7vw, 96px);
+  }
+  .closing__kicker {
+    margin: 0 0 14px;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--forest);
+  }
+  .closing__link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35em;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 0.06em;
+  }
+  .closing__link span { transition: transform 220ms var(--ease); }
+  .closing__link:hover span { transform: translateX(0.18em); }
+  .closing__note { margin-top: 14px; max-width: 52ch; font-size: 0.97rem; line-height: 1.55; color: var(--ink-3); }
+
+  /* Footer */
+  .foot { border-top: 1px solid var(--ink); padding-block: 26px 34px; }
+  .foot__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px 28px;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+    color: var(--ink-4);
+  }
+  .foot__grid p { margin: 0; }
+  .foot__mark { font-family: var(--serif); font-size: 1.3rem; line-height: 1; letter-spacing: -0.03em; color: var(--ink); margin-bottom: 6px !important; }
+  .foot__links { display: flex; flex-wrap: wrap; gap: 6px 16px; align-content: start; }
+  .foot__links a { color: var(--ink-2); text-decoration: none; }
+  .foot__links a:hover { color: var(--forest); text-decoration: underline; text-underline-offset: 3px; }
+  .foot__swatches { display: flex; gap: 4px; margin-top: 8px !important; }
+  .foot__swatches i { width: 12px; height: 12px; border: 1px solid var(--rule-strong); display: inline-block; }
+  .foot__note { max-width: 34ch; }
+
+  @media (max-width: 960px) {
+    .hero { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+    .specimen { max-width: 620px; }
+    .record { grid-template-columns: 1fr 1fr; }
+    .record__col:first-child { grid-column: 1 / -1; }
+  }
+  @media (max-width: 760px) {
+    .masthead__tag,
+    .masthead__sec { display: none; }
+    .claims { grid-template-columns: 1fr; }
+    .claim { padding: 18px 0 20px; }
+    .claim + .claim { border-left: 0; border-top: 1px solid var(--rule); padding-left: 0; }
+    .claim__p { max-width: 52ch; }
+    .sec { grid-template-columns: 1fr; gap: 6px; }
+    .sec__no { padding-top: 0; }
+    .foot__grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .foot__grid { grid-template-columns: 1fr; gap: 16px; }
+    .install { flex-direction: column; }
+    .install__copy { border-left: 0; border-top: 1px solid var(--ink); min-height: 42px; padding: 10px; }
+    .record { grid-template-columns: 1fr; }
+    .hero h1 { font-size: clamp(2.55rem, 12.4vw, 3.4rem); }
+  }
+</style>

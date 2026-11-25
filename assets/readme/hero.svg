@@ -1,50 +1,106 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="100%" role="img" aria-labelledby="title desc">
-  <title id="title">jot</title>
-  <desc id="desc">Three overlapping day cards labeled with dated Markdown filenames beside the jot title and the tagline for a terminal journal.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="100%" role="img" aria-labelledby="hTitle hDesc">
+  <title id="hTitle">jot: a plaintext journal you can read with cat</title>
+  <desc id="hDesc">A day file card dated 2026-11-25 with timestamped entries beside a heat-dot month strip; the title jot and the line one folder, one file per day.</desc>
   <style>
     :root {
-      --card: #ffffff;
-      --stroke: #d0d7de;
-      --text: #24292f;
-      --muted: #57606a;
-      --accent: #2f6f4e;
+      --paper: #f3efe4;
+      --card: #faf7ee;
+      --ink: #1b1a15;
+      --muted: #6b6656;
+      --faint: #948d79;
+      --rule: #cec5b1;
+      --forest: #2f5f38;
+      --forest-deep: #1e4126;
+      --heat0: #e2dbc9;
+      --heat1: #c3d3b3;
+      --heat2: #8fb07f;
+      --heat3: #5b8852;
+      --heat4: #2f5f38;
     }
     @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) {
-        --card: #161b22;
-        --stroke: #30363d;
-        --text: #e6edf3;
-        --muted: #8b949e;
-        --accent: #56d364;
+      :root {
+        --paper: #141712;
+        --card: #1b201a;
+        --ink: #d7dccf;
+        --muted: #8a917f;
+        --faint: #5f6656;
+        --rule: #38402f;
+        --forest: #7fb08a;
+        --forest-deep: #a9c9ae;
+        --heat0: #262b21;
+        --heat1: #3d4a33;
+        --heat2: #57683f;
+        --heat3: #6f8a52;
+        --heat4: #7fb08a;
       }
     }
-    :root[data-theme="dark"] {
-      --card: #161b22;
-      --stroke: #30363d;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --accent: #56d364;
-    }
-    .card { fill: var(--card); stroke: var(--stroke); stroke-width: 2; }
-    .name { fill: var(--muted); }
-    .title { fill: var(--text); }
-    .tagline { fill: var(--muted); }
-    .line { fill: var(--stroke); }
-    .accent { fill: var(--accent); }
+    .serif { font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif; }
+    .mono { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; }
+    .word { fill: var(--ink); font-size: 92px; letter-spacing: -2px; }
+    .tag { fill: var(--muted); font-size: 17px; letter-spacing: 0.8px; }
+    .kick { fill: var(--faint); font-size: 12px; letter-spacing: 3px; }
+    .card { fill: var(--card); stroke: var(--rule); stroke-width: 1.5; }
+    .stamp { fill: var(--forest); font-size: 15px; font-weight: 600; }
+    .entry { fill: var(--ink); font-size: 15px; }
+    .fname { fill: var(--faint); font-size: 12px; letter-spacing: 0.5px; }
+    .rule { stroke: var(--rule); stroke-width: 1; }
+    .dash { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 3 5; }
+    .grainline { fill: none; stroke: var(--rule); stroke-width: 1; opacity: 0.55; }
   </style>
-  <!-- back cards -->
-  <rect class="card" x="760" y="50" width="300" height="190" rx="12"/>
-  <text class="name" x="790" y="90" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">2026-11-08.md</text>
-  <rect class="card" x="800" y="90" width="300" height="190" rx="12"/>
-  <text class="name" x="830" y="130" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">2026-11-09.md</text>
-  <!-- front card -->
-  <rect class="card" x="840" y="130" width="300" height="190" rx="12"/>
-  <text class="name" x="870" y="170" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">2026-11-10.md</text>
-  <rect class="line" x="870" y="195" width="200" height="8" rx="4"/>
-  <rect class="line" x="870" y="218" width="240" height="8" rx="4"/>
-  <rect class="line" x="870" y="241" width="150" height="8" rx="4"/>
-  <rect class="accent" x="870" y="266" width="10" height="20"/>
-  <!-- title and tagline -->
-  <text class="title" x="80" y="165" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="104" font-weight="700">jot</text>
-  <text class="tagline" x="84" y="222" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="26">A terminal journal. One plain Markdown file per day.</text>
+
+  <!-- paper page -->
+  <rect width="1200" height="360" fill="var(--paper)"/>
+  <!-- ruled paper margins, like a daybook -->
+  <line x1="0" y1="56" x2="1200" y2="56" class="grainline"/>
+  <line x1="0" y1="330" x2="1200" y2="330" class="grainline"/>
+
+  <!-- left: title block -->
+  <text x="72" y="70" class="mono kick">PLAINTEXT · GO · LINUX &amp; MACOS</text>
+  <text x="68" y="160" class="serif word">jot</text>
+  <text x="72" y="204" class="serif tag">a plaintext journal you can read with cat</text>
+
+  <!-- heat strip: one month of days -->
+  <g aria-hidden="true">
+    <rect x="72" y="248" width="18" height="18" rx="3" fill="var(--heat2)"/>
+    <rect x="94" y="248" width="18" height="18" rx="3" fill="var(--heat1)"/>
+    <rect x="116" y="248" width="18" height="18" rx="3" fill="var(--heat3)"/>
+    <rect x="138" y="248" width="18" height="18" rx="3" fill="var(--heat0)"/>
+    <rect x="160" y="248" width="18" height="18" rx="3" fill="var(--heat2)"/>
+    <rect x="182" y="248" width="18" height="18" rx="3" fill="var(--heat0)"/>
+    <rect x="204" y="248" width="18" height="18" rx="3" fill="var(--heat1)"/>
+    <rect x="226" y="248" width="18" height="18" rx="3" fill="var(--heat4)"/>
+    <rect x="248" y="248" width="18" height="18" rx="3" fill="var(--heat1)"/>
+    <rect x="270" y="248" width="18" height="18" rx="3" fill="var(--heat2)"/>
+    <rect x="292" y="248" width="18" height="18" rx="3" fill="var(--heat0)"/>
+    <rect x="314" y="248" width="18" height="18" rx="3" fill="var(--heat1)"/>
+    <text x="72" y="290" class="mono fname">NOVEMBER 2026 · 16D 17E</text>
+  </g>
+
+  <!-- right: the day file, twice, fanned -->
+  <!-- back card: the folder -->
+  <g transform="translate(708 58) rotate(2.5)" aria-hidden="true">
+    <rect width="420" height="252" rx="10" class="card"/>
+    <text x="24" y="38" class="mono fname">work/2026-11-19.md</text>
+    <line x1="24" y1="54" x2="396" y2="54" class="rule"/>
+    <text x="24" y="84" class="mono stamp">## 16:52:04</text>
+    <text x="24" y="110" class="mono entry">paired with Ana on the fuzzy</text>
+    <text x="24" y="132" class="mono entry">scorer.</text>
+    <text x="24" y="166" class="mono stamp">## 09:14:55</text>
+    <text x="24" y="192" class="mono entry">standup: parser merged, docs</text>
+    <text x="24" y="214" class="mono entry">next.</text>
+  </g>
+
+  <!-- front card: today -->
+  <g transform="translate(652 76)">
+    <rect width="428" height="240" rx="10" class="card"/>
+    <text x="24" y="36" class="mono fname">default/2026-11-25.md</text>
+    <line x1="24" y1="52" x2="404" y2="52" class="rule"/>
+    <text x="24" y="82" class="mono stamp">## 09:41:07</text>
+    <text x="24" y="108" class="mono entry">shipped the parser rewrite</text>
+    <text x="24" y="130" class="mono entry">the whole day is one file and one diff</text>
+    <text x="24" y="164" class="mono stamp">## 15:02:33</text>
+    <text x="24" y="190" class="mono entry">quick add is the only write the TUI makes</text>
+    <line x1="24" y1="216" x2="404" y2="216" class="dash"/>
+    <text x="24" y="232" class="mono fname">appended, never rewritten</text>
+  </g>
 </svg>

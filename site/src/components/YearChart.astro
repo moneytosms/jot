@@ -1,0 +1,172 @@
+---
+import { demo, journal, yearWeeks, longDate, shortDate } from "../lib/journal";
+
+const year = Number(demo.today.slice(0, 4));
+const { weeks, months } = yearWeeks(year);
+const PITCH = 15, CELL = 11, TOP = 17, LEFT = 27;
+const width = LEFT + weeks.length * PITCH - (PITCH - CELL);
+const height = TOP + 7 * PITCH - (PITCH - CELL);
+const todayCount = journal.days.find((d) => d.date === demo.today)?.entries.length ?? 0;
+const labels = [["Mo", 0], ["We", 2], ["Fr", 4]] as const;
+---
+
+<figure class="chart" data-year>
+  <svg
+    class="chart__svg"
+    data-year-chart
+    viewBox={`0 0 ${width} ${height}`}
+    role="img"
+    aria-label={`A year of days, ${journal.days.length} of them written. Shading shows how many entries each day holds.`}
+  >
+    <g class="chart__labels" aria-hidden="true">
+      {months.map((m) => (
+        <text x={LEFT + m.col * PITCH} y="9" class="chart__month">{m.label}</text>
+      ))}
+      {labels.map(([label, row]) => (
+        <text x={LEFT - 8} y={TOP + row * PITCH + CELL - 2} class="chart__weekday" text-anchor="end">{label}</text>
+      ))}
+    </g>
+    {weeks.map((week, ci) => week.map((cell, ri) => cell ? (
+      <g>
+        <rect
+          x={LEFT + ci * PITCH}
+          y={TOP + ri * PITCH}
+          width={CELL}
+          height={CELL}
+          rx="1.5"
+          class={`cell d${cell.level}`}
+          data-date={cell.date}
+          data-count={cell.count}
+          data-label={`${longDate(cell.date, new Date(cell.date + "T00:00:00Z").toLocaleDateString("en-GB", { weekday: "long", timeZone: "UTC" }))}`}
+        >
+          <title>{`${shortDate(cell.date)} · ${cell.count} ${cell.count === 1 ? "entry" : "entries"}`}</title>
+        </rect>
+        {cell.today && (
+          <rect
+            x={LEFT + ci * PITCH - 1.5}
+            y={TOP + ri * PITCH - 1.5}
+            width={CELL + 3}
+            height={CELL + 3}
+            rx="2.5"
+            class="chart__today"
+          />
+        )}
+      </g>
+    ) : null))}
+  </svg>
+
+  <div class="chart__foot">
+    <p class="chart__read" aria-live="polite">
+      <span class="chart__date" data-year-date>{longDate(demo.today)}</span>
+      <span class="chart__sep" aria-hidden="true">·</span>
+      <span class="chart__count" data-year-count>{todayCount} {todayCount === 1 ? "entry" : "entries"}</span>
+    </p>
+    <p class="chart__legend" aria-hidden="true">
+      <span>less</span>
+      <i class="d0"></i><i class="d1"></i><i class="d2"></i><i class="d3"></i><i class="d4"></i>
+      <span>more</span>
+    </p>
+  </div>
+  <figcaption class="chart__cap">
+    Each square is one file in <code>~/.jot/default/</code>, ${year}. The sample journal behind this
+    page: {journal.days.length} days, {journal.days.reduce((n, d) => n + d.entries.length, 0)} entries.
+    Gaps are days with nothing written, kept and visible.
+  </figcaption>
+</figure>
+
+<script>
+  const chart = document.querySelector<SVGSVGElement>("[data-year-chart]");
+  const readDate = document.querySelector<HTMLElement>("[data-year-date]");
+  const readCount = document.querySelector<HTMLElement>("[data-year-count]");
+  const root = document.querySelector<HTMLElement>("[data-year]");
+
+  if (chart && readDate && readCount && root) {
+    const restDate = readDate.textContent ?? "";
+    const restCount = readCount.textContent ?? "";
+    const show = (date: string, count: number) => {
+      readDate.textContent = date;
+      readCount.textContent = `${count} ${count === 1 ? "entry" : "entries"}`;
+    };
+    chart.addEventListener("pointerover", (event) => {
+      const cell = (event.target as Element).closest?.("rect[data-date]");
+      if (!cell) return;
+      show(cell.getAttribute("data-label") ?? "", Number(cell.getAttribute("data-count")));
+    });
+    chart.addEventListener("pointerleave", () => {
+      readDate.textContent = restDate;
+      readCount.textContent = restCount;
+    });
+  }
+</script>
+
+<style>
+  .chart { margin: 0; }
+  .chart__svg { width: 100%; height: auto; overflow: visible; }
+  .chart__month,
+  .chart__weekday {
+    font-family: var(--mono);
+    font-size: 8.5px;
+    letter-spacing: 0.04em;
+    fill: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .cell { transition: fill 120ms var(--ease); }
+  .cell.d0 { fill: var(--heat-0); }
+  .cell.d1 { fill: var(--heat-1); }
+  .cell.d2 { fill: var(--heat-2); }
+  .cell.d3 { fill: var(--heat-3); }
+  .cell.d4 { fill: var(--heat-4); }
+  .cell:hover { fill: var(--ink); }
+  .chart__today { fill: none; stroke: var(--ink); stroke-width: 1.2; }
+  .chart__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 24px;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--rule);
+  }
+  .chart__read {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-2);
+    margin: 0;
+    min-height: 1.4em;
+  }
+  .chart__date { color: var(--ink); }
+  .chart__sep { color: var(--ink-4); margin: 0 0.5em; }
+  .chart__count { color: var(--forest); }
+  .chart__legend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+  }
+  .chart__legend i { width: 10px; height: 10px; display: inline-block; border-radius: 1.5px; }
+  .chart__legend i.d0 { background: var(--heat-0); }
+  .chart__legend i.d1 { background: var(--heat-1); }
+  .chart__legend i.d2 { background: var(--heat-2); }
+  .chart__legend i.d3 { background: var(--heat-3); }
+  .chart__legend i.d4 { background: var(--heat-4); }
+  .chart__legend span { margin: 0 2px; }
+  .chart__cap {
+    margin: 16px 0 0;
+    max-width: 62ch;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ink-3);
+  }
+  .chart__cap code { font-size: 0.82em; color: var(--ink-2); }
+  @media (max-width: 560px) {
+    .chart__labels { display: none; }
+    .chart__svg { margin-left: -2px; }
+  }
+</style>

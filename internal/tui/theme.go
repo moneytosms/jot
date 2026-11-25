@@ -104,49 +104,49 @@ func builtinForTerminal() Theme {
 
 func hasDarkBackground() bool { return lipgloss.HasDarkBackground() }
 
-// darkTheme is the built-in dark palette: calm grays with a soft blue accent.
+// darkTheme is the built-in dark palette: warm charcoal and moss, no blue.
 func darkTheme() Theme {
 	return Theme{
 		Name:     "default",
 		Dark:     true,
-		Bg:       "#12151a",
-		Fg:       "#d5dbe3",
-		Muted:    "#7a8494",
-		Dim:      "#566070",
-		Accent:   "#7aa2f7",
-		AccentFg: "#0f1319",
-		Border:   "#3a4250",
-		SelBg:    "#2a3240",
-		SelFg:    "#e6ebf2",
-		Green:    "#9ece6a",
-		Yellow:   "#e0af68",
-		Red:      "#f7768e",
-		Blue:     "#7aa2f7",
-		Magenta:  "#bb9af7",
-		Cyan:     "#7dcfff",
+		Bg:       "#141712",
+		Fg:       "#d7dccf",
+		Muted:    "#88907f",
+		Dim:      "#5c6455",
+		Accent:   "#a9c48e",
+		AccentFg: "#12150f",
+		Border:   "#3a4234",
+		SelBg:    "#2b3326",
+		SelFg:    "#e6ebdd",
+		Green:    "#9ec97a",
+		Yellow:   "#dcb26b",
+		Red:      "#e07a7a",
+		Blue:     "#8ab3a5",
+		Magenta:  "#c3a3cf",
+		Cyan:     "#8cc7bd",
 	}
 }
 
-// lightTheme is the built-in light palette.
+// lightTheme is the built-in light palette: paper, ink and forest.
 func lightTheme() Theme {
 	return Theme{
 		Name:     "light",
 		Dark:     false,
-		Bg:       "#fafafa",
-		Fg:       "#33383f",
-		Muted:    "#7b828c",
-		Dim:      "#98a1ab",
-		Accent:   "#2f6bb0",
-		AccentFg: "#ffffff",
-		Border:   "#cfd6dd",
-		SelBg:    "#d8e6f7",
-		SelFg:    "#1b2430",
-		Green:    "#3f8f4f",
-		Yellow:   "#a2701f",
-		Red:      "#c23b4b",
-		Blue:     "#2f6bb0",
-		Magenta:  "#9a4fae",
-		Cyan:     "#0f7d95",
+		Bg:       "#f4efe3",
+		Fg:       "#1e1c16",
+		Muted:    "#6a6455",
+		Dim:      "#98907c",
+		Accent:   "#35603b",
+		AccentFg: "#f7f3e8",
+		Border:   "#cec5b1",
+		SelBg:    "#dde6d3",
+		SelFg:    "#1e241a",
+		Green:    "#3f7a45",
+		Yellow:   "#8a6418",
+		Red:      "#a63c3c",
+		Blue:     "#3a6a60",
+		Magenta:  "#7b4a6b",
+		Cyan:     "#2f6a63",
 	}
 }
 

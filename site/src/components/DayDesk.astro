@@ -1,0 +1,352 @@
+---
+import { journal, recentDays, entryHtml } from "../lib/journal";
+
+const days = recentDays(10);
+const bytes = (n: number) => new Intl.NumberFormat("en-GB").format(n);
+---
+
+<div class="desk" data-desk data-view="rendered">
+  <div class="desk__tools">
+    <p class="desk__label">The last ten days, typeset</p>
+    <div class="seg" role="group" aria-label="How to show the day file">
+      <button class="seg__btn is-on" type="button" data-view="rendered" aria-pressed="true">Set</button>
+      <button class="seg__btn" type="button" data-view="source" aria-pressed="false">Source</button>
+    </div>
+  </div>
+
+  <div class="desk__strip" role="tablist" aria-label="Recent days">
+    {days.map((d) => (
+      <button
+        class={`tab${d.isToday ? " is-active" : ""}`}
+        type="button"
+        role="tab"
+        id={`tab-${d.date}`}
+        aria-controls={`day-${d.date}`}
+        aria-selected={d.isToday ? "true" : "false"}
+        data-date={d.date}
+      >
+        <span class="tab__dow">{d.weekday.slice(0, 3)}</span>
+        <span class="tab__day">{d.day}</span>
+        <span class="tab__n">{d.count || "\u2014"}</span>
+      </button>
+    ))}
+  </div>
+
+  <div class="desk__panels">
+    {days.map((d) => (
+      <article
+        class={`day${d.isToday ? " is-active" : ""}`}
+        id={`day-${d.date}`}
+        role="tabpanel"
+        aria-labelledby={`tab-${d.date}`}
+        data-date={d.date}
+        tabindex="0"
+      >
+        <header class="day__head">
+          <p class="day__date">
+            <time datetime={d.date}>{d.weekday}</time>
+            <span class="day__big">{d.day} {d.month}</span>
+            <span class="day__year">{d.year}</span>
+          </p>
+          <p class="day__meta">
+            <span>{d.count} {d.count === 1 ? "entry" : "entries"}</span>
+            {d.bytes > 0 && <span>{bytes(d.bytes)} bytes</span>}
+            <span class="day__file">~/.jot/default/{d.date}.md</span>
+          </p>
+        </header>
+
+        <div class="day__rendered">
+          {d.entries.length > 0 ? d.entries.map((e) => (
+            <div class="entry">
+              <time class="entry__time" datetime={`${d.date}T${e.time}`}>{e.time.slice(0, 5)}</time>
+              <div class="entry__body" set:html={entryHtml(e.body)} />
+            </div>
+          )) : (
+            <p class="day__empty">No entries. A gap is still a day, and the file is not written.</p>
+          )}
+        </div>
+
+        <pre class="day__source"><code>{d.raw || "\u2014 no file for this day \u2014"}</code></pre>
+      </article>
+    ))}
+  </div>
+
+  <p class="desk__cap">
+    The typesetting above is a reading aid. The file is the record: no rewriting, no index, no
+    database. <span class="desk__count">{journal.days.length} day files in the sample journal.</span>
+  </p>
+</div>
+
+<script>
+  const desk = document.querySelector<HTMLElement>("[data-desk]");
+  if (desk) {
+    const tabs = [...desk.querySelectorAll<HTMLButtonElement>(".tab")];
+    const panels = [...desk.querySelectorAll<HTMLElement>(".day")];
+    const views = [...desk.querySelectorAll<HTMLButtonElement>(".seg__btn")];
+
+    const select = (date: string) => {
+      for (const tab of tabs) tab.setAttribute("aria-selected", String(tab.dataset.date === date));
+      for (const panel of panels) panel.classList.toggle("is-active", panel.dataset.date === date);
+    };
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => select(tab.dataset.date!));
+      tab.addEventListener("keydown", (event) => {
+        const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+        if (!step) return;
+        event.preventDefault();
+        const next = tabs[(index + step + tabs.length) % tabs.length];
+        next.focus();
+        select(next.dataset.date!);
+      });
+    });
+
+    for (const button of views) {
+      button.addEventListener("click", () => {
+        desk.dataset.view = button.dataset.view;
+        for (const other of views) {
+          const on = other === button;
+          other.classList.toggle("is-on", on);
+          other.setAttribute("aria-pressed", String(on));
+        }
+      });
+    }
+
+    select(panels.find((p) => p.classList.contains("is-active"))?.dataset.date ?? panels[0].dataset.date!);
+  }
+</script>
+
+<style>
+  .desk { border-top: 1px solid var(--ink); padding-top: 18px; }
+  .desk__tools {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .desk__label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+  }
+  .seg { display: flex; gap: 0; }
+  .seg__btn {
+    appearance: none;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid transparent;
+    padding: 4px 2px;
+    margin-left: 18px;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    cursor: pointer;
+  }
+  .seg__btn:hover { color: var(--ink); }
+  .seg__btn.is-on { color: var(--forest); border-bottom-color: var(--forest); }
+  :global(html:not(.js)) .seg { display: none; }
+
+  .desk__strip {
+    display: flex;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--ink);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .desk__strip::-webkit-scrollbar { display: none; }
+  .tab {
+    appearance: none;
+    flex: 1 0 52px;
+    min-height: 64px;
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-areas: "dow n" "day day";
+    align-items: center;
+    justify-content: start;
+    gap: 0 6px;
+    padding: 8px 9px 7px;
+    background: none;
+    border: 0;
+    border-left: 1px solid var(--rule);
+    color: var(--ink-3);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 120ms var(--ease), color 120ms var(--ease);
+  }
+  .tab:last-child { border-right: 1px solid var(--rule); }
+  .tab:hover { background: var(--paper-deep); color: var(--ink); }
+  .tab.is-active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .tab__dow {
+    grid-area: dow;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    align-self: end;
+  }
+  .tab__day {
+    grid-area: day;
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    line-height: 1;
+    font-variant-numeric: lining-nums;
+  }
+  .tab__n {
+    grid-area: n;
+    justify-self: end;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--ink-4);
+    align-self: end;
+  }
+  .tab.is-active .tab__dow,
+  .tab.is-active .tab__n { color: var(--rule); }
+
+  .desk__panels { position: relative; }
+  .day {
+    padding-top: 22px;
+    outline: none;
+  }
+  .day:focus-visible { outline: 2px solid var(--forest); outline-offset: 8px; }
+  :global(html.js) .day { display: none; }
+  :global(html.js) .day.is-active { display: block; animation: day-in 260ms var(--ease) both; }
+  @keyframes day-in {
+    from { opacity: 0; transform: translateY(3px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .day__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px 28px;
+    flex-wrap: wrap;
+    padding-bottom: 14px;
+  }
+  .day__date {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .day__date time {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .day__big {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    line-height: 1;
+    letter-spacing: -0.015em;
+  }
+  .day__year {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--ink-4);
+  }
+  .day__meta {
+    margin: 0;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-4);
+  }
+  .day__file { color: var(--ink-3); }
+
+  .entry {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 16px;
+    padding: 16px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .entry__time {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-4);
+    padding-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .entry__body { min-width: 0; }
+  .entry__body :global(p) {
+    margin: 0;
+    font-size: 1.06rem;
+    line-height: 1.55;
+    max-width: 54ch;
+    color: var(--ink);
+  }
+  .entry__body :global(p + p) { margin-top: 0.6em; }
+  .entry__body :global(code) {
+    font-size: 0.82em;
+    background: var(--paper-deep);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 0.05em 0.3em;
+  }
+  .entry__body :global(.ticks) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 4px;
+  }
+  .entry__body :global(.ticks li) { font-size: 1.02rem; line-height: 1.5; }
+  .entry__body :global(.tick) {
+    font-family: var(--mono);
+    font-size: 0.72em;
+    color: var(--forest);
+    margin-right: 0.45em;
+  }
+  .day__empty {
+    margin: 0;
+    padding: 24px 0 30px;
+    border-top: 1px solid var(--rule);
+    font-style: italic;
+    color: var(--ink-3);
+    max-width: 46ch;
+  }
+  .day__source {
+    display: none;
+    margin: 0;
+    padding: 20px 22px;
+    background: var(--paper-deep);
+    border-left: 2px solid var(--forest);
+    overflow-x: auto;
+    font-size: 0.78rem;
+    line-height: 1.75;
+    color: var(--ink-2);
+    tab-size: 2;
+  }
+  :global([data-desk][data-view="source"]) .day__rendered { display: none; }
+  :global([data-desk][data-view="source"]) .day__source { display: block; }
+
+  .desk__cap {
+    margin: 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    font-size: 0.92rem;
+    color: var(--ink-3);
+    max-width: 58ch;
+  }
+  .desk__count { display: block; font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.06em; margin-top: 6px; color: var(--ink-4); }
+
+  @media (max-width: 620px) {
+    .entry { grid-template-columns: 46px minmax(0, 1fr); gap: 10px; }
+    .tab { flex-basis: 50px; }
+  }
+</style>

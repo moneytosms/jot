@@ -1,0 +1,6 @@
+/* Two faces, both open licensed, both shipped with the site.
+   Newsreader: the reading voice. IBM Plex Mono: the machine's voice. */
+@import "@fontsource-variable/newsreader/wght.css";
+@import "@fontsource-variable/newsreader/wght-italic.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";

@@ -384,6 +384,7 @@ func ansiTruncate(s string, w int) string {
 		if s[i] == '\x1b' {
 			j := i + 1
 			if j < len(s) && s[j] == '[' {
+				j++ // skip the CSI introducer before the parameter bytes
 				for j < len(s) && (s[j] < 0x40 || s[j] > 0x7e) {
 					j++
 				}
@@ -420,6 +421,7 @@ func ansiWidth(s string) int {
 		if s[i] == '\x1b' {
 			j := i + 1
 			if j < len(s) && s[j] == '[' {
+				j++ // skip the CSI introducer before the parameter bytes
 				for j < len(s) && (s[j] < 0x40 || s[j] > 0x7e) {
 					j++
 				}

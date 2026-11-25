@@ -1,7 +1,15 @@
+<div align="center">
+  <img src="assets/readme/hero.svg" alt="jot: a plaintext journal you can read with cat. A day file dated 2026-11-25 with timestamped entries beside a heat-dot month strip." width="100%">
+</div>
+
 # jot
 
 jot is a fast, plaintext journal: one Markdown file per day, a scriptable CLI,
 and a full-screen terminal interface.
+
+[Website](https://moneytosms.github.io/jot/) ·
+[Usage guide](https://moneytosms.github.io/jot/guide/) ·
+[Command reference](docs/commands.md)
 
 ## Why
 
@@ -11,11 +19,25 @@ Your notes are ordinary Markdown files in a directory you own. Read them with
 jot daemon, and no lock-in. The core Go library uses only the standard
 library; the TUI is built with Bubble Tea.
 
+A day, as written on disk:
+
+```markdown
+## 09:41:07
+
+shipped the parser rewrite
+the whole day is one file and one diff
+
+## 15:02:33
+
+quick add is the only write the TUI makes
+```
+
+Entries are appended under a `## HH:MM:SS` heading; earlier bytes are never
+rewritten.
+
 ## Features
 
-- **One file per day.** Every day is `<root>/<journal>/YYYY-MM-DD.md`. Entries
-  are appended under a `## HH:MM:SS` heading; earlier bytes are never
-  rewritten.
+- **One file per day.** Every day is `<root>/<journal>/YYYY-MM-DD.md`.
 - **Calendar with entry heat.** The TUI shows a month at a glance. Cell color
   reflects how many entries a day has, and the header totals the displayed
   month's days and entries.
@@ -170,14 +192,8 @@ the configured editor, `$VISUAL`, `$EDITOR`, or the first of `vim`, `vi`, or
     jot-backup-20261125-150405.tar.gz
 ```
 
-jot only appends to day files. The format is plain Markdown, so you can still
-edit them. A new entry looks like this:
-
-```markdown
-## 09:41:07
-
-shipped the parser rewrite
-```
+jot only appends to day files; the format is the plain Markdown shown above,
+so you can still edit it by hand.
 
 Journal directories are created with mode `0700`; day files and the config
 file with mode `0600`. `jot backup` writes a `.tar.gz` under `backups/`.
@@ -268,8 +284,9 @@ then the running binary.
 
 ## Documentation
 
+- [Usage guide](https://moneytosms.github.io/jot/guide/) — the repo's own
+  docs, rendered and searchable
 - [Command reference](docs/commands.md)
-- [Usage guide](docs/guide.md)
 - [TUI guide](docs/tui.md)
 - [Development](docs/development.md)
 

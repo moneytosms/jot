@@ -1,0 +1,3682 @@
+{
+ "today": "2026-11-25",
+ "totals": {
+  "days": 288,
+  "entries": 367,
+  "bytes": 22630,
+  "journals": 3
+ },
+ "journals": [
+  {
+   "name": "default",
+   "days": [
+    {
+     "date": "2026-01-01",
+     "weekday": "Thursday",
+     "bytes": 124,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "decided against tags. journals are enough"
+      },
+      {
+       "time": "12:19:05",
+       "body": "the file format has not changed since the first commit"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-02",
+     "weekday": "Friday",
+     "bytes": 81,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "checked the mode bits by hand: 0700 for the root, 0600 for the file"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-08",
+     "weekday": "Thursday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "early train; wrote the day plan on paper first"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-12",
+     "weekday": "Monday",
+     "bytes": 128,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "read the install script twice before running it"
+      },
+      {
+       "time": "18:22:31",
+       "body": "finally understood why the month grid needs six rows"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-14",
+     "weekday": "Wednesday",
+     "bytes": 73,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "opened last year journal by mistake and read it for an hour"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-16",
+     "weekday": "Friday",
+     "bytes": 49,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "one entry is enough to mark the day"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-21",
+     "weekday": "Wednesday",
+     "bytes": 77,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "the editor handoff is three lines of code and the whole product"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-23",
+     "weekday": "Friday",
+     "bytes": 118,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "kept the daemon out. there is nothing to run"
+      },
+      {
+       "time": "17:05:58",
+       "body": "- [ ] add the missing key to the help overlay"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-25",
+     "weekday": "Sunday",
+     "bytes": 68,
+     "entries": [
+      {
+       "time": "16:04:09",
+       "body": "the day file is 11 KB and has never needed a migration"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-26",
+     "weekday": "Monday",
+     "bytes": 54,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "- [x] update the troubleshooting section"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-27",
+     "weekday": "Tuesday",
+     "bytes": 70,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "spent the afternoon reading the bubbletea tea.Model docs"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-28",
+     "weekday": "Wednesday",
+     "bytes": 49,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "coffee with Sam about the migration"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-29",
+     "weekday": "Thursday",
+     "bytes": 70,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "spent the afternoon reading the bubbletea tea.Model docs"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-02",
+     "weekday": "Monday",
+     "bytes": 118,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "- [x] back up ~/.jot before the disk swap"
+      },
+      {
+       "time": "21:07:40",
+       "body": "renamed the second journal from notes to reading"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-03",
+     "weekday": "Tuesday",
+     "bytes": 79,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "the search scoring: prefix bonus, then word start, then substring"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-04",
+     "weekday": "Wednesday",
+     "bytes": 59,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "- [ ] add the missing key to the help overlay"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-09",
+     "weekday": "Monday",
+     "bytes": 65,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "wrote the troubleshooting page from the bug reports"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-10",
+     "weekday": "Tuesday",
+     "bytes": 150,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "spent the afternoon reading the bubbletea tea.Model docs"
+      },
+      {
+       "time": "17:05:58",
+       "body": "asked what happens when the directory is read-only; wrote it down"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-11",
+     "weekday": "Wednesday",
+     "bytes": 81,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "an old entry mentioned a problem I had forgotten. that is the point"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-12",
+     "weekday": "Thursday",
+     "bytes": 65,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "wrote the troubleshooting page from the bug reports"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-13",
+     "weekday": "Friday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "two entries before breakfast, then a quiet day"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-15",
+     "weekday": "Sunday",
+     "bytes": 57,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "sun all afternoon. wrote nothing until nine"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-17",
+     "weekday": "Tuesday",
+     "bytes": 68,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "checked a year of files with find and wc. no surprises"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-18",
+     "weekday": "Wednesday",
+     "bytes": 83,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "the best feature is that the files are still there after uninstalling"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-19",
+     "weekday": "Thursday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "two entries before breakfast, then a quiet day"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-20",
+     "weekday": "Friday",
+     "bytes": 73,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "opened last year journal by mistake and read it for an hour"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-24",
+     "weekday": "Tuesday",
+     "bytes": 137,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "checked a year of files with find and wc. no surprises"
+      },
+      {
+       "time": "11:26:40",
+       "body": "the file format has not changed since the first commit"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-27",
+     "weekday": "Friday",
+     "bytes": 44,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "a long entry about a short bug"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-28",
+     "weekday": "Saturday",
+     "bytes": 67,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "the month totals are the only statistic the TUI shows"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-02",
+     "weekday": "Monday",
+     "bytes": 129,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "two entries before breakfast, then a quiet day"
+      },
+      {
+       "time": "12:19:05",
+       "body": "the day file is 11 KB and has never needed a migration"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-07",
+     "weekday": "Saturday",
+     "bytes": 68,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "the day file is 11 KB and has never needed a migration"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-08",
+     "weekday": "Sunday",
+     "bytes": 117,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "the calendar is a month of small squares; density reads at a glance"
+      },
+      {
+       "time": "18:22:31",
+       "body": "- [ ] send the agenda"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-10",
+     "weekday": "Tuesday",
+     "bytes": 57,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "sun all afternoon. wrote nothing until nine"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-13",
+     "weekday": "Friday",
+     "bytes": 89,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "a long entry about a short bug"
+      },
+      {
+       "time": "09:14:52",
+       "body": "a long entry about a short bug"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-16",
+     "weekday": "Monday",
+     "bytes": 54,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "- [x] update the troubleshooting section"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-17",
+     "weekday": "Tuesday",
+     "bytes": 58,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "kept the daemon out. there is nothing to run"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-18",
+     "weekday": "Wednesday",
+     "bytes": 45,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "- [x] rename the second journal"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-20",
+     "weekday": "Friday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "two entries before breakfast, then a quiet day"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-21",
+     "weekday": "Saturday",
+     "bytes": 65,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "the doctor command is a checklist, and that is fine"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-24",
+     "weekday": "Tuesday",
+     "bytes": 82,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "the install script verifies the checksum before it writes the binary"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-27",
+     "weekday": "Friday",
+     "bytes": 62,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "split the calendar math out into its own package"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-29",
+     "weekday": "Sunday",
+     "bytes": 68,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "the file format has not changed since the first commit"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-30",
+     "weekday": "Monday",
+     "bytes": 80,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "the config file is JSON because everything else already reads JSON"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-31",
+     "weekday": "Tuesday",
+     "bytes": 74,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "grep is still my search; fuzzy is for when I forget the word"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-01",
+     "weekday": "Wednesday",
+     "bytes": 63,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "the reminder only fires once. transient by design"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-02",
+     "weekday": "Thursday",
+     "bytes": 75,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "tried a theme with too much blue and went back to the default"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-03",
+     "weekday": "Friday",
+     "bytes": 61,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "five minutes in the terminal, then back to work"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-04",
+     "weekday": "Saturday",
+     "bytes": 52,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "took the long way home past the market"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-07",
+     "weekday": "Tuesday",
+     "bytes": 79,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "- [ ] decide whether themes belong in config or in the theme file"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-08",
+     "weekday": "Wednesday",
+     "bytes": 62,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "kept the todo overlay read-only and slept better"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-16",
+     "weekday": "Thursday",
+     "bytes": 149,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "the month totals are the only statistic the TUI shows"
+      },
+      {
+       "time": "19:48:16",
+       "body": "an old entry mentioned a problem I had forgotten. that is the point"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-17",
+     "weekday": "Friday",
+     "bytes": 112,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "the README is longer than the program"
+      },
+      {
+       "time": "17:05:58",
+       "body": "early train; wrote the day plan on paper first"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-18",
+     "weekday": "Saturday",
+     "bytes": 81,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "an old entry mentioned a problem I had forgotten. that is the point"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-21",
+     "weekday": "Tuesday",
+     "bytes": 55,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "- [x] back up ~/.jot before the disk swap"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-22",
+     "weekday": "Wednesday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "a week of short notes, nothing worth a heading"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-27",
+     "weekday": "Monday",
+     "bytes": 68,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "the file format has not changed since the first commit"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-30",
+     "weekday": "Thursday",
+     "bytes": 68,
+     "entries": [
+      {
+       "time": "16:04:09",
+       "body": "the day file is 11 KB and has never needed a migration"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-01",
+     "weekday": "Friday",
+     "bytes": 123,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "renamed the second journal from notes to reading"
+      },
+      {
+       "time": "14:30:12",
+       "body": "two entries before breakfast, then a quiet day"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-04",
+     "weekday": "Monday",
+     "bytes": 131,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "split the calendar math out into its own package"
+      },
+      {
+       "time": "16:04:09",
+       "body": "the file format has not changed since the first commit"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-05",
+     "weekday": "Tuesday",
+     "bytes": 131,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "the export is one file per journal, plain markdown"
+      },
+      {
+       "time": "19:48:16",
+       "body": "finally understood why the month grid needs six rows"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-06",
+     "weekday": "Wednesday",
+     "bytes": 49,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "one entry is enough to mark the day"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-08",
+     "weekday": "Friday",
+     "bytes": 55,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "- [x] back up ~/.jot before the disk swap"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-11",
+     "weekday": "Monday",
+     "bytes": 54,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "- [x] update the troubleshooting section"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-12",
+     "weekday": "Tuesday",
+     "bytes": 83,
+     "entries": [
+      {
+       "time": "16:04:09",
+       "body": "the best feature is that the files are still there after uninstalling"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-13",
+     "weekday": "Wednesday",
+     "bytes": 55,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "decided against tags. journals are enough"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-17",
+     "weekday": "Sunday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "two entries before breakfast, then a quiet day"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-19",
+     "weekday": "Tuesday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "a week of short notes, nothing worth a heading"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-21",
+     "weekday": "Thursday",
+     "bytes": 81,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "checked the mode bits by hand: 0700 for the root, 0600 for the file"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-22",
+     "weekday": "Friday",
+     "bytes": 79,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "the search scoring: prefix bonus, then word start, then substring"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-23",
+     "weekday": "Saturday",
+     "bytes": 73,
+     "entries": [
+      {
+       "time": "19:48:16",
+       "body": "opened last year journal by mistake and read it for an hour"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-24",
+     "weekday": "Sunday",
+     "bytes": 67,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "the month totals are the only statistic the TUI shows"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-26",
+     "weekday": "Tuesday",
+     "bytes": 79,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "asked what happens when the directory is read-only; wrote it down"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-27",
+     "weekday": "Wednesday",
+     "bytes": 45,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "- [x] rename the second journal"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-28",
+     "weekday": "Thursday",
+     "bytes": 45,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "- [x] rename the second journal"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-30",
+     "weekday": "Saturday",
+     "bytes": 59,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "- [ ] add the missing key to the help overlay"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-01",
+     "weekday": "Monday",
+     "bytes": 52,
+     "entries": [
+      {
+       "time": "19:48:16",
+       "body": "took the long way home past the market"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-04",
+     "weekday": "Thursday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "a week of short notes, nothing worth a heading"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-05",
+     "weekday": "Friday",
+     "bytes": 49,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "one entry is enough to mark the day"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-07",
+     "weekday": "Sunday",
+     "bytes": 46,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "- [x] book the room for Thursday"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-08",
+     "weekday": "Monday",
+     "bytes": 130,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "the README is longer than the program"
+      },
+      {
+       "time": "09:41:07",
+       "body": "the TUI does not rewrite entries. that constraint is the feature"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-10",
+     "weekday": "Wednesday",
+     "bytes": 46,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "- [x] book the room for Thursday"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-13",
+     "weekday": "Saturday",
+     "bytes": 136,
+     "entries": [
+      {
+       "time": "16:04:09",
+       "body": "the best feature is that the files are still there after uninstalling"
+      },
+      {
+       "time": "17:05:58",
+       "body": "took the long way home past the market"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-15",
+     "weekday": "Monday",
+     "bytes": 44,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "- [ ] write the migration note"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-16",
+     "weekday": "Tuesday",
+     "bytes": 81,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "checked the mode bits by hand: 0700 for the root, 0600 for the file"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-17",
+     "weekday": "Wednesday",
+     "bytes": 71,
+     "entries": [
+      {
+       "time": "19:48:16",
+       "body": "walked to the harbour before standup; fog all the way out"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-18",
+     "weekday": "Thursday",
+     "bytes": 71,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "walked to the harbour before standup; fog all the way out"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-22",
+     "weekday": "Monday",
+     "bytes": 47,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "- [x] check the release checksums"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-23",
+     "weekday": "Tuesday",
+     "bytes": 62,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "split the calendar math out into its own package"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-25",
+     "weekday": "Thursday",
+     "bytes": 59,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "- [ ] add the missing key to the help overlay"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-26",
+     "weekday": "Friday",
+     "bytes": 86,
+     "entries": [
+      {
+       "time": "19:48:16",
+       "body": "backdated an entry for yesterday; the timestamp is honest about the edit"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-29",
+     "weekday": "Monday",
+     "bytes": 70,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "fixed the heat levels: one entry is faint, five is solid"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-30",
+     "weekday": "Tuesday",
+     "bytes": 121,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "early train; wrote the day plan on paper first"
+      },
+      {
+       "time": "13:58:21",
+       "body": "a week of short notes, nothing worth a heading"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-01",
+     "weekday": "Wednesday",
+     "bytes": 86,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "backdated an entry for yesterday; the timestamp is honest about the edit"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-03",
+     "weekday": "Friday",
+     "bytes": 57,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "sun all afternoon. wrote nothing until nine"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-05",
+     "weekday": "Sunday",
+     "bytes": 74,
+     "entries": [
+      {
+       "time": "16:04:09",
+       "body": "moved the root to a new disk with rsync and diffed the trees"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-08",
+     "weekday": "Wednesday",
+     "bytes": 81,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "the calendar is a month of small squares; density reads at a glance"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-09",
+     "weekday": "Thursday",
+     "bytes": 79,
+     "entries": [
+      {
+       "time": "18:22:31",
+       "body": "- [ ] decide whether themes belong in config or in the theme file"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-10",
+     "weekday": "Friday",
+     "bytes": 62,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "kept the todo overlay read-only and slept better"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-12",
+     "weekday": "Sunday",
+     "bytes": 134,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "backdated an entry for yesterday; the timestamp is honest about the edit"
+      },
+      {
+       "time": "14:30:12",
+       "body": "- [x] check the release checksums"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-13",
+     "weekday": "Monday",
+     "bytes": 138,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "the month totals are the only statistic the TUI shows"
+      },
+      {
+       "time": "15:12:44",
+       "body": "fixed the heat levels: one entry is faint, five is solid"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-14",
+     "weekday": "Tuesday",
+     "bytes": 62,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "split the calendar math out into its own package"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-15",
+     "weekday": "Wednesday",
+     "bytes": 59,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "- [ ] add the missing key to the help overlay"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-18",
+     "weekday": "Saturday",
+     "bytes": 65,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "wrote the troubleshooting page from the bug reports"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-20",
+     "weekday": "Monday",
+     "bytes": 62,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "split the calendar math out into its own package"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-22",
+     "weekday": "Wednesday",
+     "bytes": 79,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "asked what happens when the directory is read-only; wrote it down"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-23",
+     "weekday": "Thursday",
+     "bytes": 44,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "- [ ] write the migration note"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-24",
+     "weekday": "Friday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "early train; wrote the day plan on paper first"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-26",
+     "weekday": "Sunday",
+     "bytes": 67,
+     "entries": [
+      {
+       "time": "19:48:16",
+       "body": "the month totals are the only statistic the TUI shows"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-27",
+     "weekday": "Monday",
+     "bytes": 45,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "- [x] rename the second journal"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-28",
+     "weekday": "Tuesday",
+     "bytes": 44,
+     "entries": [
+      {
+       "time": "16:04:09",
+       "body": "a long entry about a short bug"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-30",
+     "weekday": "Thursday",
+     "bytes": 65,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "the doctor command is a checklist, and that is fine"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-02",
+     "weekday": "Sunday",
+     "bytes": 49,
+     "entries": [
+      {
+       "time": "19:48:16",
+       "body": "one entry is enough to mark the day"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-03",
+     "weekday": "Monday",
+     "bytes": 73,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "rain. read three days of old entries instead of writing one"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-04",
+     "weekday": "Tuesday",
+     "bytes": 78,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "the TUI does not rewrite entries. that constraint is the feature"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-05",
+     "weekday": "Wednesday",
+     "bytes": 66,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "rewrote the renderer to take a width, not a terminal"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-06",
+     "weekday": "Thursday",
+     "bytes": 52,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "took the long way home past the market"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-12",
+     "weekday": "Wednesday",
+     "bytes": 107,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "renamed the second journal from notes to reading"
+      },
+      {
+       "time": "17:05:58",
+       "body": "a long entry about a short bug"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-13",
+     "weekday": "Thursday",
+     "bytes": 139,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "the doctor command is a checklist, and that is fine"
+      },
+      {
+       "time": "17:05:58",
+       "body": "opened last year journal by mistake and read it for an hour"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-16",
+     "weekday": "Sunday",
+     "bytes": 45,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "- [x] rename the second journal"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-21",
+     "weekday": "Friday",
+     "bytes": 49,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "coffee with Sam about the migration"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-24",
+     "weekday": "Monday",
+     "bytes": 79,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "asked what happens when the directory is read-only; wrote it down"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-25",
+     "weekday": "Tuesday",
+     "bytes": 62,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "split the calendar math out into its own package"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-26",
+     "weekday": "Wednesday",
+     "bytes": 121,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "two entries before breakfast, then a quiet day"
+      },
+      {
+       "time": "16:04:09",
+       "body": "early train; wrote the day plan on paper first"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-28",
+     "weekday": "Friday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "early train; wrote the day plan on paper first"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-30",
+     "weekday": "Sunday",
+     "bytes": 63,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "the reminder only fires once. transient by design"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-02",
+     "weekday": "Wednesday",
+     "bytes": 49,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "one entry is enough to mark the day"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-03",
+     "weekday": "Thursday",
+     "bytes": 66,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "rewrote the renderer to take a width, not a terminal"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-04",
+     "weekday": "Friday",
+     "bytes": 140,
+     "entries": [
+      {
+       "time": "18:22:31",
+       "body": "moved the root to a new disk with rsync and diffed the trees"
+      },
+      {
+       "time": "21:07:40",
+       "body": "wrote the troubleshooting page from the bug reports"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-06",
+     "weekday": "Sunday",
+     "bytes": 70,
+     "entries": [
+      {
+       "time": "19:48:16",
+       "body": "spent the afternoon reading the bubbletea tea.Model docs"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-07",
+     "weekday": "Monday",
+     "bytes": 83,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "the best feature is that the files are still there after uninstalling"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-08",
+     "weekday": "Tuesday",
+     "bytes": 124,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "coffee with Sam about the migration"
+      },
+      {
+       "time": "12:19:05",
+       "body": "moved the root to a new disk with rsync and diffed the trees"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-09",
+     "weekday": "Wednesday",
+     "bytes": 35,
+     "entries": [
+      {
+       "time": "18:22:31",
+       "body": "deleted nothing today"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-10",
+     "weekday": "Thursday",
+     "bytes": 68,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "the file format has not changed since the first commit"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-12",
+     "weekday": "Saturday",
+     "bytes": 113,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "one entry is enough to mark the day"
+      },
+      {
+       "time": "18:22:31",
+       "body": "the reminder only fires once. transient by design"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-13",
+     "weekday": "Sunday",
+     "bytes": 129,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "- [x] rename the second journal"
+      },
+      {
+       "time": "19:48:16",
+       "body": "the best feature is that the files are still there after uninstalling"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-15",
+     "weekday": "Tuesday",
+     "bytes": 62,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "kept the todo overlay read-only and slept better"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-16",
+     "weekday": "Wednesday",
+     "bytes": 75,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "tried a theme with too much blue and went back to the default"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-17",
+     "weekday": "Thursday",
+     "bytes": 73,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "opened last year journal by mistake and read it for an hour"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-18",
+     "weekday": "Friday",
+     "bytes": 78,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "the TUI does not rewrite entries. that constraint is the feature"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-20",
+     "weekday": "Sunday",
+     "bytes": 71,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "walked to the harbour before standup; fog all the way out"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-21",
+     "weekday": "Monday",
+     "bytes": 148,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "the search scoring: prefix bonus, then word start, then substring"
+      },
+      {
+       "time": "21:07:40",
+       "body": "checked a year of files with find and wc. no surprises"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-22",
+     "weekday": "Tuesday",
+     "bytes": 44,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "a long entry about a short bug"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-23",
+     "weekday": "Wednesday",
+     "bytes": 59,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "- [ ] add the missing key to the help overlay"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-25",
+     "weekday": "Friday",
+     "bytes": 83,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "the best feature is that the files are still there after uninstalling"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-27",
+     "weekday": "Sunday",
+     "bytes": 35,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "- [ ] send the agenda"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-30",
+     "weekday": "Wednesday",
+     "bytes": 70,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "fixed the heat levels: one entry is faint, five is solid"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-01",
+     "weekday": "Thursday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "two entries before breakfast, then a quiet day"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-02",
+     "weekday": "Friday",
+     "bytes": 63,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "the reminder only fires once. transient by design"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-03",
+     "weekday": "Saturday",
+     "bytes": 65,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "wrote the troubleshooting page from the bug reports"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-07",
+     "weekday": "Wednesday",
+     "bytes": 78,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "the TUI does not rewrite entries. that constraint is the feature"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-09",
+     "weekday": "Friday",
+     "bytes": 71,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "walked to the harbour before standup; fog all the way out"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-10",
+     "weekday": "Saturday",
+     "bytes": 59,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "- [ ] add the missing key to the help overlay"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-12",
+     "weekday": "Monday",
+     "bytes": 80,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "the config file is JSON because everything else already reads JSON"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-14",
+     "weekday": "Wednesday",
+     "bytes": 47,
+     "entries": [
+      {
+       "time": "19:48:16",
+       "body": "- [x] check the release checksums"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-15",
+     "weekday": "Thursday",
+     "bytes": 79,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "asked what happens when the directory is read-only; wrote it down"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-17",
+     "weekday": "Saturday",
+     "bytes": 73,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "opened last year journal by mistake and read it for an hour"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-18",
+     "weekday": "Sunday",
+     "bytes": 142,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "rewrote the renderer to take a width, not a terminal"
+      },
+      {
+       "time": "21:07:40",
+       "body": "tried a theme with too much blue and went back to the default"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-20",
+     "weekday": "Tuesday",
+     "bytes": 49,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "coffee with Sam about the migration"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-21",
+     "weekday": "Wednesday",
+     "bytes": 68,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "the file format has not changed since the first commit"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-25",
+     "weekday": "Sunday",
+     "bytes": 62,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "split the calendar math out into its own package"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-28",
+     "weekday": "Wednesday",
+     "bytes": 50,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "- [ ] try the light theme for a week"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-30",
+     "weekday": "Friday",
+     "bytes": 35,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "deleted nothing today"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-01",
+     "weekday": "Sunday",
+     "bytes": 193,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "one entry is enough to mark the day"
+      },
+      {
+       "time": "17:05:58",
+       "body": "the config file is JSON because everything else already reads JSON"
+      },
+      {
+       "time": "22:33:02",
+       "body": "renamed the second journal from notes to reading"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-02",
+     "weekday": "Monday",
+     "bytes": 197,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "fixed the heat levels: one entry is faint, five is solid"
+      },
+      {
+       "time": "12:19:05",
+       "body": "wrote the troubleshooting page from the bug reports"
+      },
+      {
+       "time": "13:58:21",
+       "body": "two entries before breakfast, then a quiet day"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-03",
+     "weekday": "Tuesday",
+     "bytes": 306,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "kept the todo overlay read-only and slept better"
+      },
+      {
+       "time": "12:19:05",
+       "body": "deleted nothing today"
+      },
+      {
+       "time": "13:58:21",
+       "body": "- [x] update the troubleshooting section"
+      },
+      {
+       "time": "16:04:09",
+       "body": "the editor handoff is three lines of code and the whole product"
+      },
+      {
+       "time": "21:07:40",
+       "body": "grep is still my search; fuzzy is for when I forget the word"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-04",
+     "weekday": "Wednesday",
+     "bytes": 158,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "wrote the troubleshooting page from the bug reports\n\nthe rest of the day was quiet"
+      },
+      {
+       "time": "10:22:18",
+       "body": "five minutes in the terminal, then back to work"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-05",
+     "weekday": "Thursday",
+     "bytes": 263,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "the export is one file per journal, plain markdown"
+      },
+      {
+       "time": "08:05:33",
+       "body": "moved the root to a new disk with rsync and diffed the trees"
+      },
+      {
+       "time": "18:22:31",
+       "body": "took the long way home past the market"
+      },
+      {
+       "time": "19:48:16",
+       "body": "spent the afternoon reading the bubbletea tea.Model docs"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-06",
+     "weekday": "Friday",
+     "bytes": 169,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "finally understood why the month grid needs six rows"
+      },
+      {
+       "time": "08:05:33",
+       "body": "a long entry about a short bug"
+      },
+      {
+       "time": "10:22:18",
+       "body": "sun all afternoon. wrote nothing until nine"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-07",
+     "weekday": "Saturday",
+     "bytes": 233,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "the install script verifies the checksum before it writes the binary\n\nthe rest of the day was quiet"
+      },
+      {
+       "time": "12:19:05",
+       "body": "the export is one file per journal, plain markdown"
+      },
+      {
+       "time": "17:05:58",
+       "body": "- [x] update the troubleshooting section"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-08",
+     "weekday": "Sunday",
+     "bytes": 112,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "split the calendar math out into its own package"
+      },
+      {
+       "time": "15:12:44",
+       "body": "coffee with Sam about the migration"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-09",
+     "weekday": "Monday",
+     "bytes": 359,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "- [ ] add the missing key to the help overlay\n\nthe rest of the day was quiet"
+      },
+      {
+       "time": "14:30:12",
+       "body": "rewrote the renderer to take a width, not a terminal"
+      },
+      {
+       "time": "16:04:09",
+       "body": "early train; wrote the day plan on paper first"
+      },
+      {
+       "time": "19:48:16",
+       "body": "- [ ] decide whether themes belong in config or in the theme file"
+      },
+      {
+       "time": "21:07:40",
+       "body": "a week of short notes, nothing worth a heading"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-10",
+     "weekday": "Tuesday",
+     "bytes": 127,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "the editor handoff is three lines of code and the whole product"
+      },
+      {
+       "time": "08:31:04",
+       "body": "one entry is enough to mark the day"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-11",
+     "weekday": "Wednesday",
+     "bytes": 117,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "took the long way home past the market"
+      },
+      {
+       "time": "18:22:31",
+       "body": "the export is one file per journal, plain markdown"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-12",
+     "weekday": "Thursday",
+     "bytes": 364,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "the install script verifies the checksum before it writes the binary"
+      },
+      {
+       "time": "12:19:05",
+       "body": "the config file is JSON because everything else already reads JSON"
+      },
+      {
+       "time": "15:12:44",
+       "body": "the doctor command is a checklist, and that is fine"
+      },
+      {
+       "time": "16:04:09",
+       "body": "renamed the second journal from notes to reading"
+      },
+      {
+       "time": "19:48:16",
+       "body": "walked to the harbour before standup; fog all the way out"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-13",
+     "weekday": "Friday",
+     "bytes": 298,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "opened last year journal by mistake and read it for an hour"
+      },
+      {
+       "time": "15:12:44",
+       "body": "rain. read three days of old entries instead of writing one"
+      },
+      {
+       "time": "18:22:31",
+       "body": "the search scoring: prefix bonus, then word start, then substring"
+      },
+      {
+       "time": "21:07:40",
+       "body": "spent the afternoon reading the bubbletea tea.Model docs"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-14",
+     "weekday": "Saturday",
+     "bytes": 186,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "checked a year of files with find and wc. no surprises"
+      },
+      {
+       "time": "18:22:31",
+       "body": "- [ ] try the light theme for a week"
+      },
+      {
+       "time": "21:07:40",
+       "body": "finally understood why the month grid needs six rows"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-15",
+     "weekday": "Sunday",
+     "bytes": 151,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "the export is one file per journal, plain markdown"
+      },
+      {
+       "time": "17:05:58",
+       "body": "deleted nothing today"
+      },
+      {
+       "time": "22:33:02",
+       "body": "- [ ] try the light theme for a week"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-16",
+     "weekday": "Monday",
+     "bytes": 162,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "read the install script twice before running it"
+      },
+      {
+       "time": "08:05:33",
+       "body": "a long entry about a short bug"
+      },
+      {
+       "time": "18:22:31",
+       "body": "- [x] back up ~/.jot before the disk swap"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-17",
+     "weekday": "Tuesday",
+     "bytes": 130,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "the month totals are the only statistic the TUI shows"
+      },
+      {
+       "time": "16:04:09",
+       "body": "renamed the second journal from notes to reading"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-18",
+     "weekday": "Wednesday",
+     "bytes": 330,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "- [x] book the room for Thursday"
+      },
+      {
+       "time": "09:41:07",
+       "body": "a long entry about a short bug"
+      },
+      {
+       "time": "14:30:12",
+       "body": "the TUI does not rewrite entries. that constraint is the feature"
+      },
+      {
+       "time": "15:12:44",
+       "body": "the editor handoff is three lines of code and the whole product"
+      },
+      {
+       "time": "19:48:16",
+       "body": "checked the mode bits by hand: 0700 for the root, 0600 for the file"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-19",
+     "weekday": "Thursday",
+     "bytes": 194,
+     "entries": [
+      {
+       "time": "09:12:40",
+       "body": "wrote the todo overlay. read-only by choice: tick boxes in the editor"
+      },
+      {
+       "time": "14:40:18",
+       "body": "paired with Ana on the fuzzy scorer"
+      },
+      {
+       "time": "21:03:55",
+       "body": "read three weeks of October instead of writing"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-20",
+     "weekday": "Friday",
+     "bytes": 159,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "- [ ] decide whether themes belong in config or in the theme file"
+      },
+      {
+       "time": "11:30:02",
+       "body": "rain. the calendar is a month of small squares and that is enough"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-21",
+     "weekday": "Saturday",
+     "bytes": 108,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "rebuilt the calendar with month totals"
+      },
+      {
+       "time": "20:15:44",
+       "body": "- [x] back up ~/.jot before the disk swap"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-22",
+     "weekday": "Sunday",
+     "bytes": 63,
+     "entries": [
+      {
+       "time": "09:04:51",
+       "body": "short note"
+      },
+      {
+       "time": "18:40:12",
+       "body": "walked the long way home"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-23",
+     "weekday": "Monday",
+     "bytes": 170,
+     "entries": [
+      {
+       "time": "08:41:07",
+       "body": "the whole day is one file and one diff"
+      },
+      {
+       "time": "13:12:26",
+       "body": "- [ ] send the agenda"
+      },
+      {
+       "time": "22:02:31",
+       "body": "tried writing in the TUI instead of the editor. quick add is enough"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-24",
+     "weekday": "Tuesday",
+     "bytes": 101,
+     "entries": [
+      {
+       "time": "09:30:12",
+       "body": "rebuilt the day pane around the renderer"
+      },
+      {
+       "time": "16:05:58",
+       "body": "- [x] book the room for Thursday"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-25",
+     "weekday": "Wednesday",
+     "bytes": 230,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "the whole day is one file and one diff"
+      },
+      {
+       "time": "14:30:12",
+       "body": "- [ ] decide whether themes belong in config or in the theme file\n- [x] back up ~/.jot before the disk swap"
+      },
+      {
+       "time": "21:07:40",
+       "body": "quick add is the only write the TUI makes"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "reading",
+   "days": [
+    {
+     "date": "2026-01-24",
+     "weekday": "Saturday",
+     "bytes": 79,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "finished The Peregrine. the diary form is the point, not the bird"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-13",
+     "weekday": "Friday",
+     "bytes": 57,
+     "entries": [
+      {
+       "time": "16:04:09",
+       "body": "a chapter on indexes; skipped the exercises"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-07",
+     "weekday": "Saturday",
+     "bytes": 54,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "a short essay on why plain text survives"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-15",
+     "weekday": "Sunday",
+     "bytes": 75,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "started a book about paper calendars; stopped at the diagrams"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-27",
+     "weekday": "Monday",
+     "bytes": 72,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "the library book is due. read the last chapter standing up"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-01",
+     "weekday": "Friday",
+     "bytes": 57,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "a chapter on indexes; skipped the exercises"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-02",
+     "weekday": "Saturday",
+     "bytes": 68,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "found a used copy of The Elements of Typographic Style"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-15",
+     "weekday": "Friday",
+     "bytes": 79,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "finished The Peregrine. the diary form is the point, not the bird"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-03",
+     "weekday": "Friday",
+     "bytes": 48,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "read the colophon first, as always"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-06",
+     "weekday": "Monday",
+     "bytes": 75,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "started a book about paper calendars; stopped at the diagrams"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-07",
+     "weekday": "Tuesday",
+     "bytes": 72,
+     "entries": [
+      {
+       "time": "19:48:16",
+       "body": "the library book is due. read the last chapter standing up"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-19",
+     "weekday": "Sunday",
+     "bytes": 68,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "found a used copy of The Elements of Typographic Style"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-25",
+     "weekday": "Saturday",
+     "bytes": 79,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "finished The Peregrine. the diary form is the point, not the bird"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "weekday": "Sunday",
+     "bytes": 54,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "a short essay on why plain text survives"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-19",
+     "weekday": "Saturday",
+     "bytes": 75,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "started a book about paper calendars; stopped at the diagrams"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-07",
+     "weekday": "Saturday",
+     "bytes": 57,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "a chapter on indexes; skipped the exercises"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "work",
+   "days": [
+    {
+     "date": "2026-01-06",
+     "weekday": "Tuesday",
+     "bytes": 47,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "retro: fewer meetings, more notes"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-08",
+     "weekday": "Thursday",
+     "bytes": 48,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "the build is a single binary again"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-21",
+     "weekday": "Wednesday",
+     "bytes": 34,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "release 0.1.0 tagged"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-26",
+     "weekday": "Monday",
+     "bytes": 66,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "the docs PR sat for a week and then took ten minutes"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-28",
+     "weekday": "Wednesday",
+     "bytes": 49,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "paired with Ana on the fuzzy scorer"
+      }
+     ]
+    },
+    {
+     "date": "2026-01-29",
+     "weekday": "Thursday",
+     "bytes": 48,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "the build is a single binary again"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-11",
+     "weekday": "Wednesday",
+     "bytes": 61,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "the release checklist is now a file in the repo"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-17",
+     "weekday": "Tuesday",
+     "bytes": 64,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "fixed the flaky test by removing the clock from it"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-25",
+     "weekday": "Wednesday",
+     "bytes": 66,
+     "entries": [
+      {
+       "time": "16:04:09",
+       "body": "the docs PR sat for a week and then took ten minutes"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-01",
+     "weekday": "Sunday",
+     "bytes": 54,
+     "entries": [
+      {
+       "time": "19:48:16",
+       "body": "the migration went out at noon. no pages"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-09",
+     "weekday": "Monday",
+     "bytes": 64,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "fixed the flaky test by removing the clock from it"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-13",
+     "weekday": "Friday",
+     "bytes": 55,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "a quiet Friday. closed three small issues"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-15",
+     "weekday": "Sunday",
+     "bytes": 47,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "standup: parser merged, docs next"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-16",
+     "weekday": "Monday",
+     "bytes": 34,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "release 0.1.0 tagged"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-18",
+     "weekday": "Wednesday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "handed the on-call phone over. nothing on fire"
+      }
+     ]
+    },
+    {
+     "date": "2026-03-31",
+     "weekday": "Tuesday",
+     "bytes": 51,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "reviewed the interrupt handling patch"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-04",
+     "weekday": "Saturday",
+     "bytes": 46,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "read the diff twice. merged once"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-06",
+     "weekday": "Monday",
+     "bytes": 64,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "fixed the flaky test by removing the clock from it"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-08",
+     "weekday": "Wednesday",
+     "bytes": 64,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "fixed the flaky test by removing the clock from it"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-09",
+     "weekday": "Thursday",
+     "bytes": 66,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "the docs PR sat for a week and then took ten minutes"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-17",
+     "weekday": "Friday",
+     "bytes": 48,
+     "entries": [
+      {
+       "time": "10:22:18",
+       "body": "the build is a single binary again"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-20",
+     "weekday": "Monday",
+     "bytes": 64,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "fixed the flaky test by removing the clock from it"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-27",
+     "weekday": "Monday",
+     "bytes": 47,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "standup: parser merged, docs next"
+      }
+     ]
+    },
+    {
+     "date": "2026-04-28",
+     "weekday": "Tuesday",
+     "bytes": 55,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "a quiet Friday. closed three small issues"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-01",
+     "weekday": "Friday",
+     "bytes": 46,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "read the diff twice. merged once"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-04",
+     "weekday": "Monday",
+     "bytes": 47,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "standup: parser merged, docs next"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-05",
+     "weekday": "Tuesday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "18:22:31",
+       "body": "handed the on-call phone over. nothing on fire"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-06",
+     "weekday": "Wednesday",
+     "bytes": 51,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "reviewed the interrupt handling patch"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-10",
+     "weekday": "Sunday",
+     "bytes": 64,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "fixed the flaky test by removing the clock from it"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-11",
+     "weekday": "Monday",
+     "bytes": 44,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "reviewed the theme file parser"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-13",
+     "weekday": "Wednesday",
+     "bytes": 44,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "reviewed the theme file parser"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-19",
+     "weekday": "Tuesday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "handed the on-call phone over. nothing on fire"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-21",
+     "weekday": "Thursday",
+     "bytes": 59,
+     "entries": [
+      {
+       "time": "18:22:31",
+       "body": "the incident was a clock skew, not the parser"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-24",
+     "weekday": "Sunday",
+     "bytes": 48,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "the build is a single binary again"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-25",
+     "weekday": "Monday",
+     "bytes": 61,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "the release checklist is now a file in the repo"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-28",
+     "weekday": "Thursday",
+     "bytes": 77,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "reviewed the installer script; checksum verified before install"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-31",
+     "weekday": "Sunday",
+     "bytes": 77,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "reviewed the installer script; checksum verified before install"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-01",
+     "weekday": "Monday",
+     "bytes": 67,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "deployed the docs site behind the same markdown files"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-04",
+     "weekday": "Thursday",
+     "bytes": 47,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "standup: parser merged, docs next"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-05",
+     "weekday": "Friday",
+     "bytes": 45,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "cleaned up the vendor directory"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-12",
+     "weekday": "Friday",
+     "bytes": 47,
+     "entries": [
+      {
+       "time": "16:04:09",
+       "body": "retro: fewer meetings, more notes"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-15",
+     "weekday": "Monday",
+     "bytes": 61,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "the release checklist is now a file in the repo"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-18",
+     "weekday": "Thursday",
+     "bytes": 47,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "retro: fewer meetings, more notes"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-23",
+     "weekday": "Tuesday",
+     "bytes": 62,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "the changelog entry for this release is one line"
+      }
+     ]
+    },
+    {
+     "date": "2026-06-25",
+     "weekday": "Thursday",
+     "bytes": 64,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "fixed the flaky test by removing the clock from it"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-01",
+     "weekday": "Wednesday",
+     "bytes": 66,
+     "entries": [
+      {
+       "time": "19:48:16",
+       "body": "the docs PR sat for a week and then took ten minutes"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-03",
+     "weekday": "Friday",
+     "bytes": 48,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "the build is a single binary again"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-10",
+     "weekday": "Friday",
+     "bytes": 61,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "the release checklist is now a file in the repo"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-15",
+     "weekday": "Wednesday",
+     "bytes": 54,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "the migration went out at noon. no pages"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-17",
+     "weekday": "Friday",
+     "bytes": 34,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "release 0.1.0 tagged"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-18",
+     "weekday": "Saturday",
+     "bytes": 51,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "reviewed the interrupt handling patch"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-30",
+     "weekday": "Thursday",
+     "bytes": 55,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "copied the release notes into the journal"
+      }
+     ]
+    },
+    {
+     "date": "2026-07-31",
+     "weekday": "Friday",
+     "bytes": 59,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "the incident was a clock skew, not the parser"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-05",
+     "weekday": "Wednesday",
+     "bytes": 48,
+     "entries": [
+      {
+       "time": "16:04:09",
+       "body": "the build is a single binary again"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-14",
+     "weekday": "Friday",
+     "bytes": 66,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "the docs PR sat for a week and then took ten minutes"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-17",
+     "weekday": "Monday",
+     "bytes": 61,
+     "entries": [
+      {
+       "time": "16:04:09",
+       "body": "the release checklist is now a file in the repo"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-04",
+     "weekday": "Friday",
+     "bytes": 55,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "a quiet Friday. closed three small issues"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-07",
+     "weekday": "Monday",
+     "bytes": 47,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "retro: fewer meetings, more notes"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-10",
+     "weekday": "Thursday",
+     "bytes": 55,
+     "entries": [
+      {
+       "time": "17:05:58",
+       "body": "copied the release notes into the journal"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-11",
+     "weekday": "Friday",
+     "bytes": 47,
+     "entries": [
+      {
+       "time": "08:05:33",
+       "body": "retro: fewer meetings, more notes"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-12",
+     "weekday": "Saturday",
+     "bytes": 44,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "reviewed the theme file parser"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-16",
+     "weekday": "Wednesday",
+     "bytes": 46,
+     "entries": [
+      {
+       "time": "19:48:16",
+       "body": "read the diff twice. merged once"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-18",
+     "weekday": "Friday",
+     "bytes": 47,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "retro: fewer meetings, more notes"
+      }
+     ]
+    },
+    {
+     "date": "2026-09-28",
+     "weekday": "Monday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "handed the on-call phone over. nothing on fire"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-02",
+     "weekday": "Friday",
+     "bytes": 48,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "shipped the smaller calendar patch"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-05",
+     "weekday": "Monday",
+     "bytes": 67,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "deployed the docs site behind the same markdown files"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-06",
+     "weekday": "Tuesday",
+     "bytes": 47,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "retro: fewer meetings, more notes"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-10",
+     "weekday": "Saturday",
+     "bytes": 49,
+     "entries": [
+      {
+       "time": "14:30:12",
+       "body": "paired with Ana on the fuzzy scorer"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-12",
+     "weekday": "Monday",
+     "bytes": 55,
+     "entries": [
+      {
+       "time": "07:42:10",
+       "body": "a quiet Friday. closed three small issues"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-13",
+     "weekday": "Tuesday",
+     "bytes": 52,
+     "entries": [
+      {
+       "time": "08:31:04",
+       "body": "quiet day. two reviews and a long walk"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-15",
+     "weekday": "Thursday",
+     "bytes": 46,
+     "entries": [
+      {
+       "time": "09:14:52",
+       "body": "read the diff twice. merged once"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-26",
+     "weekday": "Monday",
+     "bytes": 55,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "copied the release notes into the journal"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-27",
+     "weekday": "Tuesday",
+     "bytes": 60,
+     "entries": [
+      {
+       "time": "22:33:02",
+       "body": "handed the on-call phone over. nothing on fire"
+      }
+     ]
+    },
+    {
+     "date": "2026-10-29",
+     "weekday": "Thursday",
+     "bytes": 77,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "reviewed the installer script; checksum verified before install"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-02",
+     "weekday": "Monday",
+     "bytes": 59,
+     "entries": [
+      {
+       "time": "21:07:40",
+       "body": "wrote the migration note, kept it to one page"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-03",
+     "weekday": "Tuesday",
+     "bytes": 54,
+     "entries": [
+      {
+       "time": "13:58:21",
+       "body": "the migration went out at noon. no pages"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-06",
+     "weekday": "Friday",
+     "bytes": 54,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "the migration went out at noon. no pages"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-07",
+     "weekday": "Saturday",
+     "bytes": 59,
+     "entries": [
+      {
+       "time": "12:19:05",
+       "body": "the incident was a clock skew, not the parser"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-09",
+     "weekday": "Monday",
+     "bytes": 34,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "release 0.1.0 tagged"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-14",
+     "weekday": "Saturday",
+     "bytes": 59,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "the incident was a clock skew, not the parser"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-15",
+     "weekday": "Sunday",
+     "bytes": 45,
+     "entries": [
+      {
+       "time": "15:12:44",
+       "body": "cleaned up the vendor directory"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-17",
+     "weekday": "Tuesday",
+     "bytes": 59,
+     "entries": [
+      {
+       "time": "16:04:09",
+       "body": "the incident was a clock skew, not the parser"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-20",
+     "weekday": "Friday",
+     "bytes": 48,
+     "entries": [
+      {
+       "time": "18:22:31",
+       "body": "the build is a single binary again"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-23",
+     "weekday": "Monday",
+     "bytes": 34,
+     "entries": [
+      {
+       "time": "11:26:40",
+       "body": "release 0.1.0 tagged"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-25",
+     "weekday": "Wednesday",
+     "bytes": 34,
+     "entries": [
+      {
+       "time": "09:41:07",
+       "body": "release 0.1.0 tagged"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "frames": [
+  {
+   "id": "calendar",
+   "label": "The month",
+   "note": "A calendar with entry heat, the journal list and the selected day rendered as Markdown.",
+   "cols": 104,
+   "rows": 29,
+   "lines": [
+    "\u001b[1m\u001b[38;2;169;195;142mjot\u001b[0m\u001b[38;2;136;144;127m · \u001b[1m\u001b[38;2;215;220;207mdefault\u001b[0m\u001b[38;2;136;144;127m · \u001b[38;2;215;220;207mNovember 2026\u001b[38;2;136;144;127m · 25d 76e\u001b[39m",
+    " \u001b[1m\u001b[38;2;136;144;127m JOURNALS\u001b[0m             \u001b[38;2;58;65;52m╭───────────────────────────────────────────────────────────────────────────────╮",
+    "\u001b[39m ▸ \u001b[1m\u001b[38;2;169;195;142mdefault   \u001b[0m \u001b[38;2;92;100;85m187d 266e\u001b[38;2;58;65;52m│\u001b[39m \u001b[1m\u001b[38;2;169;195;142mWednesday · 25 November 2026\u001b[0m                                                  \u001b[38;2;58;65;52m│",
+    "\u001b[39m   \u001b[38;2;136;144;127mreading   \u001b[39m \u001b[38;2;92;100;85m16d 16e\u001b[39m  \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m   \u001b[38;2;136;144;127mwork      \u001b[39m \u001b[38;2;92;100;85m85d 85e\u001b[39m  \u001b[38;2;58;65;52m│\u001b[39m \u001b[1m\u001b[38;2;140;199;189m09:41:07\u001b[0m                                                                      \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m \u001b[38;2;92;100;85mMo Tu We Th Fr Sa Su\u001b[39m  \u001b[38;2;58;65;52m│\u001b[39m the whole day is one file and one diff                                        \u001b[38;2;58;65;52m│",
+    "\u001b[39m                   \u001b[38;2;158;201;121m 1  \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m \u001b[38;2;158;201;121m 2  3  4  5  6  7  8  \u001b[38;2;58;65;52m│\u001b[39m \u001b[1m\u001b[38;2;140;199;189m14:30:12\u001b[0m                                                                      \u001b[38;2;58;65;52m│",
+    "\u001b[39m \u001b[38;2;158;201;121m 9 10 11 12 13 14 15  \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m \u001b[38;2;158;201;121m16 17 18 19 20 21 22  \u001b[38;2;58;65;52m│\u001b[39m \u001b[38;2;140;199;189m•\u001b[39m [ ] decide whether themes belong in config or in the theme file             \u001b[38;2;58;65;52m│",
+    "\u001b[39m \u001b[38;2;158;201;121m23 24 \u001b[38;2;230;235;221m\u001b[48;2;43;51;38m25 \u001b[38;2;136;144;127m\u001b[49m26 27 28 29  \u001b[38;2;58;65;52m│\u001b[39m \u001b[38;2;140;199;189m•\u001b[39m [x] back up ~/.jot before the disk swap                                     \u001b[38;2;58;65;52m│",
+    "\u001b[39m \u001b[38;2;136;144;127m30 \u001b[39m                   \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m \u001b[1m\u001b[38;2;140;199;189m21:07:40\u001b[0m                                                                      \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m quick add is the only write the TUI makes                                     \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m│\u001b[39m                                                                               \u001b[38;2;58;65;52m│",
+    "\u001b[39m                       \u001b[38;2;58;65;52m╰───────────────────────────────────────────────────────────────────────────────╯",
+    "\u001b[38;2;215;220;207m/\u001b[39m search\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mctrl+p\u001b[39m palette\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mT\u001b[39m todos\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mS\u001b[39m settings\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mr\u001b[39m remind\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207m?\u001b[39m help\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mh/l\u001b[39m day\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mj/k\u001b[39m week\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mH/L\u001b[39m month\u001b[38;2;92;100;85m ·"
+   ]
+  },
+  {
+   "id": "search",
+   "label": "Search",
+   "note": "Fuzzy search across every journal. Tab narrows the scope to the current one.",
+   "cols": 104,
+   "rows": 29,
+   "lines": [
+    "\u001b[1m\u001b[38;2;169;195;142mjot\u001b[0m\u001b[38;2;136;144;127m · \u001b[1m\u001b[38;2;215;220;207mdefault\u001b[0m\u001b[38;2;136;144;127m · \u001b[38;2;215;220;207mNovember 2026\u001b[38;2;136;144;127m · 25d 76e\u001b[39m",
+    "\u001b[38;2;92;100;85m╭\u001b[1m\u001b[38;2;169;195;142m SEARCH \u001b[0m\u001b[38;2;92;100;85m──────────────────────────────────────────────────────────────────────────────────────────────╮",
+    "│\u001b[39m › parser\u001b[7m \u001b[0m                                                                                            \u001b[38;2;92;100;85m│",
+    "│\u001b[39m \u001b[38;2;136;144;127mscope: all journals · tab switches · 35 matches\u001b[39m                                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m \u001b[38;2;92;100;85mJOURNAL    DAY        TIME     ENTRY\u001b[39m                                                                 \u001b[38;2;92;100;85m│",
+    "│\u001b[39m \u001b[38;2;230;235;221m\u001b[48;2;43;51;38mwork       2026-09-12 12:19:05 reviewed the theme file parse\u001b[38;2;92;100;85m\u001b[49m │ \u001b[39mreviewed the theme file parser        \u001b[38;2;92;100;85m│",
+    "│\u001b[39m work       2026-05-13 08:31:04 reviewed the theme file parse\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m work       2026-05-11 17:05:58 reviewed the theme file parse\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m work       2026-11-17 16:04:09 the incident was a clock skew\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m work       2026-11-14 11:26:40 the incident was a clock skew\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m work       2026-11-07 12:19:05 the incident was a clock skew\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m work       2026-07-31 08:31:04 the incident was a clock skew\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m work       2026-05-21 18:22:31 the incident was a clock skew\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m default    2026-11-19 14:40:18 paired with Ana on the fuzzy \u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m work       2026-10-10 14:30:12 paired with Ana on the fuzzy \u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m work       2026-01-28 09:41:07 paired with Ana on the fuzzy \u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m work       2026-06-04 09:14:52 standup: parser merged, docs \u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m work       2026-05-04 09:41:07 standup: parser merged, docs \u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m work       2026-04-27 14:30:12 standup: parser merged, docs \u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m work       2026-03-15 21:07:40 standup: parser merged, docs \u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m default    2026-11-03 09:41:07 kept the todo overlay read-on\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m default    2026-09-15 17:05:58 kept the todo overlay read-on\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m default    2026-07-10 07:42:10 kept the todo overlay read-on\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m default    2026-04-08 10:22:18 kept the todo overlay read-on\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m default    2026-11-04 08:31:04 wrote the troubleshooting pag\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m reading    2026-09-19 10:22:18 started a book about paper ca\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m reading    2026-07-06 22:33:02 started a book about paper ca\u001b[38;2;92;100;85m │ \u001b[39m                                      \u001b[38;2;92;100;85m│",
+    "╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯",
+    "\u001b[38;2;215;220;207mtype\u001b[39m search\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mtab\u001b[39m scope\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mj/k\u001b[39m or \u001b[38;2;215;220;207marrows\u001b[39m move\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207menter\u001b[39m jump\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mesc\u001b[39m close"
+   ]
+  },
+  {
+   "id": "todos",
+   "label": "Todos",
+   "note": "Every checkbox in one overlay. jot never toggles a box; Enter opens the day in your editor.",
+   "cols": 104,
+   "rows": 29,
+   "lines": [
+    "\u001b[1m\u001b[38;2;169;195;142mjot\u001b[0m\u001b[38;2;136;144;127m · \u001b[1m\u001b[38;2;215;220;207mdefault\u001b[0m\u001b[38;2;136;144;127m · \u001b[38;2;215;220;207mNovember 2026\u001b[38;2;136;144;127m · 25d 76e\u001b[39m",
+    "\u001b[38;2;92;100;85m╭\u001b[1m\u001b[38;2;169;195;142m TODOS \u001b[0m\u001b[38;2;92;100;85m───────────────────────────────────────────────────────────────────────────────────────────────╮",
+    "│\u001b[39m \u001b[38;2;136;144;127mscope: all journals · tab scope · 21 open · 24 done · jot never toggles boxes, enter edits\u001b[39m           \u001b[38;2;92;100;85m│",
+    "│\u001b[39m \u001b[38;2;92;100;85mBOX  JOURNAL    DAY        TIME     ITEM\u001b[39m                                                             \u001b[38;2;92;100;85m│",
+    "│\u001b[39m \u001b[38;2;230;235;221m\u001b[48;2;43;51;38m[ ]  default    2026-11-25 14:30:12 decide whether themes belong in config or in the theme file      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m\u001b[49m [ ]  default    2026-11-23 13:12:26 send the agenda                                                  \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-11-20 08:05:33 decide whether themes belong in config or in the theme file      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-11-15 22:33:02 try the light theme for a week                                   \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-11-14 18:22:31 try the light theme for a week                                   \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-11-09 08:05:33 add the missing key to the help overlay                          \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-11-09 19:48:16 decide whether themes belong in config or in the theme file      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-10-28 22:33:02 try the light theme for a week                                   \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-10-10 11:26:40 add the missing key to the help overlay                          \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-09-27 21:07:40 send the agenda                                                  \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-09-23 09:41:07 add the missing key to the help overlay                          \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-07-23 07:42:10 write the migration note                                         \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-07-15 09:14:52 add the missing key to the help overlay                          \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-07-09 18:22:31 decide whether themes belong in config or in the theme file      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-06-25 12:19:05 add the missing key to the help overlay                          \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-06-15 08:31:04 write the migration note                                         \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-05-30 09:14:52 add the missing key to the help overlay                          \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-04-07 13:58:21 decide whether themes belong in config or in the theme file      \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-03-08 18:22:31 send the agenda                                                  \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-02-04 22:33:02 add the missing key to the help overlay                          \u001b[38;2;92;100;85m│",
+    "│\u001b[39m [ ]  default    2026-01-23 17:05:58 add the missing key to the help overlay                          \u001b[38;2;92;100;85m│",
+    "│\u001b[39m \u001b[38;2;92;100;85m[x]  default    2026-11-25 14:30:12 back up ~/.jot before the disk swap                              │",
+    "│\u001b[39m \u001b[38;2;92;100;85m[x]  default    2026-11-24 16:05:58 book the room for Thursday                                       │",
+    "╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯",
+    "\u001b[38;2;215;220;207mj/k\u001b[39m move\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207menter\u001b[39m edit day\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mr\u001b[39m remind\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mtab\u001b[39m scope\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mesc\u001b[39m close\u001b[38;2;92;100;85m · \u001b[39mjot never toggles boxes"
+   ]
+  },
+  {
+   "id": "help",
+   "label": "Keys",
+   "note": "The full key reference, one keystroke away.",
+   "cols": 92,
+   "rows": 29,
+   "lines": [
+    "\u001b[1m\u001b[38;2;169;195;142mjot\u001b[0m\u001b[38;2;136;144;127m · \u001b[1m\u001b[38;2;215;220;207mdefault\u001b[0m\u001b[38;2;136;144;127m · \u001b[38;2;215;220;207mNovember 2026\u001b[38;2;136;144;127m · 25d 76e\u001b[39m",
+    "",
+    "\u001b[38;2;92;100;85m            ╭\u001b[1m\u001b[38;2;169;195;142m KEYS \u001b[0m\u001b[38;2;92;100;85m────────────────────────────────────────────────────────────────────────╮\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m \u001b[1m\u001b[38;2;169;195;142mNAVIGATION\u001b[0m                                                                   \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207mh l / left right    \u001b[38;2;136;144;127mprevious / next day\u001b[39m                                    \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207mj k / up down       \u001b[38;2;136;144;127mprevious / next week\u001b[39m                                   \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207mg G                 \u001b[38;2;136;144;127mfirst / last day file\u001b[39m                                  \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207mt                   \u001b[38;2;136;144;127mgo to today\u001b[39m                                            \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207mtab                 \u001b[38;2;136;144;127mtoggle the journal sidebar\u001b[39m                             \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207mmouse wheel         \u001b[38;2;136;144;127mscroll the day pane\u001b[39m                                    \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m                                                                              \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m \u001b[1m\u001b[38;2;169;195;142mCALENDAR\u001b[0m                                                                     \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207mH L / < >           \u001b[38;2;136;144;127mprevious / next month\u001b[39m                                  \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207mclick a day         \u001b[38;2;136;144;127mselect that day\u001b[39m                                        \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207mclick the header    \u001b[38;2;136;144;127mgo to today\u001b[39m                                            \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m                                                                              \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m \u001b[1m\u001b[38;2;169;195;142mJOURNALS\u001b[0m                                                                     \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207mJ K                 \u001b[38;2;136;144;127mnext / previous journal\u001b[39m                                \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207mn R D               \u001b[38;2;136;144;127mcreate, rename or delete a journal\u001b[39m                     \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207mclick a sidebar row \u001b[38;2;136;144;127mswitch journal\u001b[39m                                         \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m                                                                              \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m \u001b[1m\u001b[38;2;169;195;142mNOTES\u001b[0m                                                                        \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207ma                   \u001b[38;2;136;144;127mquick-add a one-line note\u001b[39m                              \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207me                   \u001b[38;2;136;144;127mopen the selected day in your editor\u001b[39m                   \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m│\u001b[39m   \u001b[38;2;215;220;207mctrl+r              \u001b[38;2;136;144;127mrefresh journals and the day\u001b[39m                           \u001b[38;2;92;100;85m│\u001b[39m",
+    "            \u001b[38;2;92;100;85m╰──────────────────────────────────────────────────────────────────────────────╯\u001b[39m",
+    "",
+    "",
+    "\u001b[38;2;215;220;207mj/k\u001b[39m scroll\u001b[38;2;92;100;85m · \u001b[38;2;215;220;207mesc\u001b[39m close"
+   ]
+  }
+ ],
+ "transcript": [
+  {
+   "cmd": "jot ls",
+   "out": "JOURNAL  ENTRIES  DAYS  LAST\ndefault  266      187   2026-11-25 17:21\nreading  16       16    2026-11-25 17:21\nwork     85       85    2026-11-25 17:21"
+  },
+  {
+   "cmd": "jot show -d 2026-11-25",
+   "out": "-- default . 2026-11-25 (Wed) . 3 entries --------------------------------------\n\n## 09:41:07\n\nthe whole day is one file and one diff\n\n## 14:30:12\n\n- [ ] decide whether themes belong in config or in the theme file\n- [x] back up ~/.jot before the disk swap\n\n## 21:07:40\n\nquick add is the only write the TUI makes"
+  },
+  {
+   "cmd": "jot search --fuzzy parser",
+   "out": "work . 2026-09-12 . 12:19:05\nreviewed the theme file parser\n\nwork . 2026-05-13 . 08:31:04\nreviewed the theme file parser\n\nwork . 2026-05-11 . 17:05:58\nreviewed the theme file parser\n\nwork . 2026-11-17 . 16:04:09\nthe incident was a clock skew, not the parser\n\nwork . 2026-11-14 . 11:26:40\nthe incident was a clock skew, not the parser\n\nwork . 2026-11-07 . 12:19:05\nthe incident was a clock skew, not the parser\n\nwork . 2026-07-31 . 08:31:04\nthe incident was a clock skew, not the parser\n\nwork . 2026-05-21 . 18:22:31\nthe incident was a clock skew, not the parser\n\ndefault . 2026-11-19 . 14:40:18\npaired with Ana on the fuzzy scorer\n\nwork . 2026-10-10 . 14:30:12\npaired with Ana on the fuzzy scorer\n\nwork . 2026-01-28 . 09:41:07\npaired with Ana on the fuzzy scorer\n\nwork . 2026-06-04 . 09:14:52\nstandup: parser merged, docs next\n\nwork . 2026-05-04 . 09:41:07\nstandup: parser merged, docs next\n\nwork . 2026-04-27 . 14:30:12\nstandup: parser merged, docs next\n\nwork . 2026-03-15 . 21:07:40\nstandup: parser merged, docs next\n\ndefault . 2026-11-03 . 09:41:07\nkept the todo overlay read-only and slept better\n\ndefault . 2026-09-15 . 17:05:58\nkept the todo overlay read-only and slept better\n\ndefault . 2026-07-10 . 07:42:10\nkept the todo overlay read-only and slept better\n\ndefault . 2026-04-08 . 10:22:18\nkept the todo overlay read-only and slept better\n\ndefault . 2026-11-04 . 08:31:04\nwrote the troubleshooting page from the bug reports\n\nthe rest of the day was quiet\n\n35 matches, showing first 20"
+  },
+  {
+   "cmd": "jot todo",
+   "out": "[ ]  default  2026-11-25  14:30:12  decide whether themes belong in config or in the theme file\n[x]  default  2026-11-25  14:30:12  back up ~/.jot before the disk swap\n[x]  default  2026-11-24  16:05:58  book the room for Thursday\n[ ]  default  2026-11-23  13:12:26  send the agenda\n[x]  default  2026-11-21  20:15:44  back up ~/.jot before the disk swap\n[ ]  default  2026-11-20  08:05:33  decide whether themes belong in config or in the theme file\n[x]  default  2026-11-18  09:14:52  book the room for Thursday\n[x]  default  2026-11-16  18:22:31  back up ~/.jot before the disk swap\n[ ]  default  2026-11-15  22:33:02  try the light theme for a week\n[ ]  default  2026-11-14  18:22:31  try the light theme for a week\n[ ]  default  2026-11-09  08:05:33  add the missing key to the help overlay\n[ ]  default  2026-11-09  19:48:16  decide whether themes belong in config or in the theme file\n[x]  default  2026-11-07  17:05:58  update the troubleshooting section\n[x]  default  2026-11-03  13:58:21  update the troubleshooting section\n[ ]  default  2026-10-28  22:33:02  try the light theme for a week\n[x]  default  2026-10-14  19:48:16  check the release checksums\n[ ]  default  2026-10-10  11:26:40  add the missing key to the help overlay\n[ ]  default  2026-09-27  21:07:40  send the agenda\n[ ]  default  2026-09-23  09:41:07  add the missing key to the help overlay\n[x]  default  2026-09-13  09:14:52  rename the second journal\n[x]  default  2026-08-16  12:19:05  rename the second journal\n[x]  default  2026-07-27  21:07:40  rename the second journal\n[ ]  default  2026-07-23  07:42:10  write the migration note\n[ ]  default  2026-07-15  09:14:52  add the missing key to the help overlay\n[x]  default  2026-07-12  14:30:12  check the release checksums\n[ ]  default  2026-07-09  18:22:31  decide whether themes belong in config or in the theme file\n[ ]  default  2026-06-25  12:19:05  add the missing key to the help overlay\n[x]  default  2026-06-22  10:22:18  check the release checksums\n[ ]  default  2026-06-15  08:31:04  write the migration note\n[x]  default  2026-06-10  12:19:05  book the room for Thursday\n[x]  default  2026-06-07  14:30:12  book the room for Thursday\n[ ]  default  2026-05-30  09:14:52  add the missing key to the help overlay\n[x]  default  2026-05-28  22:33:02  rename the second journal\n[x]  default  2026-05-27  13:58:21  rename the second journal\n[x]  default  2026-05-11  07:42:10  update the troubleshooting section\n[x]  default  2026-05-08  09:41:07  back up ~/.jot before the disk swap\n[x]  default  2026-04-21  17:05:58  back up ~/.jot before the disk swap\n[ ]  default  2026-04-07  13:58:21  decide whether themes belong in config or in the theme file\n[x]  default  2026-03-18  14:30:12  rename the second journal\n[x]  default  2026-03-16  12:19:05  update the troubleshooting section\n[ ]  default  2026-03-08  18:22:31  send the agenda\n[ ]  default  2026-02-04  22:33:02  add the missing key to the help overlay\n[x]  default  2026-02-02  11:26:40  back up ~/.jot before the disk swap\n[x]  default  2026-01-26  09:41:07  update the troubleshooting section\n[ ]  default  2026-01-23  17:05:58  add the missing key to the help overlay\ntoggle with jot edit -d 2026-11-25 -j default\n21 open . 24 done"
+  }
+ ]
+}

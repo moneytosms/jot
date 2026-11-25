@@ -1,0 +1,137 @@
+---
+import { demo } from "../lib/journal";
+import { ansiToHtml } from "../lib/ansi";
+
+const frames = demo.frames;
+const fallback = frames[0];
+// One rule per frame; ids are stable because scripts/demo.mjs owns them.
+const showRule = frames
+  .map((f) => `.tool:has(#frame-${f.id}:checked) [data-frame="${f.id}"]{display:block}`)
+  .join("\n");
+---
+
+<figure class="tool">
+  <div class="tool__bar">
+    <p class="tool__name"><span class="tool__dot" aria-hidden="true"></span>jot tui</p>
+    <div class="tool__tabs" role="radiogroup" aria-label="Terminal frame">
+      {frames.map((f, i) => (
+        <>
+          <input
+            class="tool__input"
+            type="radio"
+            name="frame"
+            id={`frame-${f.id}`}
+            value={f.id}
+            checked={i === 0}
+          />
+          <label class="tool__tab" for={`frame-${f.id}`}>{f.label}</label>
+        </>
+      ))}
+    </div>
+  </div>
+
+  <div class="tool__frames">
+    {frames.map((f) => (
+      <div class="frame" data-frame={f.id}>
+        <pre class="frame__pre" set:html={ansiToHtml(f.lines)} aria-label={`jot terminal interface, ${f.label.toLowerCase()} view`} />
+        <p class="frame__note">{f.note}</p>
+      </div>
+    ))}
+  </div>
+
+  <figcaption class="tool__cap">
+    Captured at {fallback.cols}×{fallback.rows} from <code>jot 0.1.0</code> on the sample journal, in the
+    program's own default theme. Not a mockup: the escape codes are the ones the binary printed.
+  </figcaption>
+</figure>
+
+<style set:html={showRule}></style>
+
+<style>
+  .tool {
+    margin: 0;
+    border: 1px solid var(--ink);
+    background: var(--terminal);
+  }
+  .tool__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 9px 14px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .tool__name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--paper);
+  }
+  .tool__dot { width: 6px; height: 6px; background: var(--heat-2); display: inline-block; }
+  .tool__tabs { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+  .tool__input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .tool__tab {
+    padding: 5px 9px;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rule);
+    border-bottom: 1px solid transparent;
+    cursor: pointer;
+  }
+  .tool__tab:hover { color: var(--paper); }
+  .tool__input:checked + .tool__tab { color: var(--paper); border-bottom-color: var(--heat-2); }
+  .tool__input:focus-visible + .tool__tab { outline: 2px solid var(--heat-2); outline-offset: 2px; }
+
+  .tool__frames { background: var(--terminal); }
+  .frame { display: none; }
+  .frame:first-child { display: block; }
+  .tool:has(.tool__input:checked) .frame { display: none; }
+  .frame__pre {
+    margin: 0;
+    padding: 16px 16px 18px;
+    font-family: var(--mono);
+    font-size: clamp(8px, 1.02vw, 11.4px);
+    line-height: 1.32;
+    color: var(--terminal-fg);
+    overflow-x: auto;
+    tab-size: 4;
+    scrollbar-width: thin;
+    scrollbar-color: #3a4234 transparent;
+  }
+  .frame__note {
+    margin: 0;
+    padding: 10px 16px 13px;
+    border-top: 1px solid #2a3026;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    color: #88907f;
+  }
+  .tool__cap {
+    margin: 0;
+    padding: 12px 14px;
+    border-top: 1px solid #2a3026;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    line-height: 1.6;
+    color: #88907f;
+    max-width: 100%;
+  }
+  .tool__cap code { color: #c3cab7; font-size: 1em; }
+
+  @media (max-width: 620px) {
+    .tool__bar { padding: 8px 10px; }
+    .tool__tab { padding: 5px 6px; font-size: 0.56rem; }
+    .frame__pre { padding: 12px 10px; }
+  }
+</style>
